@@ -1,6 +1,29 @@
 require 'kaminari'
+require 'oj'
+
 module ArtirixDataModels
   class EsCollection
+
+    EMPTY_RESPONSE = Oj.load(<<-JSON, symbol_keys: true)
+{
+   "took": 23,
+   "timed_out": false,
+   "_shards": {
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+   },
+   "hits": {
+      "total": 0,
+      "max_score": null,
+      "hits": []
+   }
+}
+    JSON
+
+    def self.empty(model_class, from: 0, size: DEFAULT_SIZE)
+      new model_class, response: EMPTY_RESPONSE, from: from, size: size
+    end
 
     DEFAULT_SIZE = 10
 
@@ -39,7 +62,7 @@ module ArtirixDataModels
     end
 
     def aggregations
-      @aggregations ||= response[:aggregations].map { |aggregation| Aggregation.from_json aggregation }
+      @aggregations ||= response[:aggregations].to_a.map { |aggregation| Aggregation.from_json aggregation }
     end
 
     def aggregation(name)

@@ -4,13 +4,14 @@ module ArtirixDataModels
 
     included do
       attr_reader :basic_model_dao
-      delegate :partial_mode_fields, :reload, :get_full, :get, :get_some, :search, :model_name, :gateway, to: :basic_model_dao
+      delegate :partial_mode_fields, :reload, :get_full, :get, :get_some, :search, :model_name, :model_class, :gateway, to: :basic_model_dao
     end
 
+
     def initialize(gateway: nil, model_name: nil, model_class: nil, paths_factory: nil, fake_mode_factory: nil)
+      model_class       = model_class || default_model_class
       gateway           = gateway || ArtirixDataModels::DAORegistry.gateway
       model_name        = model_name || default_model_name
-      model_class       = model_class || default_model_class
       paths_factory     = paths_factory || default_path_factory
       fake_mode_factory = fake_mode_factory || default_fake_mode_factory
       @basic_model_dao  = ArtirixDataModels::DAORegistry.basic_class.new model_name, model_class, paths_factory, gateway, fake_mode_factory
