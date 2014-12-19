@@ -14,6 +14,20 @@ class ArtirixDataModels::FakeResponseFactory
                    aggregations:      aggregations
   end
 
+  def self.response_by_results(result_hits, index_name: nil, document_type: nil, aggregations: [])
+
+    total_hits = result_hits.size
+    max_score  = total_hits * 10.2
+
+    build_response document_type:     document_type,
+                   index_name:        index_name,
+                   present_max_score: max_score,
+                   result_hits:       result_hits,
+                   total_hits:        total_hits,
+                   total_max_score:   max_score,
+                   aggregations:      aggregations
+  end
+
   def self.response(model_factory, factory_params: {}, from: 0, size: ArtirixDataModels::EsCollection::DEFAULT_SIZE, max_page: 10, traits: [], index_name: nil, document_type: nil, aggregations: [])
     max_page ||= 10
 

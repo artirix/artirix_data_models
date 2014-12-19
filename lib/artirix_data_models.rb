@@ -5,6 +5,8 @@ require 'active_support/all'
 require 'simple_config'
 require 'oj'
 require 'faraday'
+require 'kaminari'
+require 'keyword_init'
 
 # loading features
 require 'artirix_data_models/es_collection'

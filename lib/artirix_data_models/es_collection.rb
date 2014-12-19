@@ -64,6 +64,10 @@ module ArtirixDataModels
       }
     end
 
+    def hits_data
+      results.map(&:data_hash)
+    end
+
     # for Kaminari
 
     include ::Kaminari::ConfigurationMethods
