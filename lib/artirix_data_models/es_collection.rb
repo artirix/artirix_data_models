@@ -53,14 +53,16 @@ module ArtirixDataModels
 
     delegate :each, to: :results
 
-    def data_hash
+    def data_hash(&block)
+      block ||= :data_hash
+
       {
         limit_value:  limit_value,
         offset_value: offset_value,
         total:        total,
         max_score:    max_score,
         aggregations: aggregations.map(&:data_hash),
-        hits:         results.map(&:data_hash),
+        hits:         results.map(&block),
       }
     end
 
