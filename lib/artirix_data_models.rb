@@ -5,8 +5,10 @@ require 'active_support/all'
 require 'simple_config'
 require 'oj'
 require 'faraday'
-require 'kaminari'
 require 'keyword_init'
+
+# note DO NOT require kaminari or will_paginate, it'll be done when invoking `ArtirixDataModels::EsCollection.work_with_will_paginate`
+
 
 # loading features
 require 'artirix_data_models/es_collection'

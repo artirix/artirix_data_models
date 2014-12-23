@@ -22,9 +22,10 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'simple_config'
   spec.add_dependency 'oj'
   spec.add_dependency 'faraday'
-  spec.add_dependency 'kaminari'
   spec.add_dependency 'keyword_init', '~> 1.3'
 
   spec.add_development_dependency "bundler", "~> 1.7"
   spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "kaminari", '0.16.1'
+  spec.add_development_dependency "will_paginate", '3.0.7'
 end

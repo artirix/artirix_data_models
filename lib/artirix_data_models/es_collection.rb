@@ -1,8 +1,17 @@
-require 'kaminari'
 require 'oj'
 
 module ArtirixDataModels
   class EsCollection
+
+    def self.work_with_kaminari
+      require 'kaminari'
+      include KaminariEsCollection
+    end
+
+    def self.work_with_will_paginate
+      require 'will_paginate'
+      include WillPaginateEsCollection
+    end
 
     EMPTY_RESPONSE = Oj.load(<<-JSON, symbol_keys: true)
 {
@@ -93,20 +102,6 @@ module ArtirixDataModels
       results.map(&:data_hash)
     end
 
-    # for Kaminari
-
-    include ::Kaminari::ConfigurationMethods
-    include ::Kaminari::PageScopeMethods
-
-    paginates_per DEFAULT_SIZE
-
-    delegate :max_pages, to: :class
-
-    alias_method :total_count, :total
-    alias_method :limit_value, :size
-    alias_method :per_page, :size
-    alias_method :offset_value, :from
-
     # Return the current page
     #
     def current_page
@@ -187,6 +182,37 @@ module ArtirixDataModels
           }
         end
       end
+    end
+
+    module KaminariEsCollection
+      extend ActiveSupport::Concern
+
+      included do |base|
+        base.__send__ :include, ::Kaminari::ConfigurationMethods
+        base.__send__ :include, ::Kaminari::PageScopeMethods
+
+        base.__send__ :paginates_per, DEFAULT_SIZE
+
+        base.__send__ :delegate, :max_pages, to: :class
+
+        base.__send__ :alias_method, :total_count, :total
+        base.__send__ :alias_method, :limit_value, :size
+        base.__send__ :alias_method, :per_page, :size
+        base.__send__ :alias_method, :offset_value, :from
+      end
+    end
+
+    module WillPaginateEsCollection
+      extend ActiveSupport::Concern
+
+      included do |base|
+        base.__send__ :include, ::WillPaginate::CollectionMethods
+        base.__send__ :delegate, :max_pages, to: :class
+
+        base.__send__ :alias_method, :total_entries, :total
+        base.__send__ :alias_method, :per_page, :size
+      end
+
     end
   end
 end

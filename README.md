@@ -2,30 +2,27 @@
 
 TODO: Write a gem description
 
-## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'artirix_data_models'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install artirix_data_models
-
 ## Usage
 
-TODO: Write usage instructions here
+TODO: move
 
-## Contributing
+### initializer
+an initializer should be added for adding DAOs to the registry and for enabling pagination with either `will_paginate`
+or `kaminari`
 
-1. Fork it ( https://github.com/[my-github-username]/artirix_data_models/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+```
+# add new DAOs
+ArtirixDataModels::DAORegistry.tap do |reg|
+  reg.set_loader(:cms_yacht) { DataDAO::YachtDAO.new gateway: reg.gateway }
+  reg.set_loader(:cms_sale_listing) { DataDAO::SaleListingDAO.new gateway: reg.gateway }
+  reg.set_loader(:cms_charter_listing) { DataDAO::CharterListingDAO.new gateway: reg.gateway }
+end
+
+ArtirixDataModels::EsCollection.work_with_will_paginate
+# or ArtirixDataModels::EsCollection.work_with_kaminari
+```
+
+## TODO
+
+1. move specs to the gem
+2. complete description
