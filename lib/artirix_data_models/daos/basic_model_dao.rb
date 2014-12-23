@@ -47,7 +47,6 @@ class ArtirixDataModels::BasicModelDAO
     _get path, response_adaptor: adaptor, fake_response: fake_get_some_response(model_pks)
   end
 
-  # TODO: change search method placeholder with the correct DL method, and remember to pass FROM and SIZE to the DataLayer
   def search(from: 0, size: nil, **other_params)
     size ||= SimpleConfig.for(:site).try(:search_page_size).try(:default) || ArtirixDataModels::EsCollection::DEFAULT_SIZE
 
@@ -55,6 +54,28 @@ class ArtirixDataModels::BasicModelDAO
     adaptor = response_adaptor_for_collection(from, size)
 
     _get path, response_adaptor: adaptor, fake_response: fake_search_response(from: from, size: size, **other_params)
+  end
+
+  def force_fake_enabled
+    @_forced_fake_enabled = true
+  end
+
+  def force_fake_disabled
+    @_forced_fake_enabled = false
+  end
+
+  def remove_force_fake
+    @_forced_fake_enabled = nil
+  end
+
+  def forced_fake_enabled?
+    return false if @_forced_fake_enabled.nil?
+    !!@_forced_fake_enabled
+  end
+
+  def forced_fake_disabled?
+    return false if @_forced_fake_enabled.nil?
+    !@_forced_fake_enabled
   end
 
   private
@@ -106,6 +127,8 @@ class ArtirixDataModels::BasicModelDAO
   end
 
   def fake?
+    return true if forced_fake_enabled?
+    return false if forced_fake_disabled?
     fake_mode_factory.enabled?
   end
 end

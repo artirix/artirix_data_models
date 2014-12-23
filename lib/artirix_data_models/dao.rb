@@ -2,9 +2,26 @@ module ArtirixDataModels
   module DAO
     extend ActiveSupport::Concern
 
+    DELEGATED_METHODS = [
+      :partial_mode_fields,
+      :reload,
+      :get_full,
+      :get,
+      :get_some,
+      :search,
+      :model_name,
+      :model_class,
+      :gateway,
+      :force_fake_enabled,
+      :force_fake_disabled,
+      :remove_force_fake,
+      :forced_fake_enabled?,
+      :forced_fake_disabled?,
+    ]
+
     included do
       attr_reader :basic_model_dao
-      delegate :partial_mode_fields, :reload, :get_full, :get, :get_some, :search, :model_name, :model_class, :gateway, to: :basic_model_dao
+      delegate *DELEGATED_METHODS, to: :basic_model_dao
     end
 
 
