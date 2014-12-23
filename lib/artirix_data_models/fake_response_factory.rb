@@ -14,9 +14,9 @@ class ArtirixDataModels::FakeResponseFactory
                    aggregations:      aggregations
   end
 
-  def self.response_by_results(result_hits, index_name: nil, document_type: nil, aggregations: [])
+  def self.response_by_results(result_hits, index_name: nil, document_type: nil, total_hits: nil, aggregations: [])
 
-    total_hits = result_hits.size
+    total_hits ||= result_hits.size
     max_score  = total_hits * 10.2
 
     build_response document_type:     document_type,
