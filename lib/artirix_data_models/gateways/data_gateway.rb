@@ -31,6 +31,8 @@ class ArtirixDataModels::DataGateway
     connection.get path do |req|
       req.body = body_to_json body unless body.nil?
     end
+  rescue Faraday::ConnectionFailed => e
+    raise ConnectionError, "path: #{path}, error: #{e}"
   end
 
   def body_to_json(body)
@@ -84,5 +86,8 @@ class ArtirixDataModels::DataGateway
   end
 
   class GatewayError < Error
+  end
+
+  class ConnectionError < GatewayError
   end
 end
