@@ -89,8 +89,8 @@ module ArtirixDataModels
       block ||= :data_hash
 
       {
-        limit_value:  limit_value,
-        offset_value: offset_value,
+        size:         size,
+        from:         from,
         total:        total,
         max_score:    max_score,
         aggregations: aggregations.map(&:data_hash),
