@@ -83,7 +83,7 @@ module ArtirixDataModels
       @results ||= load_results
     end
 
-    delegate :each, to: :results
+    delegate :each, :present?, :blank?, to: :results
 
     def data_hash(&block)
       block ||= :data_hash
@@ -211,6 +211,7 @@ module ArtirixDataModels
 
         base.__send__ :alias_method, :total_entries, :total
         base.__send__ :alias_method, :per_page, :size
+        base.__send__ :alias_method, :offset, :from
       end
 
     end
