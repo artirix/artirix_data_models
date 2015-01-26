@@ -64,7 +64,7 @@ class ArtirixDataModels::DataGateway
   module DefaultConnectionLoader
     def self.default_connection
       url = config_connection_url
-      Faraday.new(url: url) do |faraday|
+      Faraday.new(url: url, request: { params_encoder: Faraday::FlatParamsEncoder }) do |faraday|
         faraday.request :url_encoded # form-encode POST params
         faraday.response :logger # log requests to STDOUT
         faraday.adapter Faraday.default_adapter
