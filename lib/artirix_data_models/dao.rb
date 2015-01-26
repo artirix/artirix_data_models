@@ -84,6 +84,20 @@ module ArtirixDataModels
         def enabled?
           SimpleConfig.for(:site).try(:data_fake_mode).try(fake_mode_key)
         end
+
+        def partial_hash_from_model(given_model_to_reload)
+          return {} if given_model_to_reload.nil?
+
+          list          = partial_mode_fields.map do |at|
+            if given_model_to_reload.respond_to? at
+              [at, given_model_to_reload.send(at)]
+            else
+              nil
+            end
+          end
+
+          Hash[list.compact]
+        end
       end
 
       module Disabled
