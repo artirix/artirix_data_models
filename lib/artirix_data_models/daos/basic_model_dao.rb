@@ -78,8 +78,6 @@ class ArtirixDataModels::BasicModelDAO
     !@_forced_fake_enabled
   end
 
-  private
-
   def fake_get_response(model_pk)
     return nil unless fake?
     fake_mode_factory.get model_pk

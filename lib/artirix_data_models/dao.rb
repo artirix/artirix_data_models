@@ -11,10 +11,13 @@ module ArtirixDataModels
       :search,
       :model_name,
       :model_class,
+      :paths_factory,
+      :fake_mode_factory,
       :gateway,
       :force_fake_enabled,
       :force_fake_disabled,
       :remove_force_fake,
+      :fake?,
       :forced_fake_enabled?,
       :forced_fake_disabled?,
     ]
