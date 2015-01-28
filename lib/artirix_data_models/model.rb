@@ -322,9 +322,31 @@ module ArtirixDataModels
         self
       end
 
+      def force_partial_mode_fields(fields)
+        @_forced_partial_mode_fields = fields.map &:to_s
+      end
+
+      def unforce_partial_mode_fields
+        @_forced_partial_mode_fields = nil
+      end
+
+      def forced_partial_mode_fields?
+        !!@_forced_partial_mode_fields
+      end
+
       private
+      def in_partial_mode_field?(attribute)
+        attribute = attribute.to_s
+        if forced_partial_mode_fields?
+          @_forced_partial_mode_fields.include?(attribute)
+        else
+          dao.partial_mode_fields.include?(attribute)
+        end
+
+      end
+
       def nil_attribute(attribute)
-        return nil if full_mode? || dao.partial_mode_fields.include?(attribute)
+        return nil if full_mode? || in_partial_mode_field?(attribute)
         reload_model!
         send(attribute)
       end
