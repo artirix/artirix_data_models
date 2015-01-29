@@ -331,18 +331,13 @@ module ArtirixDataModels
       end
 
       def forced_partial_mode_fields?
-        !!@_forced_partial_mode_fields
+        !!@_forced_partial_mode_fields && @_forced_partial_mode_fields.present?
       end
 
       private
       def in_partial_mode_field?(attribute)
-        attribute = attribute.to_s
-        if forced_partial_mode_fields?
-          @_forced_partial_mode_fields.include?(attribute)
-        else
-          dao.partial_mode_fields.include?(attribute)
-        end
-
+        list = forced_partial_mode_fields? ? @_forced_partial_mode_fields : dao.partial_mode_fields
+        list.include?(attribute.to_s) || list.include?(attribute.to_sym)
       end
 
       def nil_attribute(attribute)
