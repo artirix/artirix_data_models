@@ -26,7 +26,7 @@ shared_examples_for 'an ArtirixDataModel DAO' do
 
   Given(:data_hash_partial) do
     {
-      primary_key_attribute  => primary_key,
+      primary_key_attribute  => primary_key_attribute_value,
       partial_mode_attribute => partial_mode_attribute_value
     }
   end
@@ -61,7 +61,7 @@ shared_examples_for 'an ArtirixDataModel DAO' do
     When(:result) { subject.get_full primary_key }
     Then { result.is_a? model_class }
     Then { result.primary_key == primary_key }
-    Then { result.  send(partial_mode_attribute) == partial_mode_attribute_value }
+    Then { result.send(partial_mode_attribute) == partial_mode_attribute_value }
     Then { result.full_mode? == true }
   end
 
