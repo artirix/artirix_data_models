@@ -12,6 +12,8 @@ require 'keyword_init'
 
 # loading features
 require 'artirix_data_models/es_collection'
+require 'artirix_data_models/aggregations_factory'
+require 'artirix_data_models/aggregation'
 require 'artirix_data_models/model'
 require 'artirix_data_models/gateways/data_gateway'
 require 'artirix_data_models/gateway_response_adaptors/model_adaptor'
