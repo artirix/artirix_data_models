@@ -5,9 +5,9 @@ module ArtirixDataModels
 
     delegate :each, :empty?, to: :buckets
 
-    def self.from_json(definition)
+    def self.from_json(definition, value_class = Value)
       buckets = definition[:buckets].map do |bucket|
-        Value.new definition[:name].to_sym, bucket[:name], bucket[:count]
+        value_class.new definition[:name].to_sym, bucket[:name], bucket[:count]
       end
 
       new definition[:name].to_sym, buckets
