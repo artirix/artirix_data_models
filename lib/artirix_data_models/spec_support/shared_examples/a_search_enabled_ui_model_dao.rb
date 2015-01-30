@@ -9,7 +9,7 @@ shared_examples_for 'a search enabled UI ModelDAO' do
 
   Given(:data_hash_partial) do
     {
-        primary_key_attribute  => primary_key,
+        primary_key_attribute  => primary_key_attribute_value,
         partial_mode_attribute => partial_mode_attribute_value
     }
   end
@@ -17,7 +17,6 @@ shared_examples_for 'a search enabled UI ModelDAO' do
     data_hash_partial.merge full_mode_attribute => full_mode_attribute_value
   end
 
-  Given(:json_full) { data_hash_full.to_json }
   Given(:json_search) do
     { hits: { hits: [ _source: data_hash_full ] } }.to_json
   end
@@ -25,7 +24,7 @@ shared_examples_for 'a search enabled UI ModelDAO' do
   # mock gateway calls
   Given(:gateway) do
     ArtirixDataModels::DataGateway.new.tap do |gateway|
-      expect(gateway).to receive(:perform_get).with(path_search, nil).and_return(json_search).at_most(:once)
+      expect(gateway).to receive(:perform_get).with(path_for_search, nil).and_return(json_search).at_most(:once)
     end
   end
 
@@ -33,7 +32,7 @@ shared_examples_for 'a search enabled UI ModelDAO' do
 
   # get list of results by search term
   describe '#search' do
-    When(:result) { subject.search search_params }
+    When(:result) { subject.search params_for_search }
     Then { result.is_a? ArtirixDataModels::EsCollection }
     Then { result.first.is_a? model_class }
     Then { result.first.primary_key == primary_key }

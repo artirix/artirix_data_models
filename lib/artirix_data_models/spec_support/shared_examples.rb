@@ -3,3 +3,4 @@ require_relative './shared_examples/a_readonly_active_model_like_artirix_data_mo
 require_relative './shared_examples/an_artirix_data_model_model'
 require_relative './shared_examples/an_artirix_data_model_dao'
 require_relative './shared_examples/a_search_enabled_ui_model_dao'
+require_relative './shared_examples/a_related_list_enabled_ui_model_dao'
