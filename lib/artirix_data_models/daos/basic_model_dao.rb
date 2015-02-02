@@ -47,22 +47,6 @@ class ArtirixDataModels::BasicModelDAO
     _get path, response_adaptor: adaptor, fake_response: fake_get_some_response(model_pks)
   end
 
-  def search(from: 0, size: nil, **other_params)
-    size ||= SimpleConfig.for(:site).try(:search_page_size).try(:default) || ArtirixDataModels::EsCollection::DEFAULT_SIZE
-
-    path    = paths_factory.search from: from, size: size, **other_params
-    adaptor = response_adaptor_for_collection(from, size)
-
-    _get path, response_adaptor: adaptor, fake_response: fake_search_response(from: from, size: size, **other_params)
-  end
-
-  def related(model_pk:, from: 0, size:)
-    path    = paths_factory.related model_pk: model_pk, from: from, size: size
-    adaptor = response_adaptor_for_collection(from, size)
-
-    _get path, response_adaptor: adaptor, fake_response: fake_related_response(model_pk: model_pk, from: from, size: size)
-  end
-
   def force_fake_enabled
     @_forced_fake_enabled = true
   end
@@ -100,16 +84,6 @@ class ArtirixDataModels::BasicModelDAO
     fake_mode_factory.get_full model_pk, model_to_reload
   end
 
-  def fake_search_response(options)
-    return nil unless fake?
-    fake_mode_factory.search options
-  end
-
-  def fake_related_response(options)
-    return nil unless fake?
-    fake_mode_factory.related options
-  end
-
   def response_adaptor_for_reload(model_to_reload)
     model_adaptor_factory.with_block do |data_hash|
       model_to_reload.reload_with data_hash
@@ -124,8 +98,8 @@ class ArtirixDataModels::BasicModelDAO
     model_adaptor_factory.some model_class
   end
 
-  def response_adaptor_for_collection(from, size)
-    model_adaptor_factory.collection model_class, from, size
+  def response_adaptor_for_collection(from, size, collection_element_model_class = model_class)
+    model_adaptor_factory.collection collection_element_model_class, from, size
   end
 
   def model_adaptor_factory

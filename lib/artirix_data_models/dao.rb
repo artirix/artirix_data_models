@@ -8,8 +8,6 @@ module ArtirixDataModels
       :get_full,
       :get,
       :get_some,
-      :search,
-      :related,
       :model_name,
       :model_class,
       :paths_factory,
@@ -78,14 +76,6 @@ module ArtirixDataModels
         end
 
         def get_some(model_pks)
-          raise NotImplementedError
-        end
-
-        def search(from:, size:, ** params)
-          raise NotImplementedError
-        end
-
-        def related(model_pk:, from:, size:)
           raise NotImplementedError
         end
 
