@@ -1,5 +1,4 @@
 shared_examples_for 'a search enabled UI ModelDAO' do
-  it_behaves_like 'an ArtirixDataModel DAO'
 
   # COMMON MODEL SPEC
   Given(:primary_key) { send(primary_key_attribute) }
