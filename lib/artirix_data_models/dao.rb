@@ -56,6 +56,17 @@ module ArtirixDataModels
       end
     end
 
+    def in_fake_mode(&block)
+      return unless block_given?
+
+      begin
+        basic_model_dao.force_fake_enabled
+        yield
+      ensure
+        basic_model_dao.remove_force_fake
+      end
+    end
+
     module FakeModes
       module Factory
 
