@@ -94,8 +94,8 @@ class ArtirixDataModels::BasicModelDAO
     model_adaptor_factory.single model_class
   end
 
-  def response_adaptor_for_some
-    model_adaptor_factory.some model_class
+  def response_adaptor_for_some(element_model_class = model_class)
+    model_adaptor_factory.some element_model_class
   end
 
   def response_adaptor_for_collection(from, size, collection_element_model_class = model_class)
