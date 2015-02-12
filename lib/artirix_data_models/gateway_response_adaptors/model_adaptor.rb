@@ -48,9 +48,9 @@ module ArtirixDataModels::GatewayResponseAdaptors
       new ->(data_list) { data_list.map { |data_hash| model_class.new data_hash } }
     end
 
-    def self.collection(object_class, from = 0, size = nil)
+    def self.collection(object_class_or_factory, from = 0, size = nil)
       size ||= SimpleConfig.for(:site).search_page_size.default
-      new ->(data_collection) { ArtirixDataModels::EsCollection.new object_class, response: data_collection, from: from, size: size }
+      new ->(data_collection) { ArtirixDataModels::EsCollection.new object_class_or_factory, response: data_collection, from: from, size: size }
     end
 
     def self.with_block(&block)

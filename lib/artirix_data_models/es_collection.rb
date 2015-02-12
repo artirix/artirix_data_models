@@ -38,18 +38,18 @@ module ArtirixDataModels
 
     include Enumerable
 
-    attr_reader :klass, :response, :from, :size
+    attr_reader :klass_or_factory, :response, :from, :size
 
-    # @param klass      [A Model Class] The model class
-    # @param response   [Hash]  The full response returned from the DataLayer
-    # @param from       [Int]  requested offset (0 by default)
-    # @param size       [Int]  requested amount of hits (10 by default)
+    # @param klass_or_factory [A Model Class|Callable] The model class or the Factory (callable object) to build the model
+    # @param response         [Hash]  The full response returned from the DataLayer
+    # @param from             [Int]  requested offset (0 by default)
+    # @param size             [Int]  requested amount of hits (10 by default)
     #
-    def initialize(klass, response:, from: 0, size: DEFAULT_SIZE)
-      @klass    = klass
-      @response = response
-      @from     = from
-      @size     = size
+    def initialize(klass_or_factory, response:, from: 0, size: DEFAULT_SIZE)
+      @klass_or_factory = klass_or_factory
+      @response         = response
+      @from             = from
+      @size             = size
     end
 
     # The number of total hits for a query
@@ -71,7 +71,7 @@ module ArtirixDataModels
     end
 
     def aggregations
-      @aggregations ||= response[:aggregations].to_a.map { |aggregation| ArtirixDataModels::AggregationsFactory.build_from_json aggregation, klass }
+      @aggregations ||= response[:aggregations].to_a.map { |aggregation| ArtirixDataModels::AggregationsFactory.build_from_json aggregation, model_class }
     end
 
     def aggregation(name)
@@ -116,7 +116,23 @@ module ArtirixDataModels
     end
 
     def deserialize_document(document)
-      klass.new info_from_document(document)
+      info = info_from_document(document)
+
+      if model_factory
+        model_factory.call info
+      elsif model_class
+        model_class.new info
+      else
+        raise 'no model class, nor model factory'
+      end
+    end
+
+    def model_factory
+      klass_or_factory.respond_to?(:call) ? klass_or_factory : nil
+    end
+
+    def model_class
+      klass_or_factory.respond_to?(:new) ? klass_or_factory : nil
     end
 
     def info_from_document(document)

@@ -37,11 +37,11 @@ module ArtirixDataModels
     end
 
     def default_model_name
-      self.class::MODEL_NAME
+      defined?(self.class::MODEL_NAME) ? self.class::MODEL_NAME : nil
     end
 
     def default_model_class
-      self.class::MODEL_CLASS
+      defined?(self.class::MODEL_CLASS) ? self.class::MODEL_CLASS : nil
     end
 
     def default_path_factory
