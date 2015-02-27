@@ -106,6 +106,10 @@ class ArtirixDataModels::BasicModelDAO
     ArtirixDataModels::GatewayResponseAdaptors::ModelAdaptor
   end
 
+  def _get(path, response_adaptor: nil, body: nil, fake_response: nil)
+    gateway.get path, response_adaptor: response_adaptor, body: body, fake: fake?, fake_response: fake_response
+  end
+
   def _post(path, response_adaptor: nil, body: nil, fake_response: nil)
     gateway.post path, response_adaptor: response_adaptor, body: body, fake: fake?, fake_response: fake_response
   end
