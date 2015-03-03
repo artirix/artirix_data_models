@@ -34,6 +34,15 @@ module ArtirixDataModels
       new model_class, response: EMPTY_RESPONSE, from: from, size: size
     end
 
+    def self.from_array(array)
+      self.new(-> (x) { x }, response: {}).tap do |obj|
+        obj.instance_variable_set(:@results, array)
+        obj.instance_variable_set(:@hits, {hits: array})
+        obj.instance_variable_set(:@total, array.length)
+        obj.instance_variable_set(:@max_score, 1)
+      end
+    end
+
     DEFAULT_SIZE = 10
 
     include Enumerable
@@ -55,19 +64,19 @@ module ArtirixDataModels
     # The number of total hits for a query
     #
     def total
-      hits[:total]
+      @total ||= hits[:total]
     end
 
     # The maximum score for a query
     #
     def max_score
-      hits[:max_score]
+      @max_score ||= hits[:max_score]
     end
 
     # The raw hits
     #
     def hits
-      response[:hits]
+      @hits ||= response[:hits]
     end
 
     def aggregations
