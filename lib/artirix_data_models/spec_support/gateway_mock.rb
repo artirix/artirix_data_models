@@ -15,3 +15,9 @@ def mock_gateway_get_response(response:, path:, body: nil, gateway: nil)
 
   allow(gateway).to receive(:perform_get).with(path, body).and_return response
 end
+
+def mock_gateway_get_not_found_response(path:, body: nil, gateway: nil)
+  gateway ||= ArtirixDataModels::DAORegistry.gateway
+
+  allow(gateway).to receive(:perform_get).with(path, body).and_raise ArtirixDataModels::DataGateway::NotFound
+end
