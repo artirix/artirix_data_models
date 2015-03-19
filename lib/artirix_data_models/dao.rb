@@ -19,6 +19,8 @@ module ArtirixDataModels
       :fake?,
       :forced_fake_enabled?,
       :forced_fake_disabled?,
+      :empty_collection,
+      :empty_collection_for,
     ]
 
     included do

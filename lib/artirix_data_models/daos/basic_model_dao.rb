@@ -34,6 +34,12 @@ class ArtirixDataModels::BasicModelDAO
   end
 
   def get(model_pk)
+    find model_pk
+  rescue ArtirixDataModels::DataGateway::NotFound
+    nil
+  end
+
+  def find(model_pk)
     path    = paths_factory.get model_pk
     adaptor = response_adaptor_for_single
 
@@ -45,6 +51,8 @@ class ArtirixDataModels::BasicModelDAO
     adaptor = response_adaptor_for_some
 
     _get path, response_adaptor: adaptor, fake_response: fake_get_some_response(model_pks)
+  rescue ArtirixDataModels::DataGateway::NotFound
+    []
   end
 
   def force_fake_enabled
@@ -100,6 +108,14 @@ class ArtirixDataModels::BasicModelDAO
 
   def response_adaptor_for_collection(from, size, collection_element_model_class = model_class)
     model_adaptor_factory.collection collection_element_model_class, from, size
+  end
+
+  def empty_collection(from, size)
+    empty_collection_for model_class, from, size
+  end
+
+  def empty_collection_for(model_class, from, size)
+    ArtirixDataModels::EsCollection.empty model_class, from: from, size: size
   end
 
   def model_adaptor_factory
