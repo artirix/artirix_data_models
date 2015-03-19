@@ -7,6 +7,7 @@ module ArtirixDataModels
       :reload,
       :get_full,
       :get,
+      :find,
       :get_some,
       :model_name,
       :model_class,
