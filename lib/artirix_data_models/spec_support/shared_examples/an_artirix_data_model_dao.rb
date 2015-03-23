@@ -24,8 +24,11 @@ shared_examples_for 'an ArtirixDataModel DAO' do
   Given(:partial_mode_attribute_value) { send(partial_mode_attribute) }
   Given(:full_mode_attribute_value) { send(full_mode_attribute) }
 
+  Given(:_timestamp) { rand(1..300).minutes.ago.to_s }
+
   Given(:data_hash_partial) do
     {
+      :_timestamp            => _timestamp,
       primary_key_attribute  => primary_key_attribute_value,
       partial_mode_attribute => partial_mode_attribute_value
     }
@@ -58,7 +61,7 @@ shared_examples_for 'an ArtirixDataModel DAO' do
 
   # 2. get full model by primary key
   describe '#get_full' do
-    When(:result) { subject.get_full primary_key }
+    When(:result) { subject.get_full(primary_key) }
     Then { result.is_a? model_class }
     Then { result.primary_key == primary_key }
     Then { result.send(partial_mode_attribute) == partial_mode_attribute_value }

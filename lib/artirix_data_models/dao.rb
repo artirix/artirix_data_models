@@ -4,11 +4,6 @@ module ArtirixDataModels
 
     DELEGATED_METHODS = [
       :partial_mode_fields,
-      :reload,
-      :get_full,
-      :get,
-      :find,
-      :get_some,
       :model_name,
       :model_class,
       :paths_factory,
@@ -59,7 +54,7 @@ module ArtirixDataModels
       end
     end
 
-    def in_fake_mode(&block)
+    def in_fake_mode
       return unless block_given?
 
       begin
@@ -68,6 +63,61 @@ module ArtirixDataModels
       ensure
         basic_model_dao.remove_force_fake
       end
+    end
+
+    ###############################
+    # DELEGATE TO BASIC_MODEL_DAO #
+    ###############################
+
+    def reload(model)
+      get_full model.primary_key, model_to_reload: model
+    end
+
+    def get_full(model_pk, model_to_reload: nil, cache_adaptor: nil, **extra_options)
+      model_to_reload ||= new_model_with_pk(model_pk)
+      cache_adaptor  ||= cache_model_adaptor_for_get_full(model_pk, model_to_reload: model_to_reload, **extra_options)
+      basic_model_dao.get_full(model_pk, model_to_reload: model_to_reload, cache_adaptor: cache_adaptor, **extra_options)
+    end
+
+    def get(model_pk, cache_adaptor: nil, **extra_options)
+      cache_adaptor ||= cache_model_adaptor_for_get(model_pk, **extra_options)
+      basic_model_dao.get(model_pk, cache_adaptor: cache_adaptor, **extra_options)
+    end
+
+    def find(model_pk, cache_adaptor: nil, **extra_options)
+      cache_adaptor ||= cache_model_adaptor_for_find(model_pk, **extra_options)
+      basic_model_dao.find(model_pk, cache_adaptor: cache_adaptor, **extra_options)
+    end
+
+    def get_some(model_pks, cache_adaptor: nil, **extra_options)
+      cache_adaptor ||= cache_model_adaptor_for_get_some(model_pks, **extra_options)
+      basic_model_dao.get_some(model_pks, cache_adaptor: cache_adaptor, **extra_options)
+    end
+
+    private
+
+    def new_model_with_pk(model_pk)
+      model_class.new.tap do |m|
+        if model_class.try(:primary_key_attribute).present? && m.respond_to?(:set_primary_key)
+          m.set_primary_key model_pk
+        end
+      end
+    end
+
+    def cache_model_adaptor_for_find(model_pk, **extra_options)
+      cache_model_adaptor_for_get model_pk, **extra_options
+    end
+
+    def cache_model_adaptor_for_get(model_pk, **extra_options)
+      ArtirixDataModels::CachedActionAdaptor::Get.new(dao_name: model_name, model_pk: model_pk, **extra_options)
+    end
+
+    def cache_model_adaptor_for_get_full(model_pk, model_to_reload: nil, **extra_options)
+      ArtirixDataModels::CachedActionAdaptor::GetFull.new(dao_name: model_name, model: model_to_reload, model_pk: model_pk, **extra_options)
+    end
+
+    def cache_model_adaptor_for_get_some(model_pks, **extra_options)
+      ArtirixDataModels::CachedActionAdaptor::GetSome.new(dao_name: model_name, model_pks: model_pks, **extra_options)
     end
 
     module FakeModes
@@ -100,7 +150,7 @@ module ArtirixDataModels
         def partial_hash_from_model(given_model_to_reload)
           return {} if given_model_to_reload.nil?
 
-          list          = partial_mode_fields.map do |at|
+          list = partial_mode_fields.map do |at|
             if given_model_to_reload.respond_to? at
               [at, given_model_to_reload.send(at)]
             else
