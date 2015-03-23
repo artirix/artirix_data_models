@@ -6,16 +6,18 @@ class ArtirixDataModels::DataGateway
     @post_as_json = !!post_as_json
   end
 
-  def get(path, response_adaptor: nil, body: nil, fake: false, fake_response: nil)
+  def get(path, response_adaptor: nil, body: nil, fake: false, fake_response: nil, cache_adaptor: nil, **ignored_options)
     if fake
       response_body = fake_response
+    elsif cache_adaptor.present?
+      response_body = cache_adaptor.call { perform_get(path, body) }
     else
       response_body = perform_get(path, body)
     end
     parse_get_response(response_body, response_adaptor)
   end
 
-  def post(path, response_adaptor: nil, body: nil, fake: false, fake_response: nil)
+  def post(path, response_adaptor: nil, body: nil, fake: false, fake_response: nil, **ignored_options)
     if fake
       response_body = fake_response
     else

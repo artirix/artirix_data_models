@@ -98,7 +98,7 @@ shared_examples_for 'an ArtirixDataModel Model' do
       describe 'based on model_name, primary_key and timestamp' do
         Given(:timestamp) { Time.now.utc }
         When(:subject) { described_class.new primary_key_attribute => primary_key, _timestamp: timestamp.to_s }
-        Then { subject.cache_key == "#{cache_key_prefix}/#{primary_key}/#{timestamp.to_s}" }
+        Then { subject.cache_key == "#{cache_key_prefix.to_s.parameterize}/#{primary_key.to_s.parameterize}/#{timestamp.to_s.parameterize}" }
       end
     end
 
@@ -209,8 +209,8 @@ shared_examples_for 'an ArtirixDataModel Model' do
 
   # 8. Data Hash
   describe '#data_hash' do
-    Given(:partial) { { _timestamp: 3.seconds.ago, partial_mode_attribute => partial_mode_attribute_value, primary_key_attribute => primary_key, full_mode_attribute => full_mode_attribute_value } }
-    Given(:data) { { _timestamp: 3.seconds.ago, partial_mode_attribute => partial_mode_attribute_value, primary_key_attribute => primary_key, full_mode_attribute => full_mode_attribute_value } }
+    Given(:partial) { { _timestamp: 3.seconds.ago.to_s, partial_mode_attribute => partial_mode_attribute_value, primary_key_attribute => primary_key, full_mode_attribute => full_mode_attribute_value } }
+    Given(:data) { { _timestamp: 3.seconds.ago.to_s, partial_mode_attribute => partial_mode_attribute_value, primary_key_attribute => primary_key, full_mode_attribute => full_mode_attribute_value } }
     Given(:subject) { described_class.new data }
 
     Given do

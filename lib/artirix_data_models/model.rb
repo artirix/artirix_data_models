@@ -31,11 +31,13 @@ module ArtirixDataModels
       included do
         include ActiveModelCompliant
         include Attributes
-        include Attributes::WithDefaultAttributes
         include PrimaryKey
         include WithDAO
         include CacheKey
         include PartialMode
+
+        # after Attributes and PartialMode
+        include Attributes::WithDefaultAttributes
       end
     end
 
@@ -137,24 +139,21 @@ module ArtirixDataModels
           attributes.each { |attribute| _define_attribute attribute }
         end
 
+        def attribute_config
+          @attribute_config ||= AttributeConfig.new
+        end
+
         def defined_attributes
-          @attribute_list ||= []
+          attribute_config.attributes
         end
 
         # deal with model inheritance
-
         def all_defined_attributes
-          parent_defined_attributes_list + defined_attributes
-        end
-
-        attr_writer :parent_defined_attributes_list
-
-        def parent_defined_attributes_list
-          @parent_defined_attributes_list || []
+          attribute_config.all_attributes
         end
 
         def inherited(child_class)
-          child_class.parent_defined_attributes_list = all_defined_attributes
+          child_class.attribute_config.parent_attribute_config = attribute_config
         end
 
         private
@@ -164,7 +163,7 @@ module ArtirixDataModels
           _define_presence(at)
           _define_writer(at)
 
-          defined_attributes << at
+          attribute_config.add_attribute at
         end
 
         def _define_writer(attribute)
@@ -211,6 +210,8 @@ module ArtirixDataModels
 
         included do
           attribute :_timestamp
+          always_in_partial_mode(:_timestamp) if respond_to?(:always_in_partial_mode)
+
           attribute :_score
           attribute :_type
           attribute :_index
@@ -225,6 +226,11 @@ module ArtirixDataModels
       def primary_key
         raise UndefinedPrimaryKeyAttributeError unless self.class.primary_key_attribute.present?
         send(self.class.primary_key_attribute)
+      end
+
+      def set_primary_key(value)
+        raise UndefinedPrimaryKeyAttributeError unless self.class.primary_key_attribute.present?
+        send("#{self.class.primary_key_attribute}=", value)
       end
 
       PARAM_JOIN_STRING = '/'.freeze
@@ -288,8 +294,14 @@ module ArtirixDataModels
     module CacheKey
       extend ActiveSupport::Concern
 
+      EMPTY_TIMESTAMP = 'no_time'.freeze
+
       def cache_key
-        "#{model_dao_name}/#{primary_key}/#{_timestamp}"
+        [
+          model_dao_name.to_s.parameterize,
+          primary_key.to_s.parameterize,
+          (_timestamp.present? ? _timestamp.to_s.parameterize : EMPTY_TIMESTAMP),
+        ].join '/'
       end
     end
 
@@ -336,6 +348,8 @@ module ArtirixDataModels
 
       private
       def in_partial_mode_field?(attribute)
+        return true if self.class.is_always_in_partial_mode?(attribute)
+
         list = forced_partial_mode_fields? ? @_forced_partial_mode_fields : dao.partial_mode_fields
         list.include?(attribute.to_s) || list.include?(attribute.to_sym)
       end
@@ -344,6 +358,55 @@ module ArtirixDataModels
         return nil if full_mode? || in_partial_mode_field?(attribute)
         reload_model!
         send(attribute)
+      end
+
+      module ClassMethods
+        def always_in_partial_mode(attribute)
+          attribute_config.always_in_partial_mode(attribute)
+        end
+
+        def remove_always_in_partial_mode(attribute)
+          attribute_config.remove_always_in_partial_mode(attribute)
+        end
+
+        def is_always_in_partial_mode?(attribute)
+          attribute_config.is_always_in_partial_mode?(attribute)
+        end
+      end
+    end
+
+    class AttributeConfig
+      attr_reader :attribute_list, :always_in_partial_mode_list
+      attr_accessor :parent_attribute_config
+
+      def initialize
+        @attribute_list              = Set.new
+        @always_in_partial_mode_list = Set.new
+        @parent_attribute_config     = nil
+      end
+
+      def attributes
+        attribute_list.to_a
+      end
+
+      def all_attributes
+        Array(parent_attribute_config.try(:attributes)) + attributes
+      end
+
+      def add_attribute(attribute)
+        attribute_list << attribute
+      end
+
+      def always_in_partial_mode(attribute)
+        @always_in_partial_mode_list << (attribute.to_s)
+      end
+
+      def remove_always_in_partial_mode(attribute)
+        @always_in_partial_mode_list.delete attribute.to_s
+      end
+
+      def is_always_in_partial_mode?(attribute)
+        @always_in_partial_mode_list.include?(attribute.to_s) || parent_attribute_config.try(:is_always_in_partial_mode?, attribute)
       end
 
     end

@@ -17,40 +17,34 @@ class ArtirixDataModels::BasicModelDAO
     end
   end
 
-  def reload(model)
-    get_full model.primary_key, model_to_reload: model
-  end
-
-  def get_full(model_pk, model_to_reload: nil)
-    model = model_to_reload || model_class.new
-
+  def get_full(model_pk, model_to_reload:, cache_adaptor: nil, **extra_options)
     path    = paths_factory.get_full model_pk
-    adaptor = response_adaptor_for_reload(model)
+    adaptor = response_adaptor_for_reload(model_to_reload)
 
-    _get path, response_adaptor: adaptor, fake_response: fake_get_full_response(model_pk, model_to_reload)
+    _get path, response_adaptor: adaptor, fake_response: fake_get_full_response(model_pk, model_to_reload), cache_adaptor: cache_adaptor, **extra_options
 
-    model.mark_full_mode
-    model
+    model_to_reload.mark_full_mode
+    model_to_reload
   end
 
-  def get(model_pk)
-    find model_pk
+  def get(model_pk, cache_adaptor: nil, **extra_options)
+    find(model_pk, cache_adaptor: cache_adaptor, **extra_options)
   rescue ArtirixDataModels::DataGateway::NotFound
     nil
   end
 
-  def find(model_pk)
+  def find(model_pk, cache_adaptor: nil, **extra_options)
     path    = paths_factory.get model_pk
     adaptor = response_adaptor_for_single
 
-    _get path, response_adaptor: adaptor, fake_response: fake_get_response(model_pk)
+    _get(path, response_adaptor: adaptor, fake_response: fake_get_response(model_pk), cache_adaptor: cache_adaptor, **extra_options)
   end
 
-  def get_some(model_pks)
+  def get_some(model_pks, cache_adaptor: nil, **extra_options)
     path    = paths_factory.get_some(model_pks)
     adaptor = response_adaptor_for_some
 
-    _get path, response_adaptor: adaptor, fake_response: fake_get_some_response(model_pks)
+    _get(path, response_adaptor: adaptor, fake_response: fake_get_some_response(model_pks), cache_adaptor: cache_adaptor, **extra_options)
   rescue ArtirixDataModels::DataGateway::NotFound
     []
   end
@@ -122,12 +116,12 @@ class ArtirixDataModels::BasicModelDAO
     ArtirixDataModels::GatewayResponseAdaptors::ModelAdaptor
   end
 
-  def _get(path, response_adaptor: nil, body: nil, fake_response: nil)
-    gateway.get path, response_adaptor: response_adaptor, body: body, fake: fake?, fake_response: fake_response
+  def _get(path, response_adaptor: nil, body: nil, fake_response: nil, cache_adaptor: nil)
+    gateway.get path, response_adaptor: response_adaptor, body: body, fake: fake?, fake_response: fake_response, cache_adaptor: cache_adaptor
   end
 
-  def _post(path, response_adaptor: nil, body: nil, fake_response: nil)
-    gateway.post path, response_adaptor: response_adaptor, body: body, fake: fake?, fake_response: fake_response
+  def _post(path, response_adaptor: nil, body: nil, fake_response: nil, cache_adaptor: nil)
+    gateway.post path, response_adaptor: response_adaptor, body: body, fake: fake?, fake_response: fake_response, cache_adaptor: cache_adaptor
   end
 
   def fake?
