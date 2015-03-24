@@ -1,10 +1,30 @@
 class ArtirixDataModels::DAORegistry
-  include Singleton
+
+  def self.instance
+    @__instance ||= new
+  end
+
+  def self.instance=(x)
+    @__instance = x
+  end
+
+  def self.mark_as_main_registry
+    ArtirixDataModels::DAORegistry.instance = self.instance
+  end
 
   # singleton instance
   def initialize
     @_repository = {}
     @_loaders    = {}
+
+    setup_config
+  end
+
+  def setup_config
+    set_loader(:aggregations_factory) { ArtirixDataModels::AggregationsFactory.new }
+    set_loader(:basic_class) { ArtirixDataModels::BasicModelDAO }
+    set_loader(:gateway) { ArtirixDataModels::DataGateway.new }
+    set_loader(:model_fields) { ArtirixDataModels::ModelFieldsDAO.new gateway: get(:gateway) }
   end
 
   def method_missing(method, *args, &block)
@@ -70,10 +90,5 @@ class ArtirixDataModels::DAORegistry
   def self.respond_to_missing?(method, include_all = false)
     exist?(method) || super
   end
-
-
-  set_loader(:basic_class) { ArtirixDataModels::BasicModelDAO }
-  set_loader(:gateway) { ArtirixDataModels::DataGateway.new }
-  set_loader(:model_fields) { ArtirixDataModels::ModelFieldsDAO.new gateway: get(:gateway) }
 
 end

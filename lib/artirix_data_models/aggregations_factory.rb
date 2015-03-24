@@ -1,13 +1,16 @@
 module ArtirixDataModels
   class AggregationsFactory
-    include Singleton
-
     DEFAULT_FACTORY               = ->(aggregation) { Aggregation.from_json aggregation }
     DEFAULT_COLLECTION_CLASS_NAME = ''.freeze
 
     # singleton instance
     def initialize
       @_loaders = Hash.new { |h, k| h[k] = {} }
+      setup_config
+    end
+
+    def setup_config
+      # To be Extended
     end
 
     def build_from_json(aggregation, collection_class = nil)
