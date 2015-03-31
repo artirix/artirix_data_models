@@ -34,11 +34,29 @@ module ArtirixDataModels
       new model_class, response: EMPTY_RESPONSE, from: from, size: size
     end
 
-    def self.from_array(array)
+    def self.from_array(array, total: nil, page_number: nil, per_page: nil)
       self.new(-> (x) { x }, response: {}).tap do |obj|
-        obj.instance_variable_set(:@results, array)
-        obj.instance_variable_set(:@hits, {hits: array})
-        obj.instance_variable_set(:@total, array.length)
+        total    ||= array.length
+        per_page = per_page.to_i
+
+        from  = 0
+        size  = total
+        slice = array
+
+        if per_page > 0
+          page_number = page_number.to_i
+          page_number = 1 if page_number < 1
+
+          from  = (page_number - 1) * per_page
+          size  = per_page
+          slice = array.drop(from).take(per_page)
+        end
+
+        obj.instance_variable_set(:@results, slice)
+        obj.instance_variable_set(:@hits, { hits: slice })
+        obj.instance_variable_set(:@total, total)
+        obj.instance_variable_set(:@from, from)
+        obj.instance_variable_set(:@size, size)
         obj.instance_variable_set(:@max_score, 1)
       end
     end
@@ -47,7 +65,7 @@ module ArtirixDataModels
 
     include Enumerable
 
-    attr_reader :klass_or_factory, :response, :from, :size, :aggregation_factory
+    attr_reader :klass_or_factory, :response, :from, :size
 
     # @param klass_or_factory    [A Model Class|Callable] The model class or the Factory (callable object) to build the model
     # @param response            [Hash]  The full response returned from the DataLayer
