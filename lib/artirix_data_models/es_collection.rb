@@ -3,6 +3,10 @@ require 'oj'
 module ArtirixDataModels
   class EsCollection
 
+    DEFAULT_SIZE = 10
+    CACHE_KEY_SECTION_SEPARATOR = '/'.freeze
+    CACHE_KEY_RESULT_SEPARATOR = '\\'.freeze
+
     def self.work_with_kaminari
       require 'kaminari'
       include KaminariEsCollection
@@ -60,8 +64,6 @@ module ArtirixDataModels
         obj.instance_variable_set(:@max_score, 1)
       end
     end
-
-    DEFAULT_SIZE = 10
 
     include Enumerable
 
@@ -139,6 +141,15 @@ module ArtirixDataModels
     #
     def current_page
       from / size + 1 if from && size
+    end
+
+    def cache_key
+      [
+        total,
+        size,
+        from,
+        results.map { |x| x.try(:cache_key) || x.to_s }.join(CACHE_KEY_RESULT_SEPARATOR)
+      ].join(CACHE_KEY_SECTION_SEPARATOR)
     end
 
     private
