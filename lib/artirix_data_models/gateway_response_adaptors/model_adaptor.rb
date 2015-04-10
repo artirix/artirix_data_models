@@ -45,7 +45,7 @@ module ArtirixDataModels::GatewayResponseAdaptors
     end
 
     def self.some(model_class)
-      new ->(data_list) { data_list.map { |data_hash| model_class.new data_hash } }
+      new ->(data_list) { Array(data_list).map { |data_hash| model_class.new data_hash } }
     end
 
     def self.collection(object_class_or_factory, from = 0, size = nil)
