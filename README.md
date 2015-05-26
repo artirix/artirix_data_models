@@ -4,22 +4,70 @@ TODO: Write a gem description
 
 ## Usage
 
-TODO: move
+### DAO
+
+TODO:
+
+### Model
+
+TODO:
+
+### EsCollection
+
+TODO:
+
+#### Pagination
+
+TODO:
+
+### The Registry
+
+Your app should extend the `ArtirixDataModels::DAORegistry`. We can override the `setup_config` method to add extra loaders. 
+
+**important: do not forget to call `super` on `setup_config`.**
+
+Also, the Registry class that you want to use in your app should have in its definition a call to `self.mark_as_main_registry`. This call must be **after the override of `setup_config`.**
+
+```ruby
+class DAORegistry < ArtirixDataModels::DAORegistry
+  def setup_config
+    super
+
+    set_loader(:aggregations_factory) { AggregationsFactory.new }
+
+    set_loader(:yacht) { YachtDAO.new gateway: get(:gateway) }
+    set_loader(:article) { ArticleDAO.new gateway: get(:gateway) }
+    set_loader(:broker) { BrokerDAO.new gateway: get(:gateway) }
+
+    set_loader(:artirix_hub_api_gateway) { ArtirixDataModels::DataGateway.new connection: ArtirixHubApiService::ConnectionLoader.connection }
+    set_loader(:lead) { LeadDAO.new gateway: get(:artirix_hub_api_gateway) }
+  end
+
+
+  # AFTER defining setup_config
+  self.mark_as_main_registry
+
+end
+```
+
 
 ### initializer
-an initializer should be added for adding DAOs to the registry and for enabling pagination with either `will_paginate`
-or `kaminari`
 
-```
-# add new DAOs
-ArtirixDataModels::DAORegistry.tap do |reg|
-  reg.set_loader(:cms_yacht) { DataDAO::YachtDAO.new gateway: reg.gateway }
-  reg.set_loader(:cms_sale_listing) { DataDAO::SaleListingDAO.new gateway: reg.gateway }
-  reg.set_loader(:cms_charter_listing) { DataDAO::CharterListingDAO.new gateway: reg.gateway }
-end
+An initializer should be added for extra configuration. 
 
-ArtirixDataModels::EsCollection.work_with_will_paginate
+We can enable pagination with either `will_paginate` or `kaminari`.
+
+We can also disable cache at a lib level.
+
+```ruby
+require 'artirix_data_models'
+
+# pagination
+ArtirixDataModels::EsCollection.work_with_kaminari
 # or ArtirixDataModels::EsCollection.work_with_kaminari
+
+#cache
+ArtirixDataModels.disable_cache unless Rails.configuration.dao_cache_enabled
 ```
 
 
