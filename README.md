@@ -64,7 +64,7 @@ require 'artirix_data_models'
 
 # pagination
 ArtirixDataModels::EsCollection.work_with_kaminari
-# or ArtirixDataModels::EsCollection.work_with_kaminari
+# or ArtirixDataModels::EsCollection.work_with_will_paginate
 
 #cache
 ArtirixDataModels.disable_cache unless Rails.configuration.dao_cache_enabled
