@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency 'activesupport'
-  spec.add_dependency 'simple_config'
+  spec.add_dependency 'simpleconfig'
   spec.add_dependency 'oj'
   spec.add_dependency 'faraday'
   spec.add_dependency 'keyword_init', '~> 1.3'

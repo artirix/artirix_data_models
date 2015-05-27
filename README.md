@@ -1,14 +1,21 @@
 # ArtirixDataModels
 
-TODO: Write a gem description
+This gem provides the tools for building Data Models (ActiveModel compliant objects that only receive attributes on initialisation), 
+with their DAOs (Data Access Objects, the ones responsible for loading them up), the EsCollection objects (collection of 
+objects, paginatable and with extra features), and tools that allow them to work.
+
+Its goal is to provide a set of Read Only model objects that receive their data from some sort of Data API.
+ 
+It's designed to work assuming JSON APIs and ElasticSearch responses.
+
 
 ## Usage
 
-### DAO
+### Model
 
 TODO:
 
-### Model
+### DAO
 
 TODO:
 
@@ -49,7 +56,6 @@ class DAORegistry < ArtirixDataModels::DAORegistry
 
 end
 ```
-
 
 ### initializer
 
@@ -115,6 +121,87 @@ Cache can be disabled at lib level with `ArtirixDataModels.disable_cache`
 
 if Rails is defined when the lib is first used, then the `logger` will be assigned to `Rails.logger` by default, and
 `cache` will be `Rails.cache` by default.
+
+### Fake Mode
+
+TODO:
+
+fake mode will be enabled if:
+
+```ruby
+SimpleConfig.for(:site) do
+  group :data_fake_mode do
+    set :article, false # NO FAKE MODE
+    set :broker, false # WITH FAKE MODE
+  end
+end
+```
+
+### Use with RSpec
+
+#### Custom DAO Registry
+
+For the use of a custom DAO Registry, it is recomended to actually require it on the test helper:
+ 
+ 
+in spec/rails_helper.rb:
+
+```ruby
+# This file is copied to spec/ when you run 'rails generate rspec:install'
+ENV["RAILS_ENV"] ||= 'test'
+require 'rspec/given'
+require 'spec_helper'
+require File.expand_path("../../config/environment", __FILE__)
+require 'rspec/rails'
+# Add additional requires below this line. Rails is not loaded until this point!
+
+# force the use of the custom DAORegistry
+require 'dao_registry'
+```
+
+#### Spec Support
+
+add the spec support in your support files or rails_helper file:
+
+
+```ruby
+require 'artirix_data_models/spec_support'
+```
+
+This depends on SimpleConfig!
+
+```ruby
+SimpleConfig.for(:site) do
+  group :data_gateway do
+    set :url, c
+  end
+end
+```
+
+### FactoryGirl
+
+In order to use FactoryGirl with these Models, we need to specify:
+
+1. the objects cannot be saved, so we need to specify `skip_create` to avoid it.
+2. the setting of the data is only to be done on the model's initialisation, not with public setters. 
+For that, we need to specify: `initialize_with { new(attributes) }`
+
+```ruby
+
+FactoryGirl.define do
+  factory :article do
+    # no save call
+    skip_create
+    
+    # in our models we have private setters -> we need the attributes to be
+    # passed on object initialisation
+    initialize_with { new(attributes) }
+    
+    sequence(:id)
+    title { Faker::Lorem.sentence }
+  end
+end
+```
 
 ## TODO
 
