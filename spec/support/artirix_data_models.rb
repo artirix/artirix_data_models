@@ -1,0 +1,1 @@
+require 'artirix_data_models/spec_support'
