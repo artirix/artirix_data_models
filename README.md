@@ -8,6 +8,10 @@ Its goal is to provide a set of Read Only model objects that receive their data 
  
 It's designed to work assuming JSON APIs and ElasticSearch responses.
 
+# TODO:
+- usage doc
+- change Cache to use [artirix_cache_service](https://github.com/artirix/artirix_cache_service)
+
 
 ## Usage
 
