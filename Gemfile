@@ -1,5 +1,10 @@
 source 'https://rubygems.org'
 
+artirix_gem_server = ENV.fetch('ARTIRIX_GEM_SERVER') do
+  puts "NO access to ARTIRIX GEM SERVER (use ARTIRIX_GEM_SERVER env variable)"
+  nil
+end
+
 # Specify your gem's dependencies in artirix_data_models.gemspec
 gemspec
 
@@ -15,10 +20,6 @@ group :test do
   gem 'fakeredis', require: "fakeredis/rspec"
 end
 
-artirix_gem_server = ENV.fetch('ARTIRIX_GEM_SERVER') do
-  raise "NO access to ARTIRIX GEM SERVER (use ARTIRIX_GEM_SERVER env variable)"
-end
-
-source artirix_gem_server do
-  gem 'artirix_gem_release', '0.0.17', group: [:development, :test]
+if artirix_gem_server
+  gem 'artirix_gem_release', '0.0.17', group: [:development, :test], source: artirix_gem_server
 end
