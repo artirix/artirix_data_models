@@ -103,8 +103,6 @@ shared_examples_for 'an ArtirixDataModel Model' do
     end
 
     # 6. Partial mode (reload, automatic reload when accessing an unavailable attribute)
-    # TODO: partial mode
-
     context 'partial mode' do
       Given(:value) { 'my value' }
       Given(:new_value) { 'my value changed' }
