@@ -209,5 +209,15 @@ end
 
 ## TODO
 
-1. move specs to the gem
-2. complete description
+1. Documentation
+2. clean `basic_dao` (probably not backwards compatible, so we'll do it in a new major release)
+3. use [artirix_cache_service](https://github.com/artirix/artirix_cache_service) instead of this implementation (might be not backwards compatible. If so: new major release)
+
+
+
+## Changes
+
+### v.0.5.0
+
+- opening gem as is to the public.
+- still a lot of TODOs in the documentation
