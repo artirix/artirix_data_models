@@ -1,5 +1,12 @@
 # ArtirixDataModels
 
+
+[![Gem Version](https://badge.fury.io/rb/artirix_data_models.svg)](http://badge.fury.io/rb/artirix_data_models)
+[![Build Status](https://travis-ci.org/artirix/artirix_data_models.svg?branch=master)](https://travis-ci.org/artirix/artirix_data_models)
+[![Code Climate](https://codeclimate.com/github/artirix/artirix_data_models.png)](https://codeclimate.com/github/artirix/artirix_data_models)
+[![Code Climate Coverage](https://codeclimate.com/github/artirix/artirix_data_models/coverage.png)](https://codeclimate.com/github/artirix/artirix_data_models)
+
+
 This gem provides the tools for building Data Models (ActiveModel compliant objects that only receive attributes on initialisation), 
 with their DAOs (Data Access Objects, the ones responsible for loading them up), the EsCollection objects (collection of 
 objects, paginatable and with extra features), and tools that allow them to work.
