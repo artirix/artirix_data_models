@@ -15,6 +15,8 @@ require 'hashie'
 # loading features
 require 'artirix_data_models/es_collection'
 require 'artirix_data_models/aggregations_factory'
+require 'artirix_data_models/raw_aggregation_data_normaliser'
+require 'artirix_data_models/aggregation_builder'
 require 'artirix_data_models/aggregation'
 require 'artirix_data_models/model'
 require 'artirix_data_models/gateways/data_gateway'
