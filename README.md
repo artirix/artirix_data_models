@@ -225,6 +225,11 @@ end
 ## Changes
 
 
+### v.0.6.1
+
+- added `aggregation` method to `Aggregation::Value` class, and also the aggs to the `data_hash` if they are present.
+
+
 ### v.0.6.0
 
 - EsCollection's aggregations can now be build based on raw ElasticSearch responses, including nested aggregations. It ignores any aggregation that does not have "buckets", so that nested aggs for `global` or `filtered` are skipped and only the ones with real data are used. (TODO: write docs. In the mean time, have a look at the specs).

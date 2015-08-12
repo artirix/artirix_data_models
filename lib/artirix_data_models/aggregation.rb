@@ -26,6 +26,13 @@ module ArtirixDataModels
 
     class Value < Struct.new(:aggregation_name, :name, :count, :aggregations)
 
+      def aggregations
+        Array(super)
+      end
+
+      alias_method :nested_aggregations, :aggregations
+      alias_method :nested_aggregations=, :aggregations=
+
       def pretty_name
         tranlsation_key = "aggregations.#{aggregation_name.to_s.gsub('.', '_')}.buckets.#{name.to_s.gsub('.', '_')}"
         I18n.t(tranlsation_key, default: default_pretty_name)
@@ -39,7 +46,20 @@ module ArtirixDataModels
         count == 0
       end
 
+      def aggregation(name)
+        n = name.to_sym
+        aggregations.detect { |x| x.name == n }
+      end
+
       def data_hash
+        basic_data_hash.tap do |h|
+          if aggregations.present?
+            h[:aggregations] = aggregations.map(&:data_hash)
+          end
+        end
+      end
+
+      def basic_data_hash
         {
           name:  name,
           count: count
