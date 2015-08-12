@@ -1,3 +1,4 @@
+# :nocov:
 def fake_mode_for(model_name)
   before(:all) do
     SimpleConfig.for(:site) do
@@ -22,3 +23,4 @@ def fake_mode_for(model_name)
   end
 end
 
+# :nocov:

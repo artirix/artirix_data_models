@@ -1,4 +1,4 @@
-
+# :nocov:
 shared_examples_for 'an ArtirixDataModel Model' do
 
   # Example of Config:
@@ -222,3 +222,4 @@ shared_examples_for 'an ArtirixDataModel Model' do
   end
 end
 
+# :nocov:

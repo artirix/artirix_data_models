@@ -1,3 +1,4 @@
+# :nocov:
 def given_gateway_config(connection_url = nil)
   connection_url ||= 'http://example.com/other'
   before(:all) do
@@ -21,3 +22,5 @@ def mock_gateway_get_not_found_response(path:, body: nil, gateway: nil)
 
   allow(gateway).to receive(:perform_get).with(path, body).and_raise ArtirixDataModels::DataGateway::NotFound
 end
+
+# :nocov:

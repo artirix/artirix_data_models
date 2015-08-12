@@ -1,3 +1,4 @@
+# :nocov:
 shared_examples_for 'has attributes' do
   describe 'responds to the given attribute getters and setters' do
     When(:subject) { described_class.new }
@@ -30,3 +31,5 @@ shared_examples_for 'has attributes' do
     end
   end
 end
+
+# :nocov:

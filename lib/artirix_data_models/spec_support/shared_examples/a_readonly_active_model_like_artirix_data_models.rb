@@ -1,3 +1,5 @@
+# :nocov:
+
 # based on https://github.com/geoffharcourt/active_model_lint-rspec/blob/master/lib/active_model_lint-rspec/an_active_model.rb
 shared_examples_for 'a ReadOnly ActiveModel like ArtirixDataModels' do
   require 'active_model/lint'
@@ -18,3 +20,4 @@ shared_examples_for 'a ReadOnly ActiveModel like ArtirixDataModels' do
   end
 end
 
+# :nocov:

@@ -1,4 +1,4 @@
-
+# :nocov:
 shared_examples_for 'an ArtirixDataModel DAO' do
   # example of needed definitions
   #
@@ -95,3 +95,4 @@ shared_examples_for 'an ArtirixDataModel DAO' do
     Then { result == partial_mode_fields_list }
   end
 end
+# :nocov:
