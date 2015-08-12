@@ -1,0 +1,46 @@
+{
+  "took": 5,
+  "timed_out": false,
+  "_shards": {
+    "total": 5,
+    "successful": 5,
+    "failed": 0
+  },
+  "hits": {
+    "total": 14974,
+    "max_score": 0,
+    "hits": []
+  },
+  "aggregations": {
+    "disease_slug": {
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0,
+      "buckets": [
+        {
+          "key": "sickle-cell-anemia",
+          "doc_count": 5754
+        },
+        {
+          "key": "cystic-fibrosis",
+          "doc_count": 4512
+        },
+        {
+          "key": "behcet-syndrome",
+          "doc_count": 1613
+        },
+        {
+          "key": "myasthenia-gravis",
+          "doc_count": 1402
+        },
+        {
+          "key": "cushing-syndrome",
+          "doc_count": 951
+        },
+        {
+          "key": "fabry-disease",
+          "doc_count": 742
+        }
+      ]
+    }
+  }
+}

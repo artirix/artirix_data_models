@@ -1,4 +1,4 @@
-require "artirix_data_models/version"
+require 'artirix_data_models/version'
 
 # dependencies
 require 'active_support/all'
@@ -7,6 +7,7 @@ require 'oj'
 require 'faraday'
 require 'keyword_init'
 require 'naught'
+require 'hashie'
 
 # note DO NOT require kaminari or will_paginate, it'll be done when invoking `ArtirixDataModels::EsCollection.work_with_will_paginate`
 

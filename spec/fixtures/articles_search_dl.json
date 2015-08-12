@@ -1,0 +1,99 @@
+{
+  "hits": {
+    "total": 11477,
+    "max_score": 0.0,
+    "hits": []
+  },
+  "aggregations": [
+    {
+      "name": "primary_category_slug",
+      "buckets": [
+        {
+          "name": "yacht-market-intelligence",
+          "count": 7794
+        },
+        {
+          "name": "brokerage-sales-news",
+          "count": 7792
+        },
+        {
+          "name": "yachts",
+          "count": 2238
+        },
+        {
+          "name": "news",
+          "count": 2236
+        },
+        {
+          "name": "charter",
+          "count": 1322
+        },
+        {
+          "name": "luxury-yacht-charter-news",
+          "count": 1292
+        },
+        {
+          "name": "luxury-yacht-events",
+          "count": 110
+        },
+        {
+          "name": "luxury-yacht-events-news",
+          "count": 110
+        },
+        {
+          "name": "luxury-yacht-charter-advice",
+          "count": 15
+        },
+        {
+          "name": "brokerage",
+          "count": 7
+        }
+      ]
+    },
+    {
+      "name": "location_slug",
+      "buckets": [
+        {
+          "name": "americas",
+          "count": 3
+        },
+        {
+          "name": "central-america",
+          "count": 3
+        },
+        {
+          "name": "europe",
+          "count": 3
+        },
+        {
+          "name": "caribbean",
+          "count": 2
+        },
+        {
+          "name": "costa-rica",
+          "count": 2
+        },
+        {
+          "name": "mediterranean",
+          "count": 2
+        },
+        {
+          "name": "anegada",
+          "count": 1
+        },
+        {
+          "name": "france",
+          "count": 1
+        },
+        {
+          "name": "french-polynesia",
+          "count": 1
+        },
+        {
+          "name": "italy",
+          "count": 1
+        }
+      ]
+    }
+  ]
+}

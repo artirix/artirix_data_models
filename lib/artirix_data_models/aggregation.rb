@@ -5,14 +5,6 @@ module ArtirixDataModels
 
     delegate :each, :empty?, to: :buckets
 
-    def self.from_json(definition, value_class = Value)
-      buckets = definition[:buckets].map do |bucket|
-        value_class.new definition[:name].to_sym, bucket[:name], bucket[:count]
-      end
-
-      new definition[:name].to_sym, buckets
-    end
-
     def pretty_name
       I18n.t("aggregations.#{name.to_s.gsub('.', '_')}.name", default: default_pretty_name)
     end
@@ -32,7 +24,7 @@ module ArtirixDataModels
       }
     end
 
-    class Value < Struct.new(:aggregation_name, :name, :count)
+    class Value < Struct.new(:aggregation_name, :name, :count, :aggregations)
 
       def pretty_name
         tranlsation_key = "aggregations.#{aggregation_name.to_s.gsub('.', '_')}.buckets.#{name.to_s.gsub('.', '_')}"

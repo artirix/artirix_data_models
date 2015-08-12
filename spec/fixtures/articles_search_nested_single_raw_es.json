@@ -1,0 +1,212 @@
+{
+  "took": 2,
+  "timed_out": false,
+  "_shards": {
+    "total": 5,
+    "successful": 5,
+    "failed": 0
+  },
+  "hits": {
+    "total": 11492,
+    "max_score": 0,
+    "hits": []
+  },
+  "aggregations": {
+    "global_primary_category_slug": {
+      "doc_count": 11492,
+      "global_filtered_primary_category_slug": {
+        "doc_count": 11492,
+        "category_slug": {
+          "doc_count_error_upper_bound": 0,
+          "sum_other_doc_count": 0,
+          "buckets": [
+            {
+              "key": "brokerage-sales-news",
+              "doc_count": 7792
+            },
+            {
+              "key": "news",
+              "doc_count": 2236
+            },
+            {
+              "key": "luxury-yacht-charter-news",
+              "doc_count": 1292
+            },
+            {
+              "key": "luxury-yacht-events-news",
+              "doc_count": 110
+            },
+            {
+              "key": "charter",
+              "doc_count": 14
+            },
+            {
+              "key": "brokerage",
+              "doc_count": 7
+            },
+            {
+              "key": "luxury-yacht-charter-advice",
+              "doc_count": 5
+            },
+            {
+              "key": "cruising-advice",
+              "doc_count": 4
+            },
+            {
+              "key": "luxury-yacht-life",
+              "doc_count": 4
+            },
+            {
+              "key": "safety-advice",
+              "doc_count": 4
+            },
+            {
+              "key": "design01-news",
+              "doc_count": 3
+            },
+            {
+              "key": "plan-and-book-advice",
+              "doc_count": 3
+            },
+            {
+              "key": "charter-news",
+              "doc_count": 2
+            },
+            {
+              "key": "destinations",
+              "doc_count": 2
+            },
+            {
+              "key": "superyacht-sales-data",
+              "doc_count": 2
+            },
+            {
+              "key": "testcat123456789-edit",
+              "doc_count": 2
+            },
+            {
+              "key": "yachts",
+              "doc_count": 2
+            },
+            {
+              "key": "yachts-luxury-yacht-broker-directory",
+              "doc_count": 2
+            },
+            {
+              "key": "annual-reports",
+              "doc_count": 1
+            },
+            {
+              "key": "boat-shows",
+              "doc_count": 1
+            },
+            {
+              "key": "company-news",
+              "doc_count": 1
+            },
+            {
+              "key": "new-to-the-fleet",
+              "doc_count": 1
+            },
+            {
+              "key": "superyacht1234",
+              "doc_count": 1
+            },
+            {
+              "key": "why-charter-a-superyacht",
+              "doc_count": 1
+            }
+          ]
+        }
+      }
+    },
+    "global_location_slug": {
+      "doc_count": 11492,
+      "global_filtered_location_slug": {
+        "doc_count": 11492,
+        "location_slug": {
+          "doc_count_error_upper_bound": 0,
+          "sum_other_doc_count": 0,
+          "buckets": [
+            {
+              "key": "americas",
+              "doc_count": 4
+            },
+            {
+              "key": "central-america",
+              "doc_count": 4
+            },
+            {
+              "key": "europe",
+              "doc_count": 3
+            },
+            {
+              "key": "caribbean",
+              "doc_count": 2
+            },
+            {
+              "key": "costa-rica",
+              "doc_count": 2
+            },
+            {
+              "key": "mediterranean",
+              "doc_count": 2
+            },
+            {
+              "key": "anegada",
+              "doc_count": 1
+            },
+            {
+              "key": "france",
+              "doc_count": 1
+            },
+            {
+              "key": "french-polynesia",
+              "doc_count": 1
+            },
+            {
+              "key": "italy",
+              "doc_count": 1
+            },
+            {
+              "key": "leeward-islands",
+              "doc_count": 1
+            },
+            {
+              "key": "north-america",
+              "doc_count": 1
+            },
+            {
+              "key": "pacific",
+              "doc_count": 1
+            },
+            {
+              "key": "panama",
+              "doc_count": 1
+            },
+            {
+              "key": "rest-of-the-world",
+              "doc_count": 1
+            },
+            {
+              "key": "san-blas-islands",
+              "doc_count": 1
+            },
+            {
+              "key": "spain",
+              "doc_count": 1
+            },
+            {
+              "key": "st-barths",
+              "doc_count": 1
+            },
+            {
+              "key": "tahiti",
+              "doc_count": 1
+            }
+          ]
+        }
+      }
+    }
+  }
+}

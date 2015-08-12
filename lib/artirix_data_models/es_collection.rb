@@ -106,7 +106,7 @@ module ArtirixDataModels
     end
 
     def aggregations
-      @aggregations ||= response[:aggregations].to_a.map { |aggregation| aggregations_factory.build_from_json aggregation, model_class }
+      @aggregations ||= build_aggregations
     end
 
     def aggregation(name)
@@ -152,7 +152,15 @@ module ArtirixDataModels
       ].join(CACHE_KEY_SECTION_SEPARATOR)
     end
 
+    def raw_aggregations_data
+      response[:aggregations]
+    end
+
     private
+    def build_aggregations
+      aggregations_factory.build_all_from_raw_data(raw_aggregations_data)
+    end
+
     def load_results
       hits[:hits].map do |document|
         deserialize_document(document)
