@@ -1,16 +1,17 @@
 module ArtirixDataModels
 
   class AggregationBuilder
-    attr_reader :aggregations_factory, :definition, :value_class
+    attr_reader :aggregations_factory, :definition, :value_class, :aggregation_class
 
-    def initialize(aggregations_factory, definition, value_class = Aggregation::Value)
+    def initialize(aggregations_factory:, definition:, aggregation_class: Aggregation, value_class: Aggregation::Value)
       @aggregations_factory = aggregations_factory
       @definition           = definition
+      @aggregation_class    = aggregation_class
       @value_class          = value_class
     end
 
     def build
-      Aggregation.new agg_name, buckets
+      aggregation_class.new agg_name, buckets
     end
 
     alias_method :call, :build

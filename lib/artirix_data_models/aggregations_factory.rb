@@ -24,7 +24,7 @@ module ArtirixDataModels
     end
 
     def default_loader
-      proc { |aggregation| aggregation_from_json aggregation }
+      proc { |aggregation| Aggregation.from_json aggregation }
     end
 
     def get_loader(aggregation_name, collection_class)
@@ -44,16 +44,22 @@ module ArtirixDataModels
       normalised.map { |definition| build_from_json definition, collection_class }
     end
 
+    def aggregation_from_json(definition, value_class: Aggregation::Value, aggregation_class: Aggregation)
+      builder_params = {
+        aggregations_factory: self,
+        definition: definition,
+        aggregation_class: aggregation_class,
+        value_class: value_class,
+      }
+
+      AggregationBuilder.new(builder_params).build
+    end
+
     private
 
     def normalise_aggregations_data(raw_aggs)
       RawAggregationDataNormaliser.new(self, raw_aggs).normalise
     end
-
-    def aggregation_from_json(definition, value_class = Aggregation::Value)
-      AggregationBuilder.new(self, definition, value_class).build
-    end
-
 
   end
 end

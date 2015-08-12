@@ -27,6 +27,10 @@ class ArtirixDataModels::DAORegistry
     set_loader(:model_fields) { ArtirixDataModels::ModelFieldsDAO.new gateway: get(:gateway) }
   end
 
+  def aggregations_factory
+    get :aggregations_factory
+  end
+
   def method_missing(method, *args, &block)
     if exist?(method)
       get(method)

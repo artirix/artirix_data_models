@@ -224,17 +224,30 @@ end
 
 ## Changes
 
+### 0.6.2
 
-### v.0.6.1
-
-- added `aggregation` method to `Aggregation::Value` class, and also the aggs to the `data_hash` if they are present.
-
-
-### v.0.6.0
+*Fixed Breaking Change*: removal of `Aggregation.from_json` static method. Now back but delegating to default factory method is `aggregation_factory.aggregation_from_json` in the Aggregation Factory *instance*.
 
 - EsCollection's aggregations can now be build based on raw ElasticSearch responses, including nested aggregations. It ignores any aggregation that does not have "buckets", so that nested aggs for `global` or `filtered` are skipped and only the ones with real data are used. (TODO: write docs. In the mean time, have a look at the specs).
+- added `aggregation` method to `Aggregation::Value` class, and also the aggs to the `data_hash` if they are present.
 
-### v.0.5.0
+### 0.5.0
 
 - opening gem as is to the public.
 - still a lot of TODOs in the documentation
+
+
+## Yanked versions
+
+
+### ~0.6.1~ 
+
+Yanked because of breaking change introduction: removal of `Aggregation.from_json` method
+
+- added `aggregation` method to `Aggregation::Value` class, and also the aggs to the `data_hash` if they are present.
+
+### ~v0.6.0~
+
+Yanked because of breaking change introduction: removal of `Aggregation.from_json` method
+
+- EsCollection's aggregations can now be build based on raw ElasticSearch responses, including nested aggregations. It ignores any aggregation that does not have "buckets", so that nested aggs for `global` or `filtered` are skipped and only the ones with real data are used. (TODO: write docs. In the mean time, have a look at the specs).

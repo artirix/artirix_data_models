@@ -5,6 +5,10 @@ module ArtirixDataModels
 
     delegate :each, :empty?, to: :buckets
 
+    def self.from_json(definition, value_class = Value)
+      DAORegistry.aggregations_factory.aggregation_from_json(definition, value_class: value_class, aggregation_class: self)
+    end
+
     def pretty_name
       I18n.t("aggregations.#{name.to_s.gsub('.', '_')}.name", default: default_pretty_name)
     end
