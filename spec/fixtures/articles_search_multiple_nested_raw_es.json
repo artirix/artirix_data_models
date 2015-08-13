@@ -1,0 +1,187 @@
+{
+  "took": 40,
+  "timed_out": false,
+  "_shards": {
+    "total": 5,
+    "successful": 5,
+    "failed": 0
+  },
+  "hits": {
+    "total": 1234,
+    "max_score": 0,
+    "hits": []
+  },
+  "aggregations": {
+    "publication_types": {
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0,
+      "buckets": [
+        {
+          "key": "Expert Opinion",
+          "doc_count": 1798
+        },
+        {
+          "key": "Observational Studies",
+          "doc_count": 777
+        },
+        {
+          "key": "Clinical Observations",
+          "doc_count": 627
+        },
+        {
+          "key": "Controlled Studies",
+          "doc_count": 303
+        },
+        {
+          "key": "Randomised Controlled Trials",
+          "doc_count": 299
+        },
+        {
+          "key": "Systematic Reviews",
+          "doc_count": 220
+        },
+        {
+          "key": "Meta-Analysis",
+          "doc_count": 49
+        },
+        {
+          "key": "Guidelines",
+          "doc_count": 33
+        }
+      ]
+    },
+    "taxonomy": {
+      "doc_count": 4674,
+      "taxonomy_level_1": {
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0,
+        "buckets": [
+          {
+            "key": "Treatment",
+            "doc_count": 2404,
+            "taxonomy_level_2": {
+              "doc_count_error_upper_bound": 0,
+              "sum_other_doc_count": 0,
+              "buckets": [
+                {
+                  "key": "Drug Treatments",
+                  "doc_count": 977
+                },
+                {
+                  "key": "Drug Development",
+                  "doc_count": 731
+                },
+                {
+                  "key": "Other Treatments",
+                  "doc_count": 358
+                },
+                {
+                  "key": "Surgical Treatments",
+                  "doc_count": 264
+                },
+                {
+                  "key": "Assistive Devices",
+                  "doc_count": 43
+                },
+                {
+                  "key": "Palliative Care",
+                  "doc_count": 17
+                },
+                {
+                  "key": "Complementary and Alternative Therapies",
+                  "doc_count": 14
+                }
+              ]
+            }
+          },
+          {
+            "key": "Understand",
+            "doc_count": 1356,
+            "taxonomy_level_2": {
+              "doc_count_error_upper_bound": 0,
+              "sum_other_doc_count": 0,
+              "buckets": [
+                {
+                  "key": "Symptoms",
+                  "doc_count": 1066
+                },
+                {
+                  "key": "Outlook",
+                  "doc_count": 143
+                },
+                {
+                  "key": "Causes",
+                  "doc_count": 123
+                },
+                {
+                  "key": "Ethics",
+                  "doc_count": 24
+                }
+              ]
+            }
+          },
+          {
+            "key": "Diagnosis",
+            "doc_count": 549,
+            "taxonomy_level_2": {
+              "doc_count_error_upper_bound": 0,
+              "sum_other_doc_count": 0,
+              "buckets": [
+                {
+                  "key": "Diagnostic Techniques",
+                  "doc_count": 525
+                },
+                {
+                  "key": "Diagnostic Challenges",
+                  "doc_count": 24
+                }
+              ]
+            }
+          },
+          {
+            "key": "Living",
+            "doc_count": 365,
+            "taxonomy_level_2": {
+              "doc_count_error_upper_bound": 0,
+              "sum_other_doc_count": 0,
+              "buckets": [
+                {
+                  "key": "Emotional Impact",
+                  "doc_count": 104
+                },
+                {
+                  "key": "Genetic Counseling",
+                  "doc_count": 63
+                },
+                {
+                  "key": "Diet",
+                  "doc_count": 59
+                },
+                {
+                  "key": "Fertility/Sex",
+                  "doc_count": 56
+                },
+                {
+                  "key": "Exercise",
+                  "doc_count": 48
+                },
+                {
+                  "key": "Physical Impact",
+                  "doc_count": 26
+                },
+                {
+                  "key": "Sleep",
+                  "doc_count": 6
+                },
+                {
+                  "key": "Cognitive Impact",
+                  "doc_count": 3
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

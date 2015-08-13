@@ -169,6 +169,61 @@ RSpec.describe ArtirixDataModels::EsCollection, type: :model do
       Then { es_collection.aggregations.first.buckets.last.aggregations.first.buckets.last.name == 'Cognitive Impact' }
       Then { es_collection.aggregations.first.buckets.last.aggregations.first.buckets.last.count == 3 }
     end
+
+    context 'with Raw ES with multiple nested aggregations' do
+      Given(:fixture_file) { fixture_pathname('articles_search_multiple_nested_raw_es.json') }
+
+      Given(:model_class) {
+        Class.new do
+          attr_reader :data
+
+          def initialize(data)
+            @data = { given: data }
+          end
+        end
+      }
+      Given(:es_response) { Oj.load(File.read(fixture_file), symbol_keys: true) }
+
+      When(:es_collection) { ArtirixDataModels::EsCollection.new(model_class, response: es_response) }
+
+      Then { es_collection.total == 1234 }
+      Then { es_collection.results == [] }
+
+      Then { es_collection.aggregations.size == 2 }
+
+      Then { es_collection.aggregations.first.name == :publication_types }
+      Then { es_collection.aggregations.first.buckets.size == 8 }
+
+      Then { es_collection.aggregations.first.buckets.first.name == 'Expert Opinion' }
+      Then { es_collection.aggregations.first.buckets.first.count == 1798 }
+      Then { es_collection.aggregations.first.buckets.last.name == 'Guidelines' }
+      Then { es_collection.aggregations.first.buckets.last.count == 33 }
+
+
+      Then { es_collection.aggregations.last.name == :taxonomy_level_1 }
+      Then { es_collection.aggregations.last.buckets.size == 4 }
+
+      Then { es_collection.aggregations.last.buckets.first.name == 'Treatment' }
+      Then { es_collection.aggregations.last.buckets.first.count == 2404 }
+      Then { es_collection.aggregations.last.buckets.first.aggregations.size == 1 }
+      Then { es_collection.aggregations.last.buckets.first.aggregations.first.name == :taxonomy_level_2 }
+      Then { es_collection.aggregations.last.buckets.first.aggregations.first.buckets.size == 7 }
+      Then { es_collection.aggregations.last.buckets.first.aggregations.first.buckets.first.name == 'Drug Treatments' }
+      Then { es_collection.aggregations.last.buckets.first.aggregations.first.buckets.first.count == 977 }
+      Then { es_collection.aggregations.last.buckets.first.aggregations.first.buckets.last.name == 'Complementary and Alternative Therapies' }
+      Then { es_collection.aggregations.last.buckets.first.aggregations.first.buckets.last.count == 14 }
+
+
+      Then { es_collection.aggregations.last.buckets.last.name == 'Living' }
+      Then { es_collection.aggregations.last.buckets.last.count == 365 }
+      Then { es_collection.aggregations.last.buckets.last.aggregations.size == 1 }
+      Then { es_collection.aggregations.last.buckets.last.aggregations.first.name == :taxonomy_level_2 }
+      Then { es_collection.aggregations.last.buckets.last.aggregations.first.buckets.size == 8 }
+      Then { es_collection.aggregations.last.buckets.last.aggregations.first.buckets.first.name == 'Emotional Impact' }
+      Then { es_collection.aggregations.last.buckets.last.aggregations.first.buckets.first.count == 104 }
+      Then { es_collection.aggregations.last.buckets.last.aggregations.first.buckets.last.name == 'Cognitive Impact' }
+      Then { es_collection.aggregations.last.buckets.last.aggregations.first.buckets.last.count == 3 }
+    end
   end
 
 end
