@@ -2,6 +2,14 @@ module ArtirixDataModels
   class AggregationsFactory
     DEFAULT_COLLECTION_CLASS_NAME = ''.freeze
 
+    # AGGREGATION CLASS BUILDING
+
+    def self.sorted_aggregation_class_based_on_index_on(index_array)
+      SortedBucketsAggregationClassFactory.build_class_based_on_index_on(index_array)
+    end
+
+    # FACTORY INSTANCE
+
     def initialize
       @_loaders = Hash.new { |h, k| h[k] = {} }
       setup_config
@@ -61,5 +69,56 @@ module ArtirixDataModels
       RawAggregationDataNormaliser.new(self, raw_aggs).normalise
     end
 
+    module SortedBucketsAggregationClassFactory
+      def self.build_class_based_on_index_on(index_array)
+        prepared_index_array = index_array.map { |key| SortedBucketsAggregationClassFactory.prepare_key(key) }
+        sort_by_proc         = sort_by_index_on(prepared_index_array)
+
+        Class.new(SortedBucketAggregationBase).tap do |klass|
+          klass.sort_by_callable = sort_by_proc
+        end
+      end
+
+      def self.prepare_key(key)
+        key.to_s.strip.downcase
+      end
+
+      def self.sort_by_index_on(index_array)
+        proc do |bucket|
+          name = SortedBucketsAggregationFactory.prepare_key(bucket.name)
+
+          found_index = index_array.index(name)
+
+          if found_index.present?
+            [0, found_index]
+          else
+            [1, 0]
+          end
+        end
+      end
+
+      class SortedBucketAggregationBase < ArtirixDataModels::Aggregation
+        alias_method :unordered_buckets, :buckets
+
+        def buckets
+          @sorted_buckets ||= sort_buckets
+        end
+
+        def sort_buckets
+          unordered_buckets.sort_by { |bucket| self.class.sort_by_callable.call(bucket) }
+        end
+
+        def self.sort_by_callable
+          @sort_by_callable
+        end
+
+        def self.sort_by_callable=(callable = nil, &block)
+          raise ArgumentError unless callable || block
+
+          @sort_by_callable = callable || block
+        end
+      end
+
+    end
   end
 end

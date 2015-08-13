@@ -3,44 +3,53 @@ module ArtirixDataModels
 
     FIND_BUCKETS = ->(_k, v, _o) { v.respond_to?(:key?) && v.key?(:buckets) }
 
-    attr_reader :raw_aggs, :aggregations_factory
+    attr_reader :raw_aggs, :aggregations_factory, :list
 
     def initialize(aggregations_factory, raw_aggs)
       @aggregations_factory = aggregations_factory
       @raw_aggs             = raw_aggs
+      @list                 = []
     end
 
     def normalise
       return [] unless raw_aggs.present?
       return raw_aggs if Array === raw_aggs
 
-      normalise_hash
+      normalise_hash(raw_aggs)
+
+      list
     end
 
     alias_method :call, :normalise
 
     private
 
-    def normalise_hash
-      with_buckets_list = deep_locate raw_aggs, FIND_BUCKETS
+    def normalise_hash(hash)
+      with_buckets_list = deep_locate hash, FIND_BUCKETS
 
-      with_buckets_list.reduce([]) do |list, with_buckets|
+      with_buckets_list.each do |with_buckets|
         with_buckets.each do |name, value|
-          add_normalised_element_to_list(list, name, value)
+          normalise_element(name, value)
         end
-
-        list
       end
     end
 
-    def add_normalised_element_to_list(list, k, v)
-      return unless Hash === v && v.key?(:buckets)
+    def normalise_element(name, value)
+      return unless Hash === value
 
-      buckets = v[:buckets].map do |raw_bucket|
+      if value.key?(:buckets)
+        add_normalised_element_to_list(name, value)
+      else
+        normalise_hash(value)
+      end
+    end
+
+    def add_normalised_element_to_list(name, value)
+      buckets = value[:buckets].map do |raw_bucket|
         normalise_bucket(raw_bucket)
       end
 
-      list << { name: k, buckets: buckets }
+      list << { name: name, buckets: buckets }
     end
 
     def normalise_bucket(raw_bucket)
