@@ -224,6 +224,11 @@ end
 
 ## Changes
 
+### 0.6.3
+
+- Fix in EsCollection's aggregation parsing (nested + single from RAW now work ok)
+- `SortedBucketAggregationBase` introduced. now `ArtirixDataModels::AggregationsFactory.sorted_aggregation_class_based_on_index_on(index_array)` available to create a class for Aggregations which will sort the buckets based on the position of the elements on a given array.
+
 ### 0.6.2
 
 *Fixed Breaking Change*: removal of `Aggregation.from_json` static method. Now back but delegating to default factory method is `aggregation_factory.aggregation_from_json` in the Aggregation Factory *instance*.
