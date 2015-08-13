@@ -224,7 +224,7 @@ end
 
 ## Changes
 
-### 0.6.3
+### 0.6.3.1
 
 - Fix in EsCollection's aggregation parsing (nested + single from RAW now work ok)
 - `SortedBucketAggregationBase` introduced. now `ArtirixDataModels::AggregationsFactory.sorted_aggregation_class_based_on_index_on(index_array)` available to create a class for Aggregations which will sort the buckets based on the position of the elements on a given array.
@@ -243,6 +243,14 @@ end
 
 
 ## Yanked versions
+
+### ~0.6.3~
+
+Yanked because of typo bug on SortedBucketAggregationBase. Released 0.6.3.1 with the fix.
+
+
+- Fix in EsCollection's aggregation parsing (nested + single from RAW now work ok)
+- `SortedBucketAggregationBase` introduced. now `ArtirixDataModels::AggregationsFactory.sorted_aggregation_class_based_on_index_on(index_array)` available to create a class for Aggregations which will sort the buckets based on the position of the elements on a given array.
 
 
 ### ~0.6.1~ 

@@ -85,7 +85,7 @@ module ArtirixDataModels
 
       def self.sort_by_index_on(index_array)
         proc do |bucket|
-          name = SortedBucketsAggregationFactory.prepare_key(bucket.name)
+          name = SortedBucketsAggregationClassFactory.prepare_key(bucket.name)
 
           found_index = index_array.index(name)
 
