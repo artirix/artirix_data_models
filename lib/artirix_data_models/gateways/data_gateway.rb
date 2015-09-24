@@ -104,18 +104,36 @@ class ArtirixDataModels::DataGateway
   end
 
   module DefaultConnectionLoader
-    def self.default_connection
-      url = config_connection_url
-      Faraday.new(url: url, request: { params_encoder: Faraday::FlatParamsEncoder }) do |faraday|
-        faraday.request :url_encoded # form-encode POST params
-        faraday.response :logger # log requests to STDOUT
-        faraday.adapter Faraday.default_adapter
+
+    class << self
+      attr_accessor :config
+
+      def default_connection
+        url = connection_url
+
+        Faraday.new(url: url, request: { params_encoder: Faraday::FlatParamsEncoder }) do |faraday|
+          faraday.request :url_encoded # form-encode POST params
+          faraday.response :logger # log requests to STDOUT
+          faraday.basic_auth(config.login, config.password) if basic_auth?
+          faraday.adapter Faraday.default_adapter
+        end
+      end
+
+      # Configuration access
+
+      def config
+        @config ||= SimpleConfig.for(:site).data_gateway
+      end
+
+      def connection_url
+        config.url
+      end
+
+      def basic_auth?
+        config.respond_to?(:login) && config.respond_to?(:password)
       end
     end
 
-    def self.config_connection_url
-      SimpleConfig.for(:site).data_gateway.url
-    end
   end
 
   class Error < StandardError
