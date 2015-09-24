@@ -17,6 +17,30 @@ RSpec.describe ArtirixDataModels::DataGateway, type: :model do
       When(:gateway) { described_class.new }
       Then { gateway.connection.url_prefix.to_s == connection_url }
     end
+
+    context 'basic auth connection' do
+      Given(:connection_url) { 'http://example.com/other' }
+      Given(:basic_login)    { 'WhiteCat' }
+      Given(:basic_password) { 'B@dPassword!' }
+
+      Given do
+        url      = connection_url
+        login    = basic_login
+        password = basic_password
+
+        SimpleConfig.for(:site) do
+          group :data_gateway do
+            set :url, url
+            set :login, login
+            set :password, password
+          end
+        end
+      end
+
+      When(:gateway) { described_class.new }
+      Then { expect(gateway.connection.url_prefix.to_s).to eq(connection_url) }
+      Then { expect(gateway.connection.headers).to have_key('Authorization') }
+    end
   end
 
   context 'requests' do

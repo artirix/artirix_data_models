@@ -7,12 +7,12 @@
 [![Code Climate Coverage](https://codeclimate.com/github/artirix/artirix_data_models/coverage.png)](https://codeclimate.com/github/artirix/artirix_data_models)
 
 
-This gem provides the tools for building Data Models (ActiveModel compliant objects that only receive attributes on initialisation), 
-with their DAOs (Data Access Objects, the ones responsible for loading them up), the EsCollection objects (collection of 
+This gem provides the tools for building Data Models (ActiveModel compliant objects that only receive attributes on initialisation),
+with their DAOs (Data Access Objects, the ones responsible for loading them up), the EsCollection objects (collection of
 objects, paginatable and with extra features), and tools that allow them to work.
 
 Its goal is to provide a set of Read Only model objects that receive their data from some sort of Data API.
- 
+
 It's designed to work assuming JSON APIs and ElasticSearch responses.
 
 # TODO:
@@ -21,6 +21,32 @@ It's designed to work assuming JSON APIs and ElasticSearch responses.
 
 
 ## Usage
+
+### Connection
+
+You have to specify the location of data-layer. It can be done in the config like this:
+
+```ruby
+SimpleConfig.for(:site) do
+  group :data_gateway do
+    set :url, 'http://super-secure-domain-123456.com'
+  end
+end
+```
+
+If the connection is covered by basic authentication it can be set by adding ```login``` and ```password``` settings.
+
+Example:
+
+```ruby
+SimpleConfig.for(:site) do
+  group :data_gateway do
+    set :url, 'http://super-secure-domain-123456.com'
+    set :login, 'WhiteCat'
+    set :password, 'B@dPassword!'
+  end
+end
+```
 
 ### Model
 
@@ -40,7 +66,7 @@ TODO:
 
 ### The Registry
 
-Your app should extend the `ArtirixDataModels::DAORegistry`. We can override the `setup_config` method to add extra loaders. 
+Your app should extend the `ArtirixDataModels::DAORegistry`. We can override the `setup_config` method to add extra loaders.
 
 **important: do not forget to call `super` on `setup_config`.**
 
@@ -70,7 +96,7 @@ end
 
 ### initializer
 
-An initializer should be added for extra configuration. 
+An initializer should be added for extra configuration.
 
 We can enable pagination with either `will_paginate` or `kaminari`.
 
@@ -153,8 +179,8 @@ end
 #### Custom DAO Registry
 
 For the use of a custom DAO Registry, it is recomended to actually require it on the test helper:
- 
- 
+
+
 in spec/rails_helper.rb:
 
 ```ruby
@@ -194,7 +220,7 @@ end
 In order to use FactoryGirl with these Models, we need to specify:
 
 1. the objects cannot be saved, so we need to specify `skip_create` to avoid it.
-2. the setting of the data is only to be done on the model's initialisation, not with public setters. 
+2. the setting of the data is only to be done on the model's initialisation, not with public setters.
 For that, we need to specify: `initialize_with { new(attributes) }`
 
 ```ruby
@@ -203,11 +229,11 @@ FactoryGirl.define do
   factory :article do
     # no save call
     skip_create
-    
+
     # in our models we have private setters -> we need the attributes to be
     # passed on object initialisation
     initialize_with { new(attributes) }
-    
+
     sequence(:id)
     title { Faker::Lorem.sentence }
   end
@@ -223,6 +249,10 @@ end
 
 
 ## Changes
+
+### 0.6.4
+
+- Add ability to create connection to data source using HTTP Basic Authentication.
 
 ### 0.6.3.1
 
@@ -253,7 +283,7 @@ Yanked because of typo bug on SortedBucketAggregationBase. Released 0.6.3.1 with
 - `SortedBucketAggregationBase` introduced. now `ArtirixDataModels::AggregationsFactory.sorted_aggregation_class_based_on_index_on(index_array)` available to create a class for Aggregations which will sort the buckets based on the position of the elements on a given array.
 
 
-### ~0.6.1~ 
+### ~0.6.1~
 
 Yanked because of breaking change introduction: removal of `Aggregation.from_json` method
 

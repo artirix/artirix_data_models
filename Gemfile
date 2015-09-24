@@ -4,6 +4,7 @@ source 'https://rubygems.org'
 gemspec
 
 group :development, :test do
+  gem 'rubocop'
   gem 'pry'
   gem 'pry-nav'
   gem 'pry-stack_explorer'
