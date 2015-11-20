@@ -40,6 +40,15 @@ RSpec.describe ArtirixDataModels::EsCollection, type: :model do
     Then { es_collection.total == 3 }
     Then { es_collection.results == results_array }
     Then { es_collection.aggregations == [] }
+
+    # :first, :drop, :take, :last, :[], :each, :present?, :blank?, to: :results
+    Then { !es_collection.blank? }
+    Then { es_collection.present? }
+    Then { es_collection[1] == results_array[1] }
+    Then { es_collection.first == results_array.first }
+    Then { es_collection.last == results_array.last }
+    Then { es_collection.take(2) == results_array.take(2) }
+    Then { es_collection.drop(2) == results_array.drop(2) }
   end
 
   describe 'aggregations' do

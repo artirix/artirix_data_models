@@ -250,6 +250,12 @@ end
 
 ## Changes
 
+### 0.6.5
+
+- Specify `activemodel` as a dependency and require it in the lib 
+- `EsCollection` delegates `[]`, `first`, `last`, `take` and `drop` to the results.
+
+
 ### 0.6.4
 
 - Add ability to create connection to data source using HTTP Basic Authentication.

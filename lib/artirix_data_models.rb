@@ -2,6 +2,7 @@ require 'artirix_data_models/version'
 
 # dependencies
 require 'active_support/all'
+require 'active_model'
 require 'simple_config'
 require 'oj'
 require 'faraday'
