@@ -250,6 +250,10 @@ end
 
 ## Changes
 
+### 0.6.6
+
+- `Aggregation::Value.pretty_name` memoized and the code moved to `load_pretty_name`.
+
 ### 0.6.5
 
 - Specify `activemodel` as a dependency and require it in the lib 
