@@ -38,8 +38,7 @@ module ArtirixDataModels
       alias_method :nested_aggregations=, :aggregations=
 
       def pretty_name
-        tranlsation_key = "aggregations.#{aggregation_name.to_s.gsub('.', '_')}.buckets.#{name.to_s.gsub('.', '_')}"
-        I18n.t(tranlsation_key, default: default_pretty_name)
+        @pretty_name ||= load_pretty_name
       end
 
       def default_pretty_name
@@ -68,6 +67,12 @@ module ArtirixDataModels
           name:  name,
           count: count
         }
+      end
+
+      private
+      def load_pretty_name
+        tranlsation_key = "aggregations.#{aggregation_name.to_s.gsub('.', '_')}.buckets.#{name.to_s.gsub('.', '_')}"
+        I18n.t(tranlsation_key, default: default_pretty_name)
       end
     end
   end
