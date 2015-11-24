@@ -14,6 +14,7 @@ require 'hashie'
 
 
 # loading features
+require 'artirix_data_models/inspectable'
 require 'artirix_data_models/es_collection'
 require 'artirix_data_models/aggregation'
 require 'artirix_data_models/aggregations_factory'

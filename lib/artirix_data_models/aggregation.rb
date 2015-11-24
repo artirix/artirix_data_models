@@ -1,8 +1,22 @@
 module ArtirixDataModels
-  module CommonAggregation
-    extend ActiveSupport::Concern
+  class CommonAggregation
+    include Inspectable
+    attr_accessor :name
+
+    def initialize(name)
+      @name = name
+    end
+
+    def self.from_json(definition, value_class = Aggregation::Value)
+      DAORegistry.aggregations_factory.aggregation_from_json(definition, value_class: value_class, aggregation_class: self)
+    end
 
     def pretty_name
+      @pretty_name ||= load_pretty_name
+    end
+
+    private
+    def load_pretty_name
       I18n.t("aggregations.#{name.to_s.gsub('.', '_')}.name", default: default_pretty_name)
     end
 
@@ -10,17 +24,17 @@ module ArtirixDataModels
       name
     end
 
-    module ClassMethods
-      def from_json(definition, value_class = Aggregation::Value)
-        DAORegistry.aggregations_factory.aggregation_from_json(definition, value_class: value_class, aggregation_class: self)
-      end
-    end
-
   end
 
-  class Aggregation < Struct.new(:name, :buckets)
-    include CommonAggregation
+  class Aggregation < CommonAggregation
     include Enumerable
+
+    attr_accessor :buckets
+
+    def initialize(name, buckets)
+      super name
+      @buckets = buckets
+    end
 
     delegate :each, :empty?, to: :buckets
 
@@ -55,27 +69,20 @@ module ArtirixDataModels
       filtered_buckets + unfiltered_buckets
     end
 
-    class MetricAggregation < Struct.new(:name, :value)
-      include CommonAggregation
+    class Value
 
-      def data_hash
-        {
-          name:  name,
-          value: value
-        }
+      attr_accessor :filtered, :aggregation_name, :name, :count
+      attr_writer :aggregations
+
+      def initialize(aggregation_name, name, count, aggregations)
+        @aggregation_name = aggregation_name
+        @name             = name
+        @count            = count
+        @aggregations     = aggregations
       end
-
-      def calculate_filtered(_filtered_values = [])
-        # NOOP
-        self
-      end
-    end
-
-    class Value < Struct.new(:aggregation_name, :name, :count, :aggregations)
-      attr_accessor :filtered
 
       def aggregations
-        Array(super)
+        Array(@aggregations)
       end
 
       alias_method :nested_aggregations, :aggregations
@@ -125,10 +132,6 @@ module ArtirixDataModels
         !!@filtered
       end
 
-      def pretty_name
-        @pretty_name ||= super
-      end
-
       private
       def load_pretty_name
         tranlsation_key = "aggregations.#{aggregation_name.to_s.gsub('.', '_')}.buckets.#{name.to_s.gsub('.', '_')}"
@@ -136,4 +139,26 @@ module ArtirixDataModels
       end
     end
   end
+
+  class MetricAggregation < CommonAggregation
+    attr_accessor :value
+
+    def initialize(name, value)
+      super name
+      @value = value
+    end
+
+    def data_hash
+      {
+        name:  name,
+        value: value
+      }
+    end
+
+    def calculate_filtered(_filtered_values = [])
+      # NOOP
+      self
+    end
+  end
+
 end

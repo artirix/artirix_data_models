@@ -107,6 +107,7 @@ module ArtirixDataModels
 
       included do
         include KeywordInit
+        include Inspectable
       end
 
       def self.direct_getter_method_name(attribute)
@@ -119,19 +120,6 @@ module ArtirixDataModels
 
       def compact_data_hash
         data_hash.reject { |_, v| v.nil? }
-      end
-
-      def inspect_with_tab(tab_level = 0)
-        insp = data_hash.map do |at, val|
-          v   = val.try(:inspect_with_tab, tab_level + 1) || val.inspect
-          tab = ' ' * tab_level * 4
-          "#{tab} - #{at}: #{v}"
-        end
-        "#<#{self.class} \n#{insp.join("\n")}>"
-      end
-
-      def inspect
-        inspect_with_tab 1
       end
 
       module ClassMethods

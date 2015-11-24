@@ -3,7 +3,7 @@ module ArtirixDataModels
   class AggregationBuilder
     attr_reader :aggregations_factory, :definition, :value_class, :aggregation_class, :metric_aggregation_class
 
-    def initialize(aggregations_factory:, definition:, aggregation_class: Aggregation, metric_aggregation_class: Aggregation::MetricAggregation, value_class: Aggregation::Value)
+    def initialize(aggregations_factory:, definition:, aggregation_class: Aggregation, metric_aggregation_class: MetricAggregation, value_class: Aggregation::Value)
       @aggregations_factory     = aggregations_factory
       @definition               = definition
       @aggregation_class        = aggregation_class

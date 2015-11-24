@@ -250,15 +250,17 @@ end
 
 ## Changes
 
-### 0.7.0
+### 0.7.1
 
-- added `Aggregation::MetricAggregation`. Normal `AggregationBuilder` will build an aggregation with that class if instead of `buckets` it finds `value` in the JSON.  
+- added `MetricAggregation`. Normal `AggregationBuilder` will build an aggregation with that class if instead of `buckets` it finds `value` in the JSON.  
 - normalize raw aggregations now does not ignore metric aggregations (see above)
 - added `calculate_filtered(filtered_values)` to aggregations (noop in Metric aggregations). In a bucket aggregation, will mark with `filtered?` each bucket (aka Aggregation Value) if the `bucket.name` is present in the given `filtered_values`.
 - added to `Aggregation` the methods: 
 -- `filtered_buckets` that will return only buckets marked as `filtered?`
 -- `unfiltered_buckets` that will return only buckets not marked as `filtered?`
 -- `filtered_first_buckets` that will concatenate `filtered_buckets` and `unfiltered_buckets`
+- changed classes to stop inheriting from `Struct`, had some problems with inheritance.
+- `Aggregation`, `Aggregation::Value` and `MetricAggregation` now using the same inspection as models.
 
 ### 0.6.7
 
@@ -297,6 +299,10 @@ end
 
 
 ## Yanked versions
+
+### ~0.7.0~
+
+Yanked because of bug on Aggregations. Released 0.7.1 with the fix. Changeset moved too to 0.7.1 
 
 ### ~0.6.3~
 
