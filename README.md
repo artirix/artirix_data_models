@@ -250,6 +250,10 @@ end
 
 ## Changes
 
+### 0.6.7
+
+- aggregations use `key_as_string` as name of the bucket value if it exists, if not then it uses `key` and if that also does not exist then it uses `name`
+
 ### 0.6.6
 
 - `Aggregation::Value.pretty_name` memoized and the code moved to `load_pretty_name`.

@@ -60,7 +60,7 @@ module ArtirixDataModels
     end
 
     def basic_bucket(raw_bucket)
-      name  = raw_bucket[:key] || raw_bucket[:name]
+      name  = raw_bucket[:key_as_string] || raw_bucket[:key] || raw_bucket[:name]
       count = raw_bucket[:doc_count] || raw_bucket[:count]
       { name: name, count: count }
     end
