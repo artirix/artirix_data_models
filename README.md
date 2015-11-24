@@ -250,6 +250,16 @@ end
 
 ## Changes
 
+### 0.7.0
+
+- added `Aggregation::MetricAggregation`. Normal `AggregationBuilder` will build an aggregation with that class if instead of `buckets` it finds `value` in the JSON.  
+- normalize raw aggregations now does not ignore metric aggregations (see above)
+- added `calculate_filtered(filtered_values)` to aggregations (noop in Metric aggregations). In a bucket aggregation, will mark with `filtered?` each bucket (aka Aggregation Value) if the `bucket.name` is present in the given `filtered_values`.
+- added to `Aggregation` the methods: 
+-- `filtered_buckets` that will return only buckets marked as `filtered?`
+-- `unfiltered_buckets` that will return only buckets not marked as `filtered?`
+-- `filtered_first_buckets` that will concatenate `filtered_buckets` and `unfiltered_buckets`
+
 ### 0.6.7
 
 - aggregations use `key_as_string` as name of the bucket value if it exists, if not then it uses `key` and if that also does not exist then it uses `name`
