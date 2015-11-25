@@ -250,6 +250,10 @@ end
 
 ## Changes
 
+### 0.7.2
+
+- `EsCollection` now delegates `empty?` to the results.
+
 ### 0.7.1
 
 - added `MetricAggregation`. Normal `AggregationBuilder` will build an aggregation with that class if instead of `buckets` it finds `value` in the JSON.  

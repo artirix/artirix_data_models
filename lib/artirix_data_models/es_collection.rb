@@ -118,7 +118,7 @@ module ArtirixDataModels
       @results ||= load_results
     end
 
-    delegate :first, :drop, :take, :last, :[], :each, :present?, :blank?, to: :results
+    delegate :first, :drop, :take, :last, :[], :each, :present?, :blank?, :empty?, to: :results
 
     def data_hash(&block)
       block ||= :data_hash
