@@ -250,6 +250,10 @@ end
 
 ## Changes
 
+### 0.7.3
+
+- `ArtirixDataModels::FakeResponseFactory` when building a response, will try to use `hit[:_index]` and `hit[:_type]`, and use the params `index` and `document_type` if not found.
+
 ### 0.7.2
 
 - `EsCollection` now delegates `empty?` to the results.

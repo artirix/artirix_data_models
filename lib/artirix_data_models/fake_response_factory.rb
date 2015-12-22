@@ -73,11 +73,11 @@ class ArtirixDataModels::FakeResponseFactory
         max_score: total_max_score,
         hits:      result_hits.map.with_index do |hit, index|
           {
-            _index:  index_name,
-            _type:   document_type,
+            _index:  hit.fetch(:_index, index_name),
+            _type:   hit.fetch(:_type, document_type),
             _id:     hit[:id],
             _score:  present_max_score - (index * 8.5),
-            _source: hit
+            _source: hit.except(:_index, :_type)
           }
         end
       },
