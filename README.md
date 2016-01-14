@@ -250,6 +250,10 @@ end
 
 ## Changes
 
+### 0.7.5
+
+- `FakeResponseFactory` using given `_score` if > 0.
+
 ### 0.7.4
 
 - added `~> 3.4` to the `hashie` gem dependency

@@ -17,7 +17,9 @@ class ArtirixDataModels::FakeResponseFactory
   def self.response_by_results(result_hits, index_name: nil, document_type: nil, total_hits: nil, aggregations: [])
 
     total_hits ||= result_hits.size
-    max_score  = total_hits * 10.2
+
+    max_score = result_hits.map { |r| r.fetch(:_score, 0) }.max
+    max_score = max_score > 0 ? max_score : total_hits * 10.2
 
     build_response document_type:     document_type,
                    index_name:        index_name,
@@ -75,9 +77,9 @@ class ArtirixDataModels::FakeResponseFactory
           {
             _index:  hit.fetch(:_index, index_name),
             _type:   hit.fetch(:_type, document_type),
-            _id:     hit[:id],
-            _score:  present_max_score - (index * 8.5),
-            _source: hit.except(:_index, :_type)
+            _id:     hit[:_id] || hit[:id],
+            _score:  hit.fetch(:_score) { present_max_score - (index * 8.5) },
+            _source: hit.except(:_index, :_type, :_score, :_id)
           }
         end
       },
