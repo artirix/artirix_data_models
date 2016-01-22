@@ -250,17 +250,16 @@ end
 
 ## Changes
 
-### 0.8.2
-
-- adding gateway mock helpers for `post`, `put` and `delete`.
-
-### 0.8.1
-
-- `BasicModelDAO` with `_put` and `_delete` support.
-
-### 0.8.0
+### 0.8.3
 
 - `DataGateway` refactor, plus adding `put` and `delete` support.
+- `BasicModelDAO` with `_put` and `_delete` support.
+- adding gateway mock helpers for `post`, `put` and `delete`, and adapting them to the new behaviour
+- including `ArtirixDataModels::Model::PublicWriters` after `ArtirixDataModels::Model::Attributes` (or after `ArtirixDataModels::Model` or `ArtirixDataModels::Model::OnlyData`) and before calling `attribute` method to make attribute writers public.
+
+### ~0.8.0~, ~0.8.1~, ~0.8.2~ (YANKED)
+
+Yanked because of the gateway mock helpers were missing an option, which made them not mocking properly. (moved all to `0.8.3`)
 
 ### 0.7.5
 
@@ -290,6 +289,10 @@ end
 - changed classes to stop inheriting from `Struct`, had some problems with inheritance.
 - `Aggregation`, `Aggregation::Value` and `MetricAggregation` now using the same inspection as models.
 
+### ~0.7.0~ (YANKED)
+
+Yanked because of bug on Aggregations. Released 0.7.1 with the fix. Changeset moved too to 0.7.1 
+
 ### 0.6.7
 
 - aggregations use `key_as_string` as name of the bucket value if it exists, if not then it uses `key` and if that also does not exist then it uses `name`
@@ -313,26 +316,7 @@ end
 - Fix in EsCollection's aggregation parsing (nested + single from RAW now work ok)
 - `SortedBucketAggregationBase` introduced. now `ArtirixDataModels::AggregationsFactory.sorted_aggregation_class_based_on_index_on(index_array)` available to create a class for Aggregations which will sort the buckets based on the position of the elements on a given array.
 
-### 0.6.2
-
-*Fixed Breaking Change*: removal of `Aggregation.from_json` static method. Now back but delegating to default factory method is `aggregation_factory.aggregation_from_json` in the Aggregation Factory *instance*.
-
-- EsCollection's aggregations can now be build based on raw ElasticSearch responses, including nested aggregations. It ignores any aggregation that does not have "buckets", so that nested aggs for `global` or `filtered` are skipped and only the ones with real data are used. (TODO: write docs. In the mean time, have a look at the specs).
-- added `aggregation` method to `Aggregation::Value` class, and also the aggs to the `data_hash` if they are present.
-
-### 0.5.0
-
-- opening gem as is to the public.
-- still a lot of TODOs in the documentation
-
-
-## Yanked versions
-
-### ~0.7.0~
-
-Yanked because of bug on Aggregations. Released 0.7.1 with the fix. Changeset moved too to 0.7.1 
-
-### ~0.6.3~
+### ~0.6.3~ (YANKED)
 
 Yanked because of typo bug on SortedBucketAggregationBase. Released 0.6.3.1 with the fix.
 
@@ -340,15 +324,27 @@ Yanked because of typo bug on SortedBucketAggregationBase. Released 0.6.3.1 with
 - Fix in EsCollection's aggregation parsing (nested + single from RAW now work ok)
 - `SortedBucketAggregationBase` introduced. now `ArtirixDataModels::AggregationsFactory.sorted_aggregation_class_based_on_index_on(index_array)` available to create a class for Aggregations which will sort the buckets based on the position of the elements on a given array.
 
+### 0.6.2
 
-### ~0.6.1~
+*Fixed Breaking Change*: removal of `Aggregation.from_json` static method. Now back but delegating to default factory method is `aggregation_factory.aggregation_from_json` in the Aggregation Factory *instance*.
+
+- EsCollection's aggregations can now be build based on raw ElasticSearch responses, including nested aggregations. It ignores any aggregation that does not have "buckets", so that nested aggs for `global` or `filtered` are skipped and only the ones with real data are used. (TODO: write docs. In the mean time, have a look at the specs).
+- added `aggregation` method to `Aggregation::Value` class, and also the aggs to the `data_hash` if they are present.
+
+### ~0.6.1~ (YANKED)
 
 Yanked because of breaking change introduction: removal of `Aggregation.from_json` method
 
 - added `aggregation` method to `Aggregation::Value` class, and also the aggs to the `data_hash` if they are present.
 
-### ~v0.6.0~
+### ~v0.6.0~ (YANKED)
 
 Yanked because of breaking change introduction: removal of `Aggregation.from_json` method
 
 - EsCollection's aggregations can now be build based on raw ElasticSearch responses, including nested aggregations. It ignores any aggregation that does not have "buckets", so that nested aggs for `global` or `filtered` are skipped and only the ones with real data are used. (TODO: write docs. In the mean time, have a look at the specs).
+
+### 0.5.0
+
+- opening gem as is to the public.
+- still a lot of TODOs in the documentation
+

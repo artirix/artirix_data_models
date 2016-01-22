@@ -51,6 +51,14 @@ module ArtirixDataModels
       end
     end
 
+    module PublicWriters
+      extend ActiveSupport::Concern
+
+      included do
+        include Attributes::PublicWriters
+      end
+    end
+
     module WithBaseEntity
       extend ActiveSupport::Concern
 
@@ -144,6 +152,15 @@ module ArtirixDataModels
           child_class.attribute_config.parent_attribute_config = attribute_config
         end
 
+        def writer_visibility
+          @writer_visibility ||= :private
+        end
+
+        def writer_visibility=(visibility)
+          raise InvalidArgumentError, "Invalid visibility #{visibility.inspect}" unless [:public, :private, :protected].include? visibility
+          @writer_visibility = visibility
+        end
+
         private
         def _define_attribute(attribute)
           at = attribute.to_sym
@@ -157,7 +174,14 @@ module ArtirixDataModels
         def _define_writer(attribute)
           attr_writer attribute
           writer = "#{attribute}="
-          private writer
+
+          if writer_visibility == :private
+            private writer
+          elsif writer_visibility == :protected
+            protected writer
+          end
+
+          writer
         end
 
         def _define_presence(attribute)
@@ -183,6 +207,13 @@ module ArtirixDataModels
               val
             end
           end
+        end
+      end
+
+      module PublicWriters
+        extend ActiveSupport::Concern
+        included do
+          self.writer_visibility = :public
         end
       end
 
