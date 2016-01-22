@@ -250,6 +250,10 @@ end
 
 ## Changes
 
+### 0.8.2
+
+- adding gateway mock helpers for `post`, `put` and `delete`.
+
 ### 0.8.1
 
 - `BasicModelDAO` with `_put` and `_delete` support.
