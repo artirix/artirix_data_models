@@ -124,6 +124,14 @@ class ArtirixDataModels::BasicModelDAO
     gateway.post path, response_adaptor: response_adaptor, body: body, fake: fake?, fake_response: fake_response, cache_adaptor: cache_adaptor
   end
 
+  def _put(path, response_adaptor: nil, body: nil, fake_response: nil, cache_adaptor: nil)
+    gateway.put path, response_adaptor: response_adaptor, body: body, fake: fake?, fake_response: fake_response, cache_adaptor: cache_adaptor
+  end
+
+  def _delete(path, response_adaptor: nil, body: nil, fake_response: nil, cache_adaptor: nil)
+    gateway.delete path, response_adaptor: response_adaptor, body: body, fake: fake?, fake_response: fake_response, cache_adaptor: cache_adaptor
+  end
+
   def fake?
     return true if forced_fake_enabled?
     return false if forced_fake_disabled?

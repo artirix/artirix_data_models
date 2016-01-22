@@ -250,6 +250,10 @@ end
 
 ## Changes
 
+### 0.8.1
+
+- `BasicModelDAO` with `_put` and `_delete` support.
+
 ### 0.8.0
 
 - `DataGateway` refactor, plus adding `put` and `delete` support.
