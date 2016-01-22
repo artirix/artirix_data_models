@@ -250,6 +250,10 @@ end
 
 ## Changes
 
+### 0.8.0
+
+- `DataGateway` refactor, plus adding `put` and `delete` support.
+
 ### 0.7.5
 
 - `FakeResponseFactory` using given `_score` if > 0.
