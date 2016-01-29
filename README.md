@@ -250,6 +250,23 @@ end
 
 ## Changes
 
+### 0.9.0
+
+- Fake Responses now can be a callable object (if it responds to `call` it will invoke it)
+- refactor in `ArtirixDataModels::DataGateway` to add more info into the exceptions
+- `ArtirixDataModels::DataGateway::Error` and subclasses have now `path`, `method`, `response_status`, `response_body` (when applicable) and also `json_response_body` method which will try to parse `response_body` as if it were json (nil if it is not present or if it is not a valid json)
+- `ArtirixDataModels::DataGateway::Error` subclasses now for specific response status: 
+-- `NotFound`
+-- `NotAcceptable` 
+-- `UnprocessableEntity`
+-- `Unauthorized`
+-- `Forbidden`
+-- `RequestTimeout`
+-- `TooManyRequests`
+-- `ServerError`
+
+note: `ParseError` will not have the `response_status`
+
 ### 0.8.3
 
 - `DataGateway` refactor, plus adding `put` and `delete` support.

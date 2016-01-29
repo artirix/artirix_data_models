@@ -24,13 +24,17 @@ class ArtirixDataModels::DataGateway
 
   def call(method, path, json_body: true, response_adaptor: nil, body: nil, fake: false, fake_response: nil, cache_adaptor: nil, **_ignored_options)
     if fake
-      response_body = fake_response
+      result = fake_response.respond_to?(:call) ? fake_response.call : fake_response
     elsif cache_adaptor.present?
-      response_body = cache_adaptor.call { perform(method, path, body, json_body) }
+      result = cache_adaptor.call { perform(method, path, body, json_body) }
     else
-      response_body = perform(method, path, body, json_body)
+      result = perform(method, path, body, json_body)
     end
-    parse_response(response_body, response_adaptor)
+
+    parse_response result:           result,
+                   response_adaptor: response_adaptor,
+                   method:           method,
+                   path:             path
   end
 
   private
@@ -70,17 +74,14 @@ class ArtirixDataModels::DataGateway
       end
     end
   rescue Faraday::ConnectionFailed => e
-    raise ConnectionError, "method: #{method}, path: #{path}, error: #{e}"
+    raise ConnectionError.new(path: path, method: method), "method: #{method}, path: #{path}, error: #{e}"
   end
 
   def treat_response(response, method, path)
-    if response.success?
-      response.body
-    elsif response.status.to_i == 404
-      raise NotFound, path
-    else
-      raise GatewayError, "method: #{method}, path: #{path}, status: #{response.status}, body: #{response.body}"
-    end
+    return response.body if response.success?
+
+    klass = exception_for_status(response.status)
+    raise klass.new(path: path, method: method, response_body: response.body, response_status: response.status)
   end
 
   def body_to_json(body)
@@ -92,7 +93,7 @@ class ArtirixDataModels::DataGateway
     end
   end
 
-  def parse_response(result, response_adaptor)
+  def parse_response(result:, response_adaptor:, path:, method:)
     if result.present?
       parsed_response = Oj.load result, symbol_keys: true
     else
@@ -106,7 +107,30 @@ class ArtirixDataModels::DataGateway
     end
 
   rescue Oj::ParseError => e
-    raise ParseError, "response: #{result}, #{e}"
+    raise ParseError.new(path: path, method: method, response_body: result), e.message
+  end
+
+  def exception_for_status(response_status)
+    case response_status.to_i
+    when 404
+      NotFound
+    when 406
+      NotAcceptable
+    when 422
+      UnprocessableEntity
+    when 401
+      Unauthorized
+    when 403
+      Forbidden
+    when 408
+      RequestTimeout
+    when 429
+      TooManyRequests
+    when 500
+      ServerError
+    else
+      GatewayError
+    end
   end
 
   module DefaultConnectionLoader
@@ -143,9 +167,38 @@ class ArtirixDataModels::DataGateway
   end
 
   class Error < StandardError
-  end
+    attr_reader :path, :method, :response_status, :response_body
 
-  class NotFound < Error
+    def initialize(path: nil, method: nil, response_status: nil, response_body: nil)
+      @path            = path
+      @method          = method
+      @response_status = response_status
+      @response_body   = response_body
+    end
+
+    def json_response_body
+      return nil unless response_body.present?
+
+      Oj.load response_body, symbol_keys: true
+
+    rescue Oj::Error # in case it's not json
+      nil
+    end
+
+    def to_s
+      msg = super
+      msg = nil if msg == self.class.to_s
+
+      parts = {
+        path:            path,
+        method:          method,
+        response_status: response_status,
+        response_body:   response_body,
+        message:         msg,
+      }.select { |_, v| v.present? }.map { |k, v| "#{k}: #{v.inspect}" }
+
+      "#{self.class}: #{parts.join ', '}"
+    end
   end
 
   class ParseError < Error
@@ -154,6 +207,47 @@ class ArtirixDataModels::DataGateway
   class GatewayError < Error
   end
 
+  ###########################################
+  # SPECIAL, not subclasses of GatewayError #
+  ###########################################
+
+  # 404
+  class NotFound < Error
+  end
+
+  # 406
+  class NotAcceptable < Error
+  end
+
+  # 422
+  class UnprocessableEntity < Error
+  end
+
+  ##############################
+  # subclasses of GatewayError #
+  ##############################
+
+  # 401
+  class Unauthorized < GatewayError
+  end
+
+  # 403
+  class Forbidden < GatewayError
+  end
+
+  # 408
+  class RequestTimeout < GatewayError
+  end
+
+  # 429
+  class TooManyRequests < GatewayError
+  end
+
+  # 500
+  class ServerError < GatewayError
+  end
+
+  # generic error
   class ConnectionError < GatewayError
   end
 end
