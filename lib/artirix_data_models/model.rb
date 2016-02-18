@@ -25,6 +25,19 @@ module ArtirixDataModels
       end
     end
 
+    module WithoutDefaultAttributes
+      extend ActiveSupport::Concern
+
+      included do
+        include ActiveModelCompliant
+        include Attributes
+        include PrimaryKey
+        include WithDAO
+        include CacheKey
+        include PartialMode
+      end
+    end
+
     module CompleteModel
       extend ActiveSupport::Concern
 

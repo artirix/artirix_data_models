@@ -17,6 +17,7 @@ module ArtirixDataModels
       :forced_fake_disabled?,
       :empty_collection,
       :empty_collection_for,
+      :model_adaptor_factory
     ]
 
     included do
@@ -25,13 +26,21 @@ module ArtirixDataModels
     end
 
 
-    def initialize(gateway: nil, model_name: nil, model_class: nil, paths_factory: nil, fake_mode_factory: nil)
-      model_class       = model_class || default_model_class
-      gateway           = gateway || ArtirixDataModels::DAORegistry.gateway
-      model_name        = model_name || default_model_name
-      paths_factory     = paths_factory || default_path_factory
-      fake_mode_factory = fake_mode_factory || default_fake_mode_factory
-      @basic_model_dao  = ArtirixDataModels::DAORegistry.basic_class.new model_name, model_class, paths_factory, gateway, fake_mode_factory
+    def initialize(gateway: nil, gateway_factory: nil, ignore_default_gateway: false, model_name: nil, model_class: nil, paths_factory: nil, fake_mode_factory: nil)
+      if gateway.blank? && gateway_factory.blank? && !ignore_default_gateway
+        gateway = ArtirixDataModels::DAORegistry.gateway
+      end
+
+      model_name        ||= default_model_name
+      model_class       ||= default_model_class
+      paths_factory     ||= default_path_factory
+      fake_mode_factory ||= default_fake_mode_factory
+      @basic_model_dao  = ArtirixDataModels::DAORegistry.basic_class.new model_name:        model_name,
+                                                                         model_class:       model_class,
+                                                                         fake_mode_factory: fake_mode_factory,
+                                                                         paths_factory:     paths_factory,
+                                                                         gateway:           gateway,
+                                                                         gateway_factory:   gateway_factory
     end
 
     def default_model_name
@@ -75,7 +84,7 @@ module ArtirixDataModels
 
     def get_full(model_pk, model_to_reload: nil, cache_adaptor: nil, **extra_options)
       model_to_reload ||= new_model_with_pk(model_pk)
-      cache_adaptor  ||= cache_model_adaptor_for_get_full(model_pk, model_to_reload: model_to_reload, **extra_options)
+      cache_adaptor   ||= cache_model_adaptor_for_get_full(model_pk, model_to_reload: model_to_reload, **extra_options)
       basic_model_dao.get_full(model_pk, model_to_reload: model_to_reload, cache_adaptor: cache_adaptor, **extra_options)
     end
 

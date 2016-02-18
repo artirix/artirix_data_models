@@ -128,4 +128,7 @@ module ArtirixDataModels
     @disabled_cache ||= DisabledCache.new
   end
 
+  class IllegalActionError < StandardError
+  end
+
 end

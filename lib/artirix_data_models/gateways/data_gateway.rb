@@ -77,13 +77,6 @@ class ArtirixDataModels::DataGateway
     raise ConnectionError.new(path: path, method: method), "method: #{method}, path: #{path}, error: #{e}"
   end
 
-  def treat_response(response, method, path)
-    return response.body if response.success?
-
-    klass = exception_for_status(response.status)
-    raise klass.new(path: path, method: method, response_body: response.body, response_status: response.status)
-  end
-
   def body_to_json(body)
     case body
     when String
@@ -110,7 +103,26 @@ class ArtirixDataModels::DataGateway
     raise ParseError.new(path: path, method: method, response_body: result), e.message
   end
 
+  #######################
+  # EXCEPTION TREATMENT #
+  #######################
+
+  def treat_response(response, method, path)
+    self.class.treat_response(response, method, path)
+  end
+
   def exception_for_status(response_status)
+    self.class.exception_for_status(response_status)
+  end
+
+  def self.treat_response(response, method, path)
+    return response.body if response.success?
+
+    klass = exception_for_status(response.status)
+    raise klass.new(path: path, method: method, response_body: response.body, response_status: response.status)
+  end
+
+  def self.exception_for_status(response_status)
     case response_status.to_i
     when 404
       NotFound
@@ -118,6 +130,8 @@ class ArtirixDataModels::DataGateway
       NotAcceptable
     when 422
       UnprocessableEntity
+    when 409
+      Conflict
     when 401
       Unauthorized
     when 403
@@ -221,6 +235,10 @@ class ArtirixDataModels::DataGateway
 
   # 422
   class UnprocessableEntity < Error
+  end
+
+  # 409
+  class Conflict < Error
   end
 
   ##############################
