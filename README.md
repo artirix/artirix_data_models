@@ -250,6 +250,9 @@ end
 
 ## Changes
 
+### 0.11.0
+- introducing `ArtirixDataModels::ActiveNull` with a port of `active_null` gem to work with our models.
+
 ### 0.10.1
 - DAO spec helpers were broken since Gateway refactor of `v0.8`. This fixes them.
 

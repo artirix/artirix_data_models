@@ -33,6 +33,7 @@ require 'artirix_data_models/daos/model_fields_dao'
 require 'artirix_data_models/daos/basic_model_dao'
 require 'artirix_data_models/dao_registry'
 require 'artirix_data_models/fake_response_factory'
+require 'artirix_data_models/active_null'
 
 module ArtirixDataModels
 
