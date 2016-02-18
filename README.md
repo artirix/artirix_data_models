@@ -250,6 +250,9 @@ end
 
 ## Changes
 
+### 0.10.1
+- DAO spec helpers were broken since Gateway refactor of `v0.8`. This fixes them.
+
 ### 0.10.0
 
 - Gateways:

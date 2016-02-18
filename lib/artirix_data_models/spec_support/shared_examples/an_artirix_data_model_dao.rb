@@ -43,8 +43,8 @@ shared_examples_for 'an ArtirixDataModel DAO' do
   # mock gateway calls
   Given(:gateway) do
     ArtirixDataModels::DataGateway.new.tap do |gateway|
-      expect(gateway).to receive(:perform_get).with(path_full, nil).and_return(json_full).at_most(:once)
-      expect(gateway).to receive(:perform_get).with(path_partial, nil).and_return(json_partial).at_most(:once)
+      expect(gateway).to receive(:perform).with(:get, path_full, nil, true).and_return(json_full).at_most(:once)
+      expect(gateway).to receive(:perform).with(:get, path_partial, nil, true).and_return(json_partial).at_most(:once)
     end
   end
 

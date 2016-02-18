@@ -23,7 +23,7 @@ shared_examples_for 'a search enabled UI ModelDAO' do
   # mock gateway calls
   Given(:gateway) do
     ArtirixDataModels::DataGateway.new.tap do |gateway|
-      expect(gateway).to receive(:perform_get).with(path_for_search, nil).and_return(json_search).at_most(:once)
+      expect(gateway).to receive(:perform).with(:get, path_for_search, nil, true).and_return(json_search).at_most(:once)
     end
   end
 
