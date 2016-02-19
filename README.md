@@ -250,6 +250,9 @@ end
 
 ## Changes
 
+### 0.11.1
+- `ArtirixDataModels::DataGateway::GatewayError` subclass now for status `400`: `BadRequest`
+
 ### 0.11.0
 - introducing `ArtirixDataModels::ActiveNull` with a port of `active_null` gem to work with our models.
 

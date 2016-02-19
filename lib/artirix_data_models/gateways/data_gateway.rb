@@ -132,6 +132,8 @@ class ArtirixDataModels::DataGateway
       UnprocessableEntity
     when 409
       Conflict
+    when 400
+      BadRequest
     when 401
       Unauthorized
     when 403
@@ -244,6 +246,10 @@ class ArtirixDataModels::DataGateway
   ##############################
   # subclasses of GatewayError #
   ##############################
+
+  # 400
+  class BadRequest < GatewayError
+  end
 
   # 401
   class Unauthorized < GatewayError
