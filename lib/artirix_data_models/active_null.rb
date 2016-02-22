@@ -29,10 +29,6 @@ module ArtirixDataModels
           config.impersonate model
           config.predicates_return false
 
-          model.defined_attributes.each do |field, default|
-            define_method(field.to_sym) { default }
-          end
-
           def nil?
             true
           end
@@ -48,6 +44,53 @@ module ArtirixDataModels
           def to_json
             '{}'
           end
+
+          ##########################
+          # ACTIVE MODEL COMPLIANT #
+          ##########################
+
+          def to_model
+            self
+          end
+
+          def to_partial_path
+            model._to_partial_path
+          end
+
+          def persisted?
+            true
+          end
+
+          def valid?
+            true
+          end
+
+          def new_record?
+            false
+          end
+
+          def destroyed?
+            false
+          end
+
+          def errors
+            obj = Object.new
+
+            def obj.[](key)
+              []
+            end
+
+            def obj.full_messages()
+              []
+            end
+
+            obj
+          end
+
+
+          ##########
+          # DRAPER #
+          ##########
 
           if Object.const_defined? 'Draper'
             def decorate(options = {})
@@ -77,6 +120,7 @@ module ArtirixDataModels
         end
         null.send(:include, Draper::Decoratable) if Object.const_defined? 'Draper'
         null.send(:include, overrides) if overrides
+        null.send(:include, ArtirixDataModels::Model::ActiveModelCompliant)
         set_null_model null
       end
 

@@ -250,6 +250,9 @@ end
 
 ## Changes
 
+### 0.11.2
+- `ArtirixDataModels::ActiveNull` better acting like a model.
+
 ### 0.11.1
 - `ArtirixDataModels::DataGateway::GatewayError` subclass now for status `400`: `BadRequest`
 

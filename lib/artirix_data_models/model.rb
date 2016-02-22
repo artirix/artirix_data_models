@@ -121,6 +121,12 @@ module ArtirixDataModels
 
         obj
       end
+
+      module ClassMethods
+        def active_model_compliant?
+          true
+        end
+      end
     end
 
     module Attributes
