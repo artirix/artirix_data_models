@@ -151,7 +151,8 @@ module ArtirixDataModels
 
       module ClassMethods
         def attribute(*attributes)
-          attributes.each { |attribute| _define_attribute attribute }
+          options = attributes.extract_options!
+          attributes.each { |attribute| _define_attribute attribute, options }
         end
 
         def attribute_config
@@ -181,44 +182,56 @@ module ArtirixDataModels
         end
 
         private
-        def _define_attribute(attribute)
+        def _define_attribute(attribute, options)
           at = attribute.to_sym
-          _define_getter(at)
-          _define_presence(at)
-          _define_writer(at)
+          _define_getter(at, options)
+          _define_presence(at, options)
+          _define_writer(at, options)
 
           attribute_config.add_attribute at
         end
 
-        def _define_writer(attribute)
+        def _define_writer(attribute, options)
+          skip_option = Array(options.fetch(:skip, []))
+          return nil if skip_option.include?(:writer) || skip_option.include?(:setter)
+
+          vis = options.fetch(:writer_visibility, writer_visibility)
+
           attr_writer attribute
           writer = "#{attribute}="
 
-          if writer_visibility == :private
+          if vis == :private
             private writer
-          elsif writer_visibility == :protected
+          elsif vis == :protected
             protected writer
           end
 
           writer
         end
 
-        def _define_presence(attribute)
+        def _define_presence(attribute, options)
+          skip_option = Array(options.fetch(:skip, []))
+          return nil if skip_option.include?(:presence) || skip_option.include?(:predicate)
+
           presence_method = "#{attribute}?"
           define_method presence_method do
             send(attribute).present?
           end
         end
 
-        def _define_getter(attribute)
+        def _define_getter(attribute, options)
+          skip_option = Array(options.fetch(:skip, []))
+          return nil if skip_option.include?(:reader) || skip_option.include?(:getter)
+
           variable_name = "@#{attribute}"
           dir_get_name  = Attributes.direct_getter_method_name(attribute)
+          reader        = attribute.to_s
 
           define_method dir_get_name do
             instance_variable_get variable_name
           end
 
-          define_method(attribute) do
+          define_method(reader) do
             val = send dir_get_name
             if val.nil?
               nil_attribute(attribute)
@@ -226,6 +239,15 @@ module ArtirixDataModels
               val
             end
           end
+
+          vis = options.fetch(:reader_visibility, :public)
+
+          if vis == :private
+            private reader
+          elsif vis == :protected
+            protected reader
+          end
+
         end
       end
 

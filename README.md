@@ -52,6 +52,24 @@ end
 
 TODO:
 
+```ruby
+
+class MyModel
+  include ArtirixDataModels::Model::OnlyData
+
+  attribute :id, :name
+
+  attribute :public_title, writer_visibility: :public
+  attribute :private_title, reader_visibility: :private
+
+  attribute :remember_me, :and_me, skip: :predicate
+  attribute :remember_me2, :and_me2, skip: :presence
+
+end
+
+
+```
+
 ### DAO
 
 TODO:
@@ -249,6 +267,9 @@ end
 
 
 ## Changes
+
+### 0.12.0
+- `attribute` call now can accept a hash of options as the last argument. This options include: `skip` (what to skip), `writer_visibility` and `reader_visibility`.
 
 ### 0.11.2
 - `ArtirixDataModels::ActiveNull` better acting like a model.
