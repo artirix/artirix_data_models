@@ -17,10 +17,15 @@ module ArtirixDataModels
       :forced_fake_disabled?,
       :empty_collection,
       :empty_collection_for,
-      :model_adaptor_factory
+      :perform_get,
+      :perform_post,
+      :perform_put,
+      :perform_delete,
     ]
 
     included do
+      include ArtirixDataModels::DAOConcerns::WithResponseAdaptors
+
       attr_reader :basic_model_dao
       delegate *DELEGATED_METHODS, to: :basic_model_dao
     end

@@ -268,6 +268,12 @@ end
 
 ## Changes
 
+### 0.13.0
+- `DAO`: fake responses lazy loaded
+- `DAO`: response adaptor methods of basic dao moved to a module, included in `BasicDAO` and as part of the module `DAO`. Also added `response_adaptor_for_identity`, which returns the same.
+- `Model`: added `new_full_mode` method, that will build a new model and mark it as full mode
+
+
 ### 0.12.0
 - `attribute` call now can accept a hash of options as the last argument. This options include: `skip` (what to skip), `writer_visibility` and `reader_visibility`.
 

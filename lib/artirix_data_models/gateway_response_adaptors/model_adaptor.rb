@@ -40,6 +40,10 @@ module ArtirixDataModels::GatewayResponseAdaptors
 
     private_class_method :new
 
+    def self.identity
+      new ->(data_hash) { data_hash }
+    end
+
     def self.single(model_class)
       new ->(data_hash) { model_class.new data_hash }
     end

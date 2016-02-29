@@ -421,6 +421,10 @@ module ArtirixDataModels
       end
 
       module ClassMethods
+        def new_full_mode(*args, &block)
+          new(*args, &block).tap { |x| x.mark_full_mode }
+        end
+
         def always_in_partial_mode(attribute)
           attribute_config.always_in_partial_mode(attribute)
         end
