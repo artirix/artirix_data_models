@@ -268,6 +268,20 @@ end
 
 ## Changes
 
+### 0.14.0
+- `Model`: added static `mark_full_mode_by_default`: if called in the model definition it will make all new models full mode by default
+
+```ruby
+class MyModel
+  include ArtirixDataModels::Model
+  
+  mark_full_mode_by_default
+end
+
+x = MyModel.new some: :params
+x.full_mode? # => true
+```
+
 ### 0.13.0
 - `DAO`: fake responses lazy loaded
 - `DAO`: response adaptor methods of basic dao moved to a module, included in `BasicDAO` and as part of the module `DAO`. Also added `response_adaptor_for_identity`, which returns the same.

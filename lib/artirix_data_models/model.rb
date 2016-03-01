@@ -378,7 +378,11 @@ module ArtirixDataModels
       end
 
       def full_mode?
-        !!@_full_mode
+        if @_full_mode.nil?
+          self.class.default_full_mode?
+        else
+          @_full_mode
+        end
       end
 
       def mark_full_mode
@@ -436,17 +440,30 @@ module ArtirixDataModels
         def is_always_in_partial_mode?(attribute)
           attribute_config.is_always_in_partial_mode?(attribute)
         end
+
+        def default_full_mode?
+          !!attribute_config.default_full_mode
+        end
+
+        def mark_full_mode_by_default
+          attribute_config.default_full_mode = true
+        end
+
+        def mark_partial_mode_by_default
+          attribute_config.default_full_mode = false
+        end
       end
     end
 
     class AttributeConfig
       attr_reader :attribute_list, :always_in_partial_mode_list
-      attr_accessor :parent_attribute_config
+      attr_accessor :parent_attribute_config, :default_full_mode
 
       def initialize
         @attribute_list              = Set.new
         @always_in_partial_mode_list = Set.new
         @parent_attribute_config     = nil
+        @default_full_mode           = false
       end
 
       def attributes

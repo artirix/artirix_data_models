@@ -122,3 +122,25 @@ RSpec.describe MyModel, type: :model do
   end
 
 end
+
+
+class MyModelFullMode
+  include ArtirixDataModels::Model
+
+  mark_full_mode_by_default
+
+  attribute :id, :name
+end
+
+RSpec.describe MyModelFullMode, type: :model do
+
+  subject { described_class.new data }
+
+  let(:data) { { id: 1, name: 'some name' } }
+
+  describe '.mark_full_mode_by_default' do
+    it 'makes new instances full mode by default' do
+      expect(subject.full_mode?).to be_truthy
+    end
+  end
+end
