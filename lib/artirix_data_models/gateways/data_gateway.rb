@@ -74,7 +74,10 @@ class ArtirixDataModels::DataGateway
       end
     end
   rescue Faraday::ConnectionFailed => e
-    raise ConnectionError.new(path: path, method: method), "method: #{method}, path: #{path}, error: #{e}"
+    raise ConnectionError,
+          path:    path,
+          method:  method,
+          message: "method: #{method}, path: #{path}, error: #{e}"
   end
 
   def body_to_json(body)
@@ -100,7 +103,11 @@ class ArtirixDataModels::DataGateway
     end
 
   rescue Oj::ParseError => e
-    raise ParseError.new(path: path, method: method, response_body: result), e.message
+    raise ParseError,
+          path:          path,
+          method:        method,
+          response_body: result,
+          message:       e.message
   end
 
   #######################
@@ -119,7 +126,11 @@ class ArtirixDataModels::DataGateway
     return response.body if response.success?
 
     klass = exception_for_status(response.status)
-    raise klass.new(path: path, method: method, response_body: response.body, response_status: response.status)
+    raise klass,
+          path:            path,
+          method:          method,
+          response_body:   response.body,
+          response_status: response.status
   end
 
   def self.exception_for_status(response_status)
@@ -183,13 +194,37 @@ class ArtirixDataModels::DataGateway
   end
 
   class Error < StandardError
-    attr_reader :path, :method, :response_status, :response_body
+    attr_reader :path, :method, :response_status, :response_body, :message
 
-    def initialize(path: nil, method: nil, response_status: nil, response_body: nil)
-      @path            = path
-      @method          = method
-      @response_status = response_status
-      @response_body   = response_body
+    alias_method :msg, :message
+
+    def initialize(*args)
+      case args.size
+      when 0
+        message = nil
+        options = {}
+      when 1
+        if args.first.kind_of? Hash
+          options = args.first
+          message = nil
+        else
+          message = args.first
+          options = {}
+        end
+      else
+        message = args[0]
+        options = args[1]
+
+        if message.kind_of? Hash
+          options, message = message, options
+        end
+      end
+
+      if message.present?
+        options[:message] = message
+      end
+
+      build_from_options(options) if options.present?
     end
 
     def json_response_body
@@ -210,10 +245,36 @@ class ArtirixDataModels::DataGateway
         method:          method,
         response_status: response_status,
         response_body:   response_body,
-        message:         msg,
+        message:         message,
       }.select { |_, v| v.present? }.map { |k, v| "#{k}: #{v.inspect}" }
 
       "#{self.class}: #{parts.join ', '}"
+    end
+
+    def data_hash
+      {
+        class:           self.class.to_s,
+        path:            path,
+        method:          method,
+        response_status: response_status,
+        response_body:   response_body,
+        message:         message,
+      }
+    end
+
+    # for testing
+    def matches?(other)
+      other.kind_of? self.class
+    end
+
+    private
+
+    def build_from_options(path: nil, method: nil, response_status: nil, response_body: nil, message: nil, **_other)
+      @path            = path
+      @method          = method
+      @response_status = response_status
+      @response_body   = response_body
+      @message         = message.presence || self.class.to_s
     end
   end
 

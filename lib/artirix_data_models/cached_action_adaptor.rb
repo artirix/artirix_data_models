@@ -68,7 +68,7 @@ class ArtirixDataModels::CachedActionAdaptor
     cache_result [STATUS_OK, result]
     result
   rescue ArtirixDataModels::DataGateway::NotFound => e
-    cache_result [STATUS_NOT_FOUND, e.message]
+    cache_result [STATUS_NOT_FOUND, e.data_hash]
     raise e
   end
 

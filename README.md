@@ -268,6 +268,18 @@ end
 
 ## Changes
 
+### 0.14.1
+- Exceptions now with `data_hash` and ability to be raised with message, options, or both.
+- Cache Adaptors now store the data hash of the NotFound exception, and a new one is built and raised when reading a cached NotFound. 
+
+```ruby
+raise ArtirixDataModels::DataGateway::NotFound, 'blah blah'
+raise ArtirixDataModels::DataGateway::NotFound, path: 'something', message: 'blah blah'
+raise ArtirixDataModels::DataGateway::NotFound.new('xxx')
+raise ArtirixDataModels::DataGateway::NotFound.new(path: 'x')
+raise ArtirixDataModels::DataGateway::NotFound.new('Something', path: 'x')
+```
+
 ### 0.14.0
 - `Model`: added static `mark_full_mode_by_default`: if called in the model definition it will make all new models full mode by default
 
