@@ -12,25 +12,25 @@ def given_gateway_config(connection_url = nil)
 end
 
 
-def mock_gateway_response(response:, method:, path:, body: nil, json_body: true, gateway: nil)
+def mock_gateway_response(response:, method:, path:, body: nil, json_body: true, timeout: nil, gateway: nil)
   gateway ||= ArtirixDataModels::DAORegistry.gateway
-  allow(gateway).to receive(:perform).with(method, path, body, json_body).and_return response
+  allow(gateway).to receive(:perform).with(method, path: path, body: body, json_body: json_body, timeout: timeout).and_return response
 
   # check with body already parsed
   unless body.nil?
     body = body.kind_of?(String) ? body : body.to_json
-    allow(gateway).to receive(:perform).with(method, path, body, json_body).and_return response
+    allow(gateway).to receive(:perform).with(method, path: path, body: body, json_body: json_body, timeout: timeout).and_return response
   end
 end
 
-def mock_gateway_not_found_response(method:, path:, body: nil, json_body: true, gateway: nil)
+def mock_gateway_not_found_response(method:, path:, body: nil, json_body: true, timeout: nil, gateway: nil)
   gateway ||= ArtirixDataModels::DAORegistry.gateway
-  allow(gateway).to receive(:perform).with(method, path, body, json_body).and_raise ArtirixDataModels::DataGateway::NotFound
+  allow(gateway).to receive(:perform).with(method, path: path, body: body, json_body: json_body, timeout: timeout).and_raise ArtirixDataModels::DataGateway::NotFound
 
   # check with body already parsed
   unless body.nil?
     body = body.kind_of?(String) ? body : body.to_json
-    allow(gateway).to receive(:perform).with(method, path, body, json_body).and_raise ArtirixDataModels::DataGateway::NotFound
+    allow(gateway).to receive(:perform).with(method, path: path, body: body, json_body: json_body, timeout: timeout).and_raise ArtirixDataModels::DataGateway::NotFound
   end
 end
 

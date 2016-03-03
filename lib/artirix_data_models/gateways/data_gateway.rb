@@ -22,13 +22,13 @@ class ArtirixDataModels::DataGateway
     call :delete, path, **opts
   end
 
-  def call(method, path, json_body: true, response_adaptor: nil, body: nil, fake: false, fake_response: nil, cache_adaptor: nil, **_ignored_options)
+  def call(method, path, json_body: true, response_adaptor: nil, body: nil, fake: false, fake_response: nil, cache_adaptor: nil, timeout: nil, **_ignored_options)
     if fake
       result = fake_response.respond_to?(:call) ? fake_response.call : fake_response
     elsif cache_adaptor.present?
-      result = cache_adaptor.call { perform(method, path, body, json_body) }
+      result = cache_adaptor.call { perform(method, path: path, body: body, json_body: json_body, timeout: timeout) }
     else
-      result = perform(method, path, body, json_body)
+      result = perform(method, path: path, body: body, json_body: json_body, timeout: timeout)
     end
 
     parse_response result:           result,
@@ -39,31 +39,32 @@ class ArtirixDataModels::DataGateway
 
   private
 
-  def perform_get(path, body = nil, json_body = true)
-    perform :get, path, body, json_body
+  def perform_get(path, **opts)
+    perform :get, path: path, **opts
   end
 
-  def perform_post(path, body = nil, json_body = true)
-    perform :post, path, body, json_body
+  def perform_post(path, **opts)
+    perform :post, path: path, **opts
   end
 
-  def perform_put(path, body = nil, json_body = true)
-    perform :put, path, body, json_body
+  def perform_put(path, **opts)
+    perform :put, path: path, **opts
   end
 
-  def perform_delete(path, body = nil, json_body = true)
-    perform :delete, path, body, json_body
+  def perform_delete(path, **opts)
+    perform :delete, path: path, **opts
   end
 
-  def perform(method, path, body = nil, json_body = true)
-    response = connect(method, path, body, json_body)
+  def perform(method, path:, body: nil, json_body: true, timeout: nil)
+    response = connect(method, path: path, body: body, json_body: json_body, timeout: timeout)
     treat_response(response, method, path)
   end
 
-  def connect(method, path, body = nil, json_body = true)
-    # binding.pry if method == :delete
+  def connect(method, path:, body: nil, json_body: true, timeout: nil)
     connection.send(method, path) do |req|
-      # binding.pry if method == :delete
+
+      req.options.timeout = timeout if timeout.present?
+
       unless body.nil?
         if json_body
           req.body                    = body_to_json body
@@ -73,7 +74,7 @@ class ArtirixDataModels::DataGateway
         end
       end
     end
-  rescue Faraday::ConnectionFailed => e
+  rescue Faraday::ConnectionFailed, Faraday::Error::TimeoutError, Errno::ETIMEDOUT => e
     raise ConnectionError,
           path:    path,
           method:  method,

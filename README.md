@@ -268,6 +268,25 @@ end
 
 ## Changes
 
+### 0.15.0
+- `Gateway` `perform` and `connect` now accept the extra arguments as keyword arguments:
+
+```ruby
+  gateway.perform :get, path: '/this/is/required' body: nil, json_body: true, timeout: 10 
+```
+
+The internals are adapted but if a client app was mocking Gateway's `perform` directly, this could be a breaking change.
+- added the `timeout` option to perform gateway (and DAO methods). It will add timeout to the Faraday request
+
+```ruby
+def connect(method, path:, body: nil, json_body: true, timeout: nil)
+  connection.send(method, path) do |req|
+     req.options.timeout = timeout if timeout.present?
+     # ...
+  end
+end
+```
+
 ### 0.14.2
 - Cache service: expire_cache now can receive options `add_wildcard` and `add_prefix` (both `true` by default), that will control the modifications on the given pattern
 

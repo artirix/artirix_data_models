@@ -19,7 +19,7 @@ shared_examples_for 'a finder enabled UI ModelDAO' do
   # mock gateway calls
   Given(:gateway) do
     ArtirixDataModels::DataGateway.new.tap do |gateway|
-      expect(gateway).to receive(:perform).with(:get, path_for_find_by, nil, true).and_return(json_find_by).at_most(:once)
+      expect(gateway).to receive(:perform).with(:get, path: path_for_find_by, body: nil, json_body: true, timeout: nil).and_return(json_find_by).at_most(:once)
     end
   end
 
