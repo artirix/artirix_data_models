@@ -43,6 +43,29 @@ RSpec.describe ArtirixDataModels::DataGateway, type: :model do
     end
   end
 
+  context 'requests with timeout' do
+    Given(:connection_url) { 'http://10.255.255.1' }
+    Given(:connection) do
+      Faraday.new(url: connection_url, request: { params_encoder: Faraday::FlatParamsEncoder }) do |faraday|
+        faraday.request :url_encoded # form-encode without body only path params
+        faraday.response :logger # log requests to STDOUT
+        faraday.adapter Faraday.default_adapter
+      end
+    end
+
+    Given(:gateway) do
+      described_class.new connection: connection
+    end
+
+    Given(:path_with_timeout) { '/anywhere' }
+
+    describe '#get' do
+      When(:result) { gateway.get path_with_timeout, timeout: 1 }
+
+      Then { result == Failure(ArtirixDataModels::DataGateway::ConnectionError) }
+    end
+  end
+
   context 'requests' do
     Given(:connection_url) { 'http://example.com' }
     Given(:connection_stubs) { Faraday::Adapter::Test::Stubs.new }
