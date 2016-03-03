@@ -268,6 +268,9 @@ end
 
 ## Changes
 
+### 0.14.2
+- Cache service: expire_cache now can receive options `add_wildcard` and `add_prefix` (both `true` by default), that will control the modifications on the given pattern
+
 ### 0.14.1
 - Exceptions now with `data_hash` and ability to be raised with message, options, or both.
 - Cache Adaptors now store the data hash of the NotFound exception, and a new one is built and raised when reading a cached NotFound. 

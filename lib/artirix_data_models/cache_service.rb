@@ -18,6 +18,10 @@ module ArtirixDataModels::CacheService
     end
   end
 
+  def self.expire_cache(*args, &block)
+    Expirer.expire_cache *args, &block
+  end
+
   def self.method_missing(m, *args, &block)
     method = m.to_s
 
@@ -139,8 +143,10 @@ module ArtirixDataModels::CacheService
       method_name.start_with? 'expire_'
     end
 
-    def self.expire_cache(pattern = nil)
-      CacheStoreHelper.delete_matched(pattern)
+    def self.expire_cache(pattern = nil, add_wildcard: true, add_prefix: true)
+      CacheStoreHelper.delete_matched pattern,
+                                      add_wildcard: add_wildcard,
+                                      add_prefix:   add_prefix
     end
   end
 
@@ -150,14 +156,19 @@ module ArtirixDataModels::CacheService
       "#{prefix}__#{key_value}"
     end
 
-    def self.final_pattern(pattern)
-      suf = pattern.present? ? "#{pattern}*" : ''
-      "*#{prefix}*#{suf}"
+    def self.final_pattern(pattern, add_wildcard: true, add_prefix: true)
+      p = pattern
+      p = p.present? ? "#{p}*" : '' if add_wildcard
+      p = "*#{prefix}*#{p}" if add_prefix
+      p
     end
 
-    def self.delete_matched(pattern = nil)
+    def self.delete_matched(pattern = nil, add_wildcard: true, add_prefix: true)
       return false unless ArtirixDataModels.cache.present?
-      ArtirixDataModels.cache.delete_matched final_pattern(pattern)
+
+      p = final_pattern(pattern, add_wildcard: add_wildcard, add_prefix: add_prefix)
+
+      ArtirixDataModels.cache.delete_matched p
     end
 
     def self.prefix
