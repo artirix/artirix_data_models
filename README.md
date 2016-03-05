@@ -268,6 +268,9 @@ end
 
 ## Changes
 
+### 0.15.1
+updating dependencies: KeywordInit (to support passing nil)
+
 ### 0.15.0
 - `Gateway` `perform` and `connect` now accept the extra arguments as keyword arguments:
 
