@@ -13,7 +13,7 @@ group :development, :test do
 end
 
 group :test do
-  gem 'fakeredis', require: "fakeredis/rspec"
+  gem 'fakeredis', require: 'fakeredis/rspec'
 end
 
-gem 'codeclimate-test-reporter', :group => :test, :require => nil
+gem 'codeclimate-test-reporter', group: :test, require: nil

@@ -20,6 +20,8 @@ It's designed to work assuming JSON APIs and ElasticSearch responses.
 - change Cache to use [artirix_cache_service](https://github.com/artirix/artirix_cache_service)
 
 
+note: for making a model compatible with [ActiveModelSerializers](https://github.com/rails-api/active_model_serializers), use [artirix_data_models-ams](https://github.com/artirix/artirix_data_models-ams/)
+
 ## Usage
 
 ### Connection
@@ -267,6 +269,9 @@ end
 
 
 ## Changes
+
+### 0.16.0
+`ArtirixDataModels::Model::CacheKey` now does not assume that you are in a complete model. It tries to use `model_dao_name`, `primary_key`, `id`, `_timestamp` and `updated_at`, but it has default for each section. Change to be able to make a model with `OnlyData` compatible with `AMS` using [`artirix_data_models-ams`](https://github.com/artirix/artirix_data_models-ams/) gem
 
 ### 0.15.1
 updating dependencies: KeywordInit (to support passing nil)

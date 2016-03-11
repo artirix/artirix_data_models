@@ -355,13 +355,17 @@ module ArtirixDataModels
       extend ActiveSupport::Concern
 
       EMPTY_TIMESTAMP = 'no_time'.freeze
+      SEPARATOR       = '/'.freeze
 
       def cache_key
+        m = try(:model_dao_name) || self.class
+        i = try(:primary_key) || try(:id) || try(:object_id)
+        t = try(:_timestamp) || try(:updated_at) || EMPTY_TIMESTAMP
         [
-          model_dao_name.to_s.parameterize,
-          primary_key.to_s.parameterize,
-          (_timestamp.present? ? _timestamp.to_s.parameterize : EMPTY_TIMESTAMP),
-        ].join '/'
+          m.to_s.parameterize,
+          i.to_s.parameterize,
+          t.to_s.parameterize,
+        ].join SEPARATOR
       end
     end
 
