@@ -6,7 +6,7 @@ class ArtirixDataModels::DataGateway
                  timeout: nil,
                  authorization_bearer: nil,
                  authorization_token_hash: nil)
-    @connection               = connection || DefaultConnectionLoader.default_connection
+    @connection               = connection || ConnectionLoader.default_connection
     @post_as_json             = !!post_as_json
     @authorization_bearer     = authorization_bearer
     @authorization_token_hash = authorization_token_hash
@@ -227,53 +227,44 @@ class ArtirixDataModels::DataGateway
     end
   end
 
-  module DefaultConnectionLoader
-
+  module ConnectionLoader
     class << self
-      attr_accessor :config
+      def default_connection(**others)
+        connection_by_config_key :data_gateway, **others
+      end
 
-      def default_connection
-        url = connection_url
+      def connection_by_config_key(config_key, **others)
+        connection config: SimpleConfig.for(:site).send(config_key), **others
+      end
+
+      def connection(config: {}, url: nil, login: nil, password: nil, bearer_token: nil, token_hash: nil)
+        url          ||= config.try :url
+        login        ||= config.try :login
+        password     ||= config.try :password
+        bearer_token ||= config.try :bearer_token
+        token_hash   ||= config.try :token_hash
+
+        raise InvalidConnectionError, 'no url given, nor is it present in `config.url`' unless url.present?
 
         Faraday.new(url: url, request: { params_encoder: Faraday::FlatParamsEncoder }) do |faraday|
           faraday.request :url_encoded # form-encode POST params
           faraday.response :logger # log requests to STDOUT
 
-          if basic_auth?
-            faraday.basic_auth(config.login, config.password)
-          elsif bearer_auth?
-            faraday.authorization :Bearer, config.bearer_token
-          elsif token_auth?
-            faraday.authorization :Token, config.token_hash
+          if login.present? || password.present?
+            faraday.basic_auth(login, password)
+          elsif bearer_token.present?
+            faraday.authorization :Bearer, bearer_token
+          elsif token_hash.present?
+            faraday.authorization :Token, token_hash
           end
 
           faraday.adapter Faraday.default_adapter
         end
       end
-
-      # Configuration access
-
-      def config
-        @config ||= SimpleConfig.for(:site).data_gateway
-      end
-
-      def connection_url
-        config.url
-      end
-
-      def basic_auth?
-        config.respond_to?(:login) && config.respond_to?(:password)
-      end
-
-      def bearer_auth?
-        config.respond_to?(:bearer_token) && config.bearer_token.present?
-      end
-
-      def token_auth?
-        config.respond_to?(:token_hash) && config.token_hash.present?
-      end
     end
 
+    class InvalidConnectionError < StandardError
+    end
   end
 
   class Error < StandardError

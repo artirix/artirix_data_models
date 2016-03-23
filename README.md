@@ -270,6 +270,13 @@ end
 
 ## Changes
 
+### 0.18.0
+
+`DataGateway` connection loader now moved to `DataGateway::ConnectionLoader`, with 3 public methods:
+- `default_connection` which will give us the connection based on config in `data_gateway` group in `SimpleConfig.for(:site)`
+- `connection_by_config_key(config_key)` which will give us the connection based on config in the given group key in `SimpleConfig.for(:site)`
+- `connection(config: {}, url: nil, login: nil, password: nil, bearer_token: nil, token_hash: nil)`: It will use the elements from the given config if they are not present on the params. 
+
 ### 0.17.0
 
 `DataGateway` now has `authorization_bearer` and `authorization_token_hash` options:
