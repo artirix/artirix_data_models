@@ -1,9 +1,16 @@
 class ArtirixDataModels::DataGateway
   attr_reader :connection, :post_as_json
 
-  def initialize(connection: nil, post_as_json: true)
-    @connection   = connection || DefaultConnectionLoader.default_connection
-    @post_as_json = !!post_as_json
+  def initialize(connection: nil,
+                 post_as_json: true,
+                 timeout: nil,
+                 authorization_bearer: nil,
+                 authorization_token_hash: nil)
+    @connection               = connection || DefaultConnectionLoader.default_connection
+    @post_as_json             = !!post_as_json
+    @authorization_bearer     = authorization_bearer
+    @authorization_token_hash = authorization_token_hash
+    @timeout                  = timeout
   end
 
   def get(path, **opts)
@@ -22,13 +29,40 @@ class ArtirixDataModels::DataGateway
     call :delete, path, **opts
   end
 
-  def call(method, path, json_body: true, response_adaptor: nil, body: nil, fake: false, fake_response: nil, cache_adaptor: nil, timeout: nil, **_ignored_options)
+  def call(method,
+           path,
+           json_body: true,
+           response_adaptor: nil,
+           body: nil,
+           fake: false,
+           fake_response: nil,
+           cache_adaptor: nil,
+           timeout: nil,
+           authorization_bearer: nil,
+           authorization_token_hash: nil,
+           **_ignored_options)
     if fake
       result = fake_response.respond_to?(:call) ? fake_response.call : fake_response
+
     elsif cache_adaptor.present?
-      result = cache_adaptor.call { perform(method, path: path, body: body, json_body: json_body, timeout: timeout) }
+      result = cache_adaptor.call do
+        perform method,
+                path:                     path,
+                body:                     body,
+                json_body:                json_body,
+                timeout:                  timeout,
+                authorization_bearer:     authorization_bearer,
+                authorization_token_hash: authorization_token_hash
+      end
+
     else
-      result = perform(method, path: path, body: body, json_body: json_body, timeout: timeout)
+      result = perform method,
+                       path:                     path,
+                       body:                     body,
+                       json_body:                json_body,
+                       timeout:                  timeout,
+                       authorization_bearer:     authorization_bearer,
+                       authorization_token_hash: authorization_token_hash
     end
 
     parse_response result:           result,
@@ -55,15 +89,47 @@ class ArtirixDataModels::DataGateway
     perform :delete, path: path, **opts
   end
 
-  def perform(method, path:, body: nil, json_body: true, timeout: nil)
-    response = connect(method, path: path, body: body, json_body: json_body, timeout: timeout)
+  def perform(method,
+              path:,
+              body: nil,
+              json_body: true,
+              timeout: nil,
+              authorization_bearer: nil,
+              authorization_token_hash: nil)
+
+    pars = {
+      path:                     path,
+      body:                     body,
+      json_body:                json_body,
+      timeout:                  timeout,
+      authorization_bearer:     authorization_bearer,
+      authorization_token_hash: authorization_token_hash
+    }
+
+    response = connect(method, pars)
     treat_response(response, method, path)
   end
 
-  def connect(method, path:, body: nil, json_body: true, timeout: nil)
+  # for options `timeout`, `authorization_bearer` and `authorization_token_hash`:
+  # if `nil` is passed (or param is omitted) it will try to use the default passed on the gateway creation
+  # but if `false` is passed, it will stay as false (can be used to override a default option passed on gateway creation)
+  def connect(method,
+              path:,
+              body: nil,
+              json_body: true,
+              timeout: nil,
+              authorization_bearer: nil,
+              authorization_token_hash: nil)
+
+    timeout                  = timeout.nil? ? @timeout : timeout
+    authorization_bearer     = authorization_bearer.nil? ? @authorization_bearer : authorization_bearer
+    authorization_token_hash = authorization_token_hash.nil? ? @authorization_token_hash : authorization_token_hash
+
     connection.send(method, path) do |req|
 
-      req.options.timeout = timeout if timeout.present?
+      req.options.timeout          = timeout if timeout.present?
+      req.headers['Authorization'] = Faraday::Request::Authorization.header(:Bearer, authorization_bearer) if authorization_bearer.present?
+      req.headers['Authorization'] = Faraday::Request::Authorization.header(:Token, authorization_token_hash) if authorization_token_hash.present?
 
       unless body.nil?
         if json_body
@@ -172,7 +238,15 @@ class ArtirixDataModels::DataGateway
         Faraday.new(url: url, request: { params_encoder: Faraday::FlatParamsEncoder }) do |faraday|
           faraday.request :url_encoded # form-encode POST params
           faraday.response :logger # log requests to STDOUT
-          faraday.basic_auth(config.login, config.password) if basic_auth?
+
+          if basic_auth?
+            faraday.basic_auth(config.login, config.password)
+          elsif bearer_auth?
+            faraday.authorization :Bearer, config.bearer_token
+          elsif token_auth?
+            faraday.authorization :Token, config.token_hash
+          end
+
           faraday.adapter Faraday.default_adapter
         end
       end
@@ -189,6 +263,14 @@ class ArtirixDataModels::DataGateway
 
       def basic_auth?
         config.respond_to?(:login) && config.respond_to?(:password)
+      end
+
+      def bearer_auth?
+        config.respond_to?(:bearer_token) && config.bearer_token.present?
+      end
+
+      def token_auth?
+        config.respond_to?(:token_hash) && config.token_hash.present?
       end
     end
 

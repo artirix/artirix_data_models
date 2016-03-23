@@ -1,6 +1,15 @@
 require 'spec_helper'
 
 RSpec.describe ArtirixDataModels::DataGateway, type: :model do
+  Given(:bearer) { 'MyBearerToken' }
+  Given(:bearer2) { 'OtherBearerToken' }
+
+  Given(:token_hash) { { a: '123', b: 'abc' } }
+  Given(:token_str) { Faraday::Request::Authorization.build_hash('Token', token_hash) }
+
+  Given(:token_hash2) { { x: 'some', y: 'whaat' } }
+  Given(:token_str2) { Faraday::Request::Authorization.build_hash('Token', token_hash2) }
+
   describe '.new' do
     context 'without connection' do
       Given(:connection_url) { 'http://example.com/other' }
@@ -30,6 +39,9 @@ RSpec.describe ArtirixDataModels::DataGateway, type: :model do
 
         SimpleConfig.for(:site) do
           group :data_gateway do
+            unset :bearer_token if set? :bearer_token
+            unset :token_hash if set? :token_hash
+
             set :url, url
             set :login, login
             set :password, password
@@ -40,6 +52,54 @@ RSpec.describe ArtirixDataModels::DataGateway, type: :model do
       When(:gateway) { described_class.new }
       Then { expect(gateway.connection.url_prefix.to_s).to eq(connection_url) }
       Then { expect(gateway.connection.headers).to have_key('Authorization') }
+    end
+
+    context 'Bearer auth connection' do
+      Given(:connection_url) { 'http://example.com/other' }
+
+      Given do
+        u = connection_url
+        b = bearer
+
+        SimpleConfig.for(:site) do
+          group :data_gateway do
+            unset :login if set? :login
+            unset :password if set? :password
+            unset :token_hash if set? :token_hash
+
+            set :url, u
+            set :bearer_token, b
+          end
+        end
+      end
+
+      When(:gateway) { described_class.new }
+      Then { expect(gateway.connection.url_prefix.to_s).to eq(connection_url) }
+      Then { expect(gateway.connection.headers['Authorization']).to eq("Bearer #{bearer}") }
+    end
+
+    context 'Token auth connection' do
+      Given(:connection_url) { 'http://example.com/other' }
+
+      Given do
+        u = connection_url
+        t = token_hash
+
+        SimpleConfig.for(:site) do
+          group :data_gateway do
+            unset :login if set? :login
+            unset :password if set? :password
+            unset :bearer_token if set? :bearer_token
+
+            set :url, u
+            set :token_hash, t
+          end
+        end
+      end
+
+      When(:gateway) { described_class.new }
+      Then { expect(gateway.connection.url_prefix.to_s).to eq(connection_url) }
+      Then { expect(gateway.connection.headers['Authorization']).to eq(token_str) }
     end
   end
 
@@ -63,6 +123,177 @@ RSpec.describe ArtirixDataModels::DataGateway, type: :model do
       When(:result) { gateway.get path_with_timeout, timeout: 1 }
 
       Then { result == Failure(ArtirixDataModels::DataGateway::ConnectionError) }
+    end
+  end
+
+  context 'requests with token based auth' do
+    Given(:path) { '/somepath' }
+
+    Given(:connection_url) { 'http://example.com/other' }
+    Given do
+      c = connection_url
+      SimpleConfig.for(:site) do
+        group :data_gateway do
+          set :url, c
+        end
+      end
+    end
+
+    Given(:connection_stubs) { Faraday::Adapter::Test::Stubs.new }
+
+    Given(:connection) do
+      Faraday.new(url: connection_url, request: { params_encoder: Faraday::FlatParamsEncoder }) do |faraday|
+        faraday.request :url_encoded # form-encode without body only path params
+        faraday.response :logger # log requests to STDOUT
+        faraday.adapter :test, connection_stubs
+
+        faraday.authorization :Bearer, bearer
+      end
+    end
+
+    Given(:gateway) do
+      described_class.new connection: connection
+    end
+
+    Given do
+      # stub gets
+      connection_stubs.get(path, headers_bearer) do |env|
+        [200, {}, response_body_bearer.to_json]
+      end
+
+      connection_stubs.get(path, headers_bearer2) do |env|
+        [200, {}, response_body_bearer2.to_json]
+      end
+
+      connection_stubs.get(path, headers_token) do |env|
+        [200, {}, response_body_token.to_json]
+      end
+
+      connection_stubs.get(path, headers_token2) do |env|
+        [200, {}, response_body_token2.to_json]
+      end
+
+      connection_stubs.get(path, headers_empty) do |env|
+        [200, {}, response_body_empty.to_json]
+      end
+    end
+
+    Given(:headers_empty) { {} }
+    Given(:headers_bearer) { { 'Authorization' => "Bearer #{bearer}" } }
+    Given(:headers_bearer2) { { 'Authorization' => "Bearer #{bearer2}" } }
+    Given(:headers_token) { { 'Authorization' => token_str } }
+    Given(:headers_token2) { { 'Authorization' => token_str2 } }
+
+    Given(:response_body_empty) { { status: 'is empty' } }
+    Given(:response_body_bearer) { { status: 'with bearer' } }
+    Given(:response_body_bearer2) { { status: 'with bearer2' } }
+    Given(:response_body_token) { { status: 'with token' } }
+    Given(:response_body_token2) { { status: 'with token2' } }
+
+    context 'Bearer' do
+      context 'in config of connection' do
+        Given(:connection) do
+          Faraday.new(url: connection_url, request: { params_encoder: Faraday::FlatParamsEncoder }) do |faraday|
+            faraday.authorization :Bearer, bearer
+            faraday.request :url_encoded # form-encode without body only path params
+            faraday.response :logger # log requests to STDOUT
+            faraday.adapter :test, connection_stubs
+          end
+        end
+
+        describe 'normal use (uses the bearer)' do
+          Given(:gateway) do
+            described_class.new connection: connection
+          end
+
+          When(:result) { gateway.get path }
+          Then { result == response_body_bearer }
+        end
+      end
+
+      context 'not in config of connection' do
+        Given(:connection) do
+          Faraday.new(url: connection_url, request: { params_encoder: Faraday::FlatParamsEncoder }) do |faraday|
+            faraday.request :url_encoded # form-encode without body only path params
+            faraday.response :logger # log requests to STDOUT
+            faraday.adapter :test, connection_stubs
+          end
+        end
+
+        context 'passing on init' do
+          Given(:gateway) do
+            described_class.new connection: connection, authorization_bearer: bearer
+          end
+
+          describe 'normal use (uses the bearer)' do
+            When(:result) { gateway.get path }
+            Then { result == response_body_bearer }
+          end
+
+          describe 'overrides with other bearer (uses the other bearer)' do
+            When(:result) { gateway.get path, authorization_bearer: bearer2 }
+            Then { result == response_body_bearer2 }
+          end
+
+          describe 'overrides with false (uses no bearer)' do
+            When(:result) { gateway.get path, authorization_bearer: false }
+            Then { result == response_body_empty }
+          end
+        end
+      end
+    end
+
+    context 'Token' do
+      context 'in config of connection' do
+        Given(:connection) do
+          Faraday.new(url: connection_url, request: { params_encoder: Faraday::FlatParamsEncoder }) do |faraday|
+            faraday.authorization :Token, token_hash
+            faraday.request :url_encoded # form-encode without body only path params
+            faraday.response :logger # log requests to STDOUT
+            faraday.adapter :test, connection_stubs
+          end
+        end
+
+        describe 'normal use (uses the token)' do
+          Given(:gateway) do
+            described_class.new connection: connection
+          end
+
+          When(:result) { gateway.get path }
+          Then { result == response_body_token }
+        end
+      end
+
+      context 'not in config of connection' do
+        Given(:connection) do
+          Faraday.new(url: connection_url, request: { params_encoder: Faraday::FlatParamsEncoder }) do |faraday|
+            faraday.request :url_encoded # form-encode without body only path params
+            faraday.response :logger # log requests to STDOUT
+            faraday.adapter :test, connection_stubs
+          end
+        end
+
+        context 'passing on init' do
+          Given(:gateway) do
+            described_class.new connection: connection, authorization_token_hash: token_hash
+          end
+
+          describe 'normal use (uses the token)' do
+            When(:result) { gateway.get path }
+            Then { result == response_body_token }
+          end
+
+          describe 'overrides with other token (uses the other token)' do
+            When(:result) { gateway.get path, authorization_token_hash: token_hash2 }
+            Then { result == response_body_token2 }
+          end
+
+          describe 'overrides with false (uses no token)' do
+            When(:result) { gateway.get path, authorization_token_hash: false }
+            Then { result == response_body_empty }
+          end
+        end
+      end
     end
   end
 

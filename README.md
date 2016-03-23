@@ -270,6 +270,32 @@ end
 
 ## Changes
 
+### 0.17.0
+
+`DataGateway` now has `authorization_bearer` and `authorization_token_hash` options:
+- they can be passed on the gateway creation and they will be used on all elements
+- they can be overridden on a given gateway call:
+-- if passed `nil` it will use the value on object creation, if present.
+-- if passed `false` it will not use it (can override a value on object creation).
+
+The values can also be added on config to the connection (but then the `false` override won't work). The authorization will be set on the connection level instead on the request level.
+
+```ruby
+SimpleConfig.for(:site) do
+  group :data_gateway do
+    set :token_hash, { email: 'something', token: 'whatever }
+  end
+end
+```
+
+```ruby
+SimpleConfig.for(:site) do
+  group :data_gateway do
+    set :bearer_token, 'SomeBearerToken'
+  end
+end
+```
+
 ### 0.16.0
 `ArtirixDataModels::Model::CacheKey` now does not assume that you are in a complete model. It tries to use `model_dao_name`, `primary_key`, `id`, `_timestamp` and `updated_at`, but it has default for each section. Change to be able to make a model with `OnlyData` compatible with `AMS` using [`artirix_data_models-ams`](https://github.com/artirix/artirix_data_models-ams/) gem
 
