@@ -20,12 +20,13 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'activesupport'
   spec.add_dependency 'activemodel'
-  spec.add_dependency 'simpleconfig'
   spec.add_dependency 'oj'
   spec.add_dependency 'faraday'
   spec.add_dependency 'keyword_init', '~> 1.4'
   spec.add_dependency 'naught'
   spec.add_dependency 'hashie', '~> 3.4'
+
+  spec.add_development_dependency 'simpleconfig'
 
   spec.add_development_dependency 'kaminari', '~> 0.16'
   spec.add_development_dependency 'will_paginate', '~> 3.0'

@@ -53,7 +53,7 @@ module ArtirixDataModels::GatewayResponseAdaptors
     end
 
     def self.collection(object_class_or_factory, from = 0, size = nil)
-      size ||= SimpleConfig.for(:site).search_page_size.default
+      size ||= ArtirixDataModels.configuration.try(:search_page_size).try(:default) || 10
       new ->(data_collection) { ArtirixDataModels::EsCollection.new object_class_or_factory, response: data_collection, from: from, size: size }
     end
 

@@ -3,7 +3,6 @@ require 'artirix_data_models/version'
 # dependencies
 require 'active_support/all'
 require 'active_model'
-require 'simple_config'
 require 'oj'
 require 'faraday'
 require 'keyword_init'
@@ -11,6 +10,7 @@ require 'naught'
 require 'hashie'
 
 # note DO NOT require kaminari or will_paginate, it'll be done when invoking `ArtirixDataModels::EsCollection.work_with_will_paginate`
+# note: do not require SimpleConfig, it has to exist before used. Same as we don't require Rails.
 
 
 # loading features
@@ -130,7 +130,42 @@ module ArtirixDataModels
     @disabled_cache ||= DisabledCache.new
   end
 
+  # CONFIGURATION
+
+  def self.configuration
+    configuration_loader.call
+  end
+
+  def self.configuration_loader=(loader=nil, &block)
+    if block_given?
+      @configuration_loader = block
+    elsif loader.present? && loader.respond_to?(:call)
+      @configuration_loader = loader
+    else
+      raise 'no block or callable object given as a loader'
+    end
+  end
+
+  def self.configuration_loader
+    @configuration_loader ||= default_configuration_loader
+  end
+
+  def self.default_configuration_loader
+    lambda do
+      if defined?(Rails) && Rails.configuration.try(:x) && Rails.configuration.x.artirix_data_models.present?
+        Rails.configuration.x.artirix_data_models
+      elsif defined?(SimpleConfig)
+        SimpleConfig.for(:site)
+      else
+        raise ConfigurationNeededError, 'Rails.configuration.x.artirix_data_models not available, and SimpleConfig.for(:site) not available'
+      end
+    end
+  end
+
   class IllegalActionError < StandardError
+  end
+
+  class ConfigurationNeededError < StandardError
   end
 
 end

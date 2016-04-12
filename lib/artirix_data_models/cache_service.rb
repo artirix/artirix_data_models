@@ -120,7 +120,7 @@ module ArtirixDataModels::CacheService
     end
 
     def self.option_store
-      @option_store ||= SimpleConfig.for(:site).try(:cache_options) || disabled_options_store
+      @option_store ||= ArtirixDataModels.configuration.try(:cache_options) || disabled_options_store
     end
 
     def self.disabled_options_store
@@ -172,7 +172,7 @@ module ArtirixDataModels::CacheService
     end
 
     def self.prefix
-      SimpleConfig.for(:site).try(:cache_app_prefix)
+      ArtirixDataModels.configuration.try(:cache_app_prefix)
     end
   end
 

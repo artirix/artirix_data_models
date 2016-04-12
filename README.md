@@ -24,11 +24,56 @@ note: for making a model compatible with [ActiveModelSerializers](https://github
 
 ## Usage
 
+### Configuration
+
+In previous versions, ADM required the use of `SimpleConfig` to configure itself. Now you have the alternative of using
+`Rails.configuration` with the `config.x` support for custom configurations.
+
+The configuration loaded will be `Rails.configuration.x.artirix_data_models` if present, or if not it will try to load
+`SimpleConfig.for(:site)`. *important: it will not merge configs, it will load one or the other*
+
+note: see [http://guides.rubyonrails.org/configuring.html#custom-configuration](http://guides.rubyonrails.org/configuring.html#custom-configuration)
+
+You can also specify a different config by passing a config loader to `ArtirixDataModels.configuration_loader = -> { myconfig }`.
+
+#### Using Rails config
+```ruby
+module SomeApplication
+  class Application < Rails::Application
+
+    # normal Rails config...
+    config.action_mailer.perform_caching = false
+
+
+
+    # ADM CONFIG
+    config.x.artirix_data_models.data_gateway = ActiveSupport::OrderedOptions.new
+    config.x.artirix_data_models.data_gateway.url = 'http://super-secure-domain-123456.com'
+  end
+end
+```
+
+#### Using SimpleConfig
+
+```ruby
+# config using SimpleConfig
+SimpleConfig.for(:site) do
+  group :data_gateway do
+    set :url, 'http://super-secure-domain-123456.com'
+  end
+end
+```
+
 ### Connection
 
 You have to specify the location of data-layer. It can be done in the config like this:
 
 ```ruby
+# config using Rails.configuration
+config.x.artirix_data_models.data_gateway.url = 'http://super-secure-domain-123456.com'
+
+
+# config using SimpleConfig
 SimpleConfig.for(:site) do
   group :data_gateway do
     set :url, 'http://super-secure-domain-123456.com'
@@ -269,6 +314,9 @@ end
 
 
 ## Changes
+
+### 0.19.0
+Added `configuration_loader` and support for `Rails.configuration.x.artirix_data_models`.
 
 ### 0.18.0
 

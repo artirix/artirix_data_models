@@ -158,7 +158,7 @@ module ArtirixDataModels
         end
 
         def enabled?
-          SimpleConfig.for(:site).try(:data_fake_mode).try(fake_mode_key)
+          ArtirixDataModels.configuration.try(:data_fake_mode).try(fake_mode_key)
         end
 
         def partial_hash_from_model(given_model_to_reload)

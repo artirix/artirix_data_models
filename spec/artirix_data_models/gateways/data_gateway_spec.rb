@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'simple_config'
 
 RSpec.describe ArtirixDataModels::DataGateway, type: :model do
   Given(:bearer) { 'MyBearerToken' }

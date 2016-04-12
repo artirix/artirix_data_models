@@ -234,7 +234,7 @@ class ArtirixDataModels::DataGateway
       end
 
       def connection_by_config_key(config_key, **others)
-        connection config: SimpleConfig.for(:site).send(config_key), **others
+        connection config: ArtirixDataModels.configuration.send(config_key), **others
       end
 
       def connection(config: {}, url: nil, login: nil, password: nil, bearer_token: nil, token_hash: nil)

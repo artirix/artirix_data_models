@@ -1,13 +1,18 @@
 # :nocov:
 def given_gateway_config(connection_url = nil)
   connection_url ||= 'http://example.com/other'
-  before(:all) do
-    c = connection_url
-    SimpleConfig.for(:site) do
-      group :data_gateway do
-        set :url, c
-      end
+  
+  before(:each) do
+    config = ArtirixDataModels.configuration
+
+    # fix in case of SimpleConfig (mocking SimpleConfig with rspec explodes if not)
+    if defined?(SimpleConfig) && config.kind_of?(SimpleConfig::Config)
+      SimpleConfig::Config.class_eval { public :singleton_class }
     end
+
+    dg = config.try(:data_gateway) || double
+    allow(dg).to receive(:url).and_return(connection_url)
+    allow(config).to receive(:data_gateway).and_return(dg)
   end
 end
 
