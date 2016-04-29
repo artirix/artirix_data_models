@@ -315,6 +315,9 @@ end
 
 ## Changes
 
+### 0.19.2
+Added array support to `inspect`.
+
 ### 0.19.1
 Added `data_hash_for_inspect` method, that will use `data_hash` by default, and have `inspect` use it.
 
