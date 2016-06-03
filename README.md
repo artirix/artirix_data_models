@@ -315,6 +315,14 @@ end
 
 ## Changes
 
+### 0.20.0
+Added `ensure_relative` boolean option to the creation of a `DataGateway` (disable by default). With it enabled, it will ensure that any given `path` is relative by removing the leading `/`. This is necessary if the Gateway should call a nested endpoint and not just a host. 
+
+Example: If we have `"http://example.org/api/"` as connection's URL, and path `"/people/1"`, with this:
+
+- `ensure_relative = true` => it will connect to `"http://example.org/api/people/1"`
+- `ensure_relative = false` (default) => it will connect to `"http://example.org/people/1"`
+
 ### 0.19.2
 Added array support to `inspect`.
 

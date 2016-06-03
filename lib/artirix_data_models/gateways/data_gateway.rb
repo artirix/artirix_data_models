@@ -3,6 +3,7 @@ class ArtirixDataModels::DataGateway
 
   def initialize(connection: nil,
                  post_as_json: true,
+                 ensure_relative: false,
                  timeout: nil,
                  authorization_bearer: nil,
                  authorization_token_hash: nil)
@@ -11,6 +12,11 @@ class ArtirixDataModels::DataGateway
     @authorization_bearer     = authorization_bearer
     @authorization_token_hash = authorization_token_hash
     @timeout                  = timeout
+    @ensure_relative          = !!ensure_relative
+  end
+
+  def ensure_relative?
+    !!@ensure_relative
   end
 
   def get(path, **opts)
@@ -41,6 +47,7 @@ class ArtirixDataModels::DataGateway
            authorization_bearer: nil,
            authorization_token_hash: nil,
            **_ignored_options)
+
     if fake
       result = fake_response.respond_to?(:call) ? fake_response.call : fake_response
 
@@ -124,6 +131,10 @@ class ArtirixDataModels::DataGateway
     timeout                  = timeout.nil? ? @timeout : timeout
     authorization_bearer     = authorization_bearer.nil? ? @authorization_bearer : authorization_bearer
     authorization_token_hash = authorization_token_hash.nil? ? @authorization_token_hash : authorization_token_hash
+
+    if ensure_relative?
+      path = path.to_s.start_with?('/') ? path.to_s[1..-1] : path
+    end
 
     connection.send(method, path) do |req|
 
@@ -246,7 +257,7 @@ class ArtirixDataModels::DataGateway
 
         raise InvalidConnectionError, 'no url given, nor is it present in `config.url`' unless url.present?
 
-        Faraday.new(url: url, request: { params_encoder: Faraday::FlatParamsEncoder }) do |faraday|
+        Faraday.new(url: url, request: {params_encoder: Faraday::FlatParamsEncoder}) do |faraday|
           faraday.request :url_encoded # form-encode POST params
           faraday.response :logger # log requests to STDOUT
 

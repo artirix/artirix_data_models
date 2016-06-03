@@ -14,3 +14,4 @@
 mkmf.log
 .idea
 /manual_sandbox.rb
+.ruby-version
