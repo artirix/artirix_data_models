@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'keyword_init', '~> 1.4'
   spec.add_dependency 'naught'
   spec.add_dependency 'hashie', '~> 3.4'
+  spec.add_dependency 'artirix_cache_service'
 
   spec.add_development_dependency 'simpleconfig'
 

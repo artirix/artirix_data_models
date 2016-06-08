@@ -9,6 +9,8 @@ require 'keyword_init'
 require 'naught'
 require 'hashie'
 
+require 'artirix_cache_service'
+
 # note DO NOT require kaminari or will_paginate, it'll be done when invoking `ArtirixDataModels::EsCollection.work_with_will_paginate`
 # note: do not require SimpleConfig, it has to exist before used. Same as we don't require Rails.
 

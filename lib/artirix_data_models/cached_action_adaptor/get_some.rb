@@ -10,13 +10,13 @@ class ArtirixDataModels::CachedActionAdaptor::GetSome < ArtirixDataModels::Cache
   end
 
   def load_cache_key
-    ArtirixDataModels::CacheService.dao_get_key(dao_name, model_pks)
+    ArtirixDataModels::CacheService.key :dao_get_some, dao_name, model_pks
   end
 
   def load_cache_options
     ArtirixDataModels::CacheService.first_options "dao_#{dao_name}_get_some_options",
                                                   "dao_#{dao_name}_options",
                                                   'dao_get_some_options',
-                                                  return_if_none: :default
+                                                  return_if_missing: :default
   end
 end

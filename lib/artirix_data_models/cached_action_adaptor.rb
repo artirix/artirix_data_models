@@ -94,22 +94,21 @@ class ArtirixDataModels::CachedActionAdaptor
 
   def cache_exist?
     logger.debug "EXIST CACHE with key #{cache_key.inspect}"
-    return false unless cache.present?
+    return false unless cache
 
     cache.exist? cache_key, cache_options
   end
 
-
   def cache_read
     logger.debug "READ CACHE with key #{cache_key.inspect}"
-    return nil unless cache.present?
+    return nil unless cache
 
     cache.read cache_key, cache_options
   end
 
   def cache_write(value)
     logger.debug "WRITE CACHE with key #{cache_key.inspect}"
-    return value unless cache.present?
+    return value unless cache
 
     cache.write cache_key, value, cache_options
     value

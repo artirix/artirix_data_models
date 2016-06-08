@@ -315,6 +315,31 @@ end
 
 ## Changes
 
+### 0.21.0
+
+Changed cache to use `ArtirixCacheService` (gem `artirix_cache_service`). 
+
+Deprecated the use of method_missing on cache in favour of the `.key` method: 
+
+```ruby
+# this is deprecated
+ArtirixDataModels::CacheService.dao_get_some_key dao_name, model_pks
+
+# in favour of this
+ArtirixDataModels::CacheService.key :dao_get_some, dao_name, model_pks
+```
+
+Deprecated the key `return_if_none` on `first_options` in favour of `return_if_missing`:
+
+```ruby
+# this is deprecated
+ArtirixDataModels::CacheService.first_options 'some', 'other', return_if_none: :default
+
+# in favour of this
+ArtirixDataModels::CacheService.first_options 'some', 'other', return_if_missing: :default
+```
+
+
 ### 0.20.0
 Added `ensure_relative` boolean option to the creation of a `DataGateway` (disable by default). With it enabled, it will ensure that any given `path` is relative by removing the leading `/`. This is necessary if the Gateway should call a nested endpoint and not just a host. 
 

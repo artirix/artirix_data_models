@@ -1,38 +1,84 @@
 module ArtirixDataModels::CacheService
-
-  def self.digest_element(element)
-    Digest::SHA1.hexdigest element.to_s
+  def self.reload_service
+    @service = nil
+    service
   end
 
-  def self.first_options(*options, return_if_none: :default)
-    key = options.detect { |x| OptionsStore.has? x }
-    return OptionsStore.get(key) if key.present?
+  def self.service
+    @service ||= ArtirixCacheService::Service.new.tap do |service|
+      prefix = ArtirixDataModels.configuration.try(:cache_app_prefix)
+      if prefix
+        service.register_key_prefix "#{prefix}__"
+      end
 
-    case return_if_none
-    when NilClass
-      nil
-    when :default
-      OptionsStore.default.dup
-    else
-      {}
+      options = ArtirixDataModels.configuration.try(:cache_options)
+      if options
+        options.each do |name, opts|
+          if name.to_s == 'default_options'
+            service.register_default_options opts
+          else
+            service.register_options name, opts
+          end
+        end
+      end
+
     end
   end
 
-  def self.expire_cache(*args, &block)
-    Expirer.expire_cache *args, &block
+  def self.digest_element(element)
+    service.digest element
   end
+
+  def self.first_options(*options, return_if_missing: :default, **opts)
+    if opts.key? :return_if_none
+      ActiveSupport::Deprecation.warn('use `return_if_missing` instead of `return_if_none`')
+      return_if_missing = opts[:return_if_none]
+    end
+
+    service.options *options, return_if_missing: return_if_missing
+  end
+
+  def self.key(*given_args)
+    service.key *given_args
+  end
+
+  def self.options(options_name)
+    service.registered_options options_name
+  end
+
+  def self.options?(options_name)
+    service.registered_options? options_name
+  end
+
+  # we use `delete_matched` method -> it will work fine with Redis but it seems that it won't with Memcached
+  def self.expire_cache(pattern = nil, add_wildcard: true, add_prefix: true)
+    return false unless ArtirixDataModels.cache.present?
+
+    p = final_pattern(pattern, add_wildcard: add_wildcard, add_prefix: add_prefix)
+
+    ArtirixDataModels.cache.delete_matched p
+  end
+
+  def self.final_pattern(pattern, add_wildcard: true, add_prefix: true)
+    p = pattern
+    p = p.present? ? "#{p}*" : '' if add_wildcard
+    p = "*#{service.key_prefix}*#{p}" if add_prefix
+    p
+  end
+
 
   def self.method_missing(m, *args, &block)
     method = m.to_s
 
-    if KeyCleaner.valid_method method
-      KeyCleaner.final_key(m, *args)
+    if method.end_with? '_key'
+      ActiveSupport::Deprecation.warn('using method_missing with `service.some_key("1", "2")` is deprecated, use this instead: `service.key(:some, "1", "2")`')
+      key = method.gsub(/_key$/, '')
+      self.key key, *args
 
-    elsif OptionsStore.valid_method method
-      OptionsStore.send m, *args, &block
-
-    elsif Expirer.valid_method method
-      Expirer.send m, *args, &block
+    elsif method.end_with? '_options'
+      ActiveSupport::Deprecation.warn('using method_missing with `service.some_options` is deprecated, use this instead: `service.options(:some)`')
+      options_name = method.gsub(/_options$/, '')
+      self.options options_name
 
     else
       super
@@ -42,138 +88,17 @@ module ArtirixDataModels::CacheService
   def self.respond_to_missing?(m, include_all = false)
     method = m.to_s
 
-    if KeyCleaner.valid_method method
+    if method.end_with? '_key'
+      ActiveSupport::Deprecation.warn('using method_missing with `service.some_key("1", "2")` is deprecated, use this instead: `service.key(:some, "1", "2")`')
       true
 
-    elsif OptionsStore.valid_method method
-      OptionsStore.respond_to? m, include_all
-
-    elsif Expirer.valid_method method
-      Expirer.respond_to? m, include_all
+    elsif method.end_with? '_options'
+      ActiveSupport::Deprecation.warn('using method_missing with `service.some_options` is deprecated, use this instead: `service.options(:some)`')
+      options_name = method.gsub(/_options$/, '')
+      self.options options_name
 
     else
       super
     end
   end
-
-  private
-
-  module KeyCleaner
-    def self.valid_method(method_name)
-      method_name.end_with? '_key'
-    end
-
-    def self.final_key(m, *args)
-      cleaned = clean_key_section(m, *args)
-      CacheStoreHelper.final_key cleaned
-    end
-
-    private
-    def self.clean_key_section(key, *args)
-      key_name = clean_key_name key
-      a        = clean_key_args args
-      suffix   = a.present? ? "/#{a}" : ''
-      "#{key_name}#{suffix}"
-    end
-
-    def self.clean_key_name(key)
-      key.to_s.gsub(/_key$/, '').to_sym
-    end
-
-    def self.clean_key_args(args)
-      args.map { |x| x.try(:cache_key) || x.to_s }.join '/'
-    end
-  end
-
-  module OptionsStore
-    def self.valid_method(method_name)
-      method_name.end_with? '_options'
-    end
-
-    def self.method_missing(m, *args, &block)
-      if has?(m)
-        get(m)
-      else
-        super
-      end
-    end
-
-    def self.respond_to_missing?(m, include_all = false)
-      has?(m) || super
-    end
-
-    private
-    def self.has?(name)
-      option_store.respond_to?(name)
-    end
-
-    def self.get(name)
-      default.merge(get_particular(name))
-    end
-
-    def self.get_particular(name)
-      Hash(option_store.send(name))
-    end
-
-    def self.default
-      @default ||= Hash(option_store.default_options)
-    end
-
-    def self.option_store
-      @option_store ||= ArtirixDataModels.configuration.try(:cache_options) || disabled_options_store
-    end
-
-    def self.disabled_options_store
-      DisabledOptionsStore.new
-    end
-
-    class DisabledOptionsStore
-      def method_missing(m, *args, &block)
-        {}
-      end
-
-      def respond_to_missing?(m, include_all = false)
-        true
-      end
-    end
-  end
-
-  module Expirer
-    def self.valid_method(method_name)
-      method_name.start_with? 'expire_'
-    end
-
-    def self.expire_cache(pattern = nil, add_wildcard: true, add_prefix: true)
-      CacheStoreHelper.delete_matched pattern,
-                                      add_wildcard: add_wildcard,
-                                      add_prefix:   add_prefix
-    end
-  end
-
-  # we use `delete_matched` method -> it will work fine with Redis but it seems that it won't with Memcached
-  module CacheStoreHelper
-    def self.final_key(key_value)
-      "#{prefix}__#{key_value}"
-    end
-
-    def self.final_pattern(pattern, add_wildcard: true, add_prefix: true)
-      p = pattern
-      p = p.present? ? "#{p}*" : '' if add_wildcard
-      p = "*#{prefix}*#{p}" if add_prefix
-      p
-    end
-
-    def self.delete_matched(pattern = nil, add_wildcard: true, add_prefix: true)
-      return false unless ArtirixDataModels.cache.present?
-
-      p = final_pattern(pattern, add_wildcard: add_wildcard, add_prefix: add_prefix)
-
-      ArtirixDataModels.cache.delete_matched p
-    end
-
-    def self.prefix
-      ArtirixDataModels.configuration.try(:cache_app_prefix)
-    end
-  end
-
 end

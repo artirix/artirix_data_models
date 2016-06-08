@@ -52,20 +52,20 @@ class ArtirixDataModels::CachedActionAdaptor::GetFull < ArtirixDataModels::Cache
 
   module WithTimestamp
     def self.cache_key_from_model(model)
-      ArtirixDataModels::CacheService.dao_get_full_key(model)
+      ArtirixDataModels::CacheService.key :dao_get_full, model
     end
 
     def self.cache_options(dao_name)
       ArtirixDataModels::CacheService.first_options "dao_#{dao_name}_get_full_options",
                                                     "dao_#{dao_name}_options",
                                                     'dao_get_full_options',
-                                                    return_if_none: :default
+                                                    return_if_missing: :default
     end
   end
 
   module WithoutTimestamp
     def self.cache_key_from_model(model)
-      ArtirixDataModels::CacheService.dao_get_full_no_time_key(model)
+      ArtirixDataModels::CacheService.key :dao_get_full_no_time, model
     end
 
     def self.cache_options(dao_name)
@@ -74,7 +74,7 @@ class ArtirixDataModels::CachedActionAdaptor::GetFull < ArtirixDataModels::Cache
                                                     'dao_get_full_no_time_options',
                                                     "dao_#{dao_name}_options",
                                                     'dao_get_full_options',
-                                                    return_if_none: :default
+                                                    return_if_missing: :default
     end
   end
 end
