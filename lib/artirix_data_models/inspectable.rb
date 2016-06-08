@@ -17,7 +17,7 @@ module ArtirixDataModels
         if val.kind_of? Array
           nested = val.map do |vi|
             nested_tab = SPACE * (tab_level + 1) * 4
-            nv         = vi.try(:inspect_with_tab, tab_level + 2) || val.inspect
+            nv         = vi.try(:inspect_with_tab, tab_level + 2) || vi.inspect
             "#{nested_tab} - #{nv}"
           end
 

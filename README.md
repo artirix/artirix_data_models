@@ -315,6 +315,10 @@ end
 
 ## Changes
 
+### 0.21.1
+
+Fix bug in `Inspectable`, on Arrays. 
+
 ### 0.21.0
 
 Changed cache to use `ArtirixCacheService` (gem `artirix_cache_service`). 
