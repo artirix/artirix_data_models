@@ -1,0 +1,192 @@
+{
+  "took": 4,
+  "timed_out": false,
+  "_shards": {
+    "total": 5,
+    "successful": 5,
+    "failed": 0
+  },
+  "hits": {
+    "total": 15,
+    "max_score": null,
+    "hits": [
+      {
+        "_index": "editorial_contents7",
+        "_type": "editorial_content",
+        "_id": "1",
+        "_score": null,
+        "_source": {
+          "meta_keywords": "Arsenal , Premier League, BBC Sport",
+          "disease_slug": "cystic-fibrosis",
+          "topics": [
+            "interesting",
+            "another topic",
+            "interesting",
+            "Same Topics"
+          ],
+          "updated_at": "2016-06-13T13:26:35",
+          "id": 1,
+          "category": "pulse",
+          "published_on": "2016-05-16",
+          "author": "Luke Thomas",
+          "slug_base": "lukes-editorial-content",
+          "summary_description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In malesuada a eros a rhoncus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam tristique vestibulum iaculis. Curabitur vi",
+          "editorial_content_blocks": [
+            {
+              "block_type": "text",
+              "video_provider_sku": null,
+              "updated_at": "2016-06-01T10:45:01",
+              "text_markdown": "Key features of the UK Strategy for Rare Diseases, which was published in November 2013, include:&nbsp;\n\n- making sure patients and their families and carers have the information they need, are listened to and consulted\n- developing better methods of identifying and preventing rare diseases\n- improving diagnosis and earlier intervention for those with a rare disease\n- developing better coordination of care for those with a rare disease, including joined up consultation and treatment schedules\n- building on research to improve personalised approaches to healthcare for those with a rare disease\n",
+              "video_provider": null,
+              "id": 11,
+              "library_image": null,
+              "created_at": "2016-06-01T10:45:01",
+              "position": 1
+            },
+            {
+              "block_type": "text",
+              "video_provider_sku": null,
+              "updated_at": "2016-06-01T10:49:56",
+              "text_markdown": "Some other text can go here.&nbsp;\n\n",
+              "video_provider": null,
+              "id": 12,
+              "library_image": null,
+              "created_at": "2016-06-01T10:49:56",
+              "position": 2
+            },
+            {
+              "block_type": "image",
+              "video_provider_sku": null,
+              "updated_at": "2016-06-13T13:26:35",
+              "text_markdown": null,
+              "video_provider": null,
+              "id": 31,
+              "library_image": {
+                "external_reference": null,
+                "extension": ".jpg",
+                "url": "https://cdn.filepicker.io/api/file/g59uy385QPeRJGVqmm7r",
+                "created_at": "2016-05-16T10:18:50",
+                "updated_at": "2016-05-16T10:18:50",
+                "image_type": "general",
+                "asset": "rm_int2/rm/library_images/TPw1EVaShOVGsZVCbeUA_santi_dance",
+                "s3_key": "rm_int2/rm/library_images/TPw1EVaShOVGsZVCbeUA_santi_dance.jpg",
+                "id": 4,
+                "name": "HAHA"
+              },
+              "created_at": "2016-06-13T13:26:35",
+              "position": 3
+            }
+          ],
+          "disease_all_slugs": [
+            "cystic-fibrosis"
+          ],
+          "start_date": "2016-05-26T16:13:00",
+          "meta_description": "This article is about arsenal among other things",
+          "hero_video_provider": "youtube",
+          "end_date": null,
+          "style": "style1",
+          "disease_name": "Cystic fibrosis",
+          "content_type": "interview",
+          "snippet_image": {
+            "external_reference": null,
+            "extension": ".jpg",
+            "url": "https://cdn.filepicker.io/api/file/F6TzKANSbqlZp9JfR7Vw",
+            "created_at": "2016-05-16T14:52:17",
+            "updated_at": "2016-05-16T14:52:17",
+            "image_type": "general",
+            "asset": "rm_int2/rm/library_images/ySMw8Z2xRF6X7VYZIW6w_santi_dance",
+            "s3_key": "rm_int2/rm/library_images/ySMw8Z2xRF6X7VYZIW6w_santi_dance.jpg",
+            "id": 6,
+            "name": "test2"
+          },
+          "slug": "lukes-editorial-content--1",
+          "_timestamp": "2016-06-13T13:26:35",
+          "name": "Lukes Editorial Content",
+          "created_at": "2016-05-09T08:37:02",
+          "disease": {
+            "slug": "cystic-fibrosis",
+            "all_slugs": [
+              "cystic-fibrosis"
+            ],
+            "id": 8,
+            "name": "Cystic fibrosis"
+          },
+          "disease_id": 8,
+          "hero_video_provider_sku": "https://www.youtube.com/embed/uQereoIxioI",
+          "hero_image": null
+        },
+        "sort": [
+          1465824395000
+        ]
+      }
+    ]
+  },
+  "aggregations": {
+    "global_topics": {
+      "doc_count": 15,
+      "global_filtered_topics": {
+        "doc_count": 15,
+        "topics": {
+          "buckets": [
+            {
+              "key": "Same Topics",
+              "doc_count": 6
+            },
+            {
+              "key": "another topic",
+              "doc_count": 4
+            },
+            {
+              "key": "interesting",
+              "doc_count": 2
+            },
+            {
+              "key": "adaisada",
+              "doc_count": 1
+            }
+          ]
+        }
+      }
+    },
+    "global_content_types": {
+      "doc_count": 15,
+      "global_filtered_content_types": {
+        "doc_count": 15,
+        "content_types": {
+          "buckets": [
+            {
+              "key": "article",
+              "doc_count": 11
+            },
+            {
+              "key": "interview",
+              "doc_count": 3
+            },
+            {
+              "key": "video",
+              "doc_count": 1
+            }
+          ]
+        }
+      }
+    },
+    "global_published_states": {
+      "doc_count": 15,
+      "published_states": {
+        "doc_count": 15,
+        "live_soon": {
+          "doc_count": 0
+        },
+        "draft": {
+          "doc_count": 3
+        },
+        "expired": {
+          "doc_count": 0
+        },
+        "live": {
+          "doc_count": 12
+        }
+      }
+    }
+  }
+}

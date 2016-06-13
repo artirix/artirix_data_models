@@ -1,8 +1,16 @@
 module ArtirixDataModels
   class RawAggregationDataNormaliser
 
+    IS_NESTED_COUNTS = ->(v) { v.respond_to?(:key?) && v.key?(:doc_count) && v.keys.size == 1 }
+
     FIND_BUCKETS = ->(_k, v, _o) { v.respond_to?(:key?) && v.key?(:buckets) }
     FIND_VALUE   = ->(_k, v, _o) { v.respond_to?(:key?) && v.key?(:value) }
+    FIND_COUNTS  = ->(_k, v, _o) do
+      v.respond_to?(:key) &&
+        v.key?(:doc_count) &&
+        v.respond_to?(:values) &&
+        v.values.any? { |x| IS_NESTED_COUNTS.call(x) }
+    end
 
     attr_reader :raw_aggs, :aggregations_factory, :list
 
@@ -28,6 +36,7 @@ module ArtirixDataModels
     def normalise_hash(hash)
       treat_buckets(hash)
       treat_values(hash)
+      treat_counts(hash)
     end
 
     def treat_buckets(hash)
@@ -50,6 +59,15 @@ module ArtirixDataModels
       end
     end
 
+    def treat_counts(hash)
+      with_values_list = deep_locate hash, FIND_COUNTS
+      with_values_list.each do |with_values|
+        with_values.each do |name, value|
+          normalise_element(name, value)
+        end
+      end
+    end
+
     def normalise_element(name, value)
       return unless Hash === value
 
@@ -58,7 +76,12 @@ module ArtirixDataModels
       elsif value.key?(:value)
         add_normalised_value_element_to_list(name, value)
       else
-        normalise_hash(value)
+        nested = value.select { |_k, e| IS_NESTED_COUNTS.call e }
+        if nested.present?
+          add_normalised_nested_counts_to_list(name, nested)
+        else
+          normalise_hash(value)
+        end
       end
     end
 
@@ -72,6 +95,15 @@ module ArtirixDataModels
 
     def add_normalised_value_element_to_list(name, value)
       list << { name: name, value: value[:value] }
+    end
+
+    def add_normalised_nested_counts_to_list(name, nested)
+      buckets = nested.map do |bucket_name, nested_value|
+        { name: bucket_name.to_s, count: nested_value[:doc_count] }
+      end
+
+      list << { name: name, buckets: buckets }
+
     end
 
     def normalise_bucket(raw_bucket)

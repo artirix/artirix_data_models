@@ -182,7 +182,7 @@ RSpec.describe ArtirixDataModels::EsCollection, type: :model do
     context 'with Raw ES with multiple nested aggregations' do
       Given(:fixture_file) { fixture_pathname('articles_search_multiple_nested_raw_es.json') }
 
-      Given(:model_class) {
+      Given(:model_class) do
         Class.new do
           attr_reader :data
 
@@ -190,7 +190,7 @@ RSpec.describe ArtirixDataModels::EsCollection, type: :model do
             @data = { given: data }
           end
         end
-      }
+      end
       Given(:es_response) { Oj.load(File.read(fixture_file), symbol_keys: true) }
 
       When(:es_collection) { ArtirixDataModels::EsCollection.new(model_class, response: es_response) }
@@ -232,6 +232,55 @@ RSpec.describe ArtirixDataModels::EsCollection, type: :model do
       Then { es_collection.aggregations.last.buckets.last.aggregations.first.buckets.first.count == 104 }
       Then { es_collection.aggregations.last.buckets.last.aggregations.first.buckets.last.name == 'Cognitive Impact' }
       Then { es_collection.aggregations.last.buckets.last.aggregations.first.buckets.last.count == 3 }
+    end
+
+    context 'with nested aggregations of single doc_count' do
+      Given(:fixture_file) { fixture_pathname('editorial_content_search_dl.json') }
+
+      Given(:model_class) do
+        Class.new do
+          attr_reader :data
+
+          def initialize(data)
+            @data = { given: data }
+          end
+        end
+      end
+
+      Given(:es_response) { Oj.load(File.read(fixture_file), symbol_keys: true) }
+
+      When(:es_collection) { ArtirixDataModels::EsCollection.new(model_class, response: es_response) }
+      Then { es_collection.aggregations.size == 3 }
+
+      Then { es_collection.aggregations.first.name == :topics }
+      Then { es_collection.aggregations.first.buckets.size == 4 }
+
+      Then { es_collection.aggregations.first.buckets.first.name == 'Same Topics' }
+      Then { es_collection.aggregations.first.buckets.first.count == 6 }
+      Then { es_collection.aggregations.first.buckets.last.name == 'adaisada' }
+      Then { es_collection.aggregations.first.buckets.last.count == 1 }
+
+
+      Then { es_collection.aggregations.second.name == :content_types }
+      Then { es_collection.aggregations.second.buckets.size == 3 }
+
+      Then { es_collection.aggregations.second.buckets.first.name == 'article' }
+      Then { es_collection.aggregations.second.buckets.first.count == 11 }
+      Then { es_collection.aggregations.second.buckets.last.name == 'video' }
+      Then { es_collection.aggregations.second.buckets.last.count == 1 }
+
+
+      Then { es_collection.aggregations.third.name == :published_states }
+      Then { es_collection.aggregations.third.buckets.size == 4 }
+
+      Then { es_collection.aggregations.third.buckets.first.name == 'live_soon' }
+      Then { es_collection.aggregations.third.buckets.first.count == 0 }
+      Then { es_collection.aggregations.third.buckets.second.name == 'draft' }
+      Then { es_collection.aggregations.third.buckets.second.count == 3 }
+      Then { es_collection.aggregations.third.buckets.third.name == 'expired' }
+      Then { es_collection.aggregations.third.buckets.third.count == 0 }
+      Then { es_collection.aggregations.third.buckets.last.name == 'live' }
+      Then { es_collection.aggregations.third.buckets.last.count == 12 }
     end
   end
 

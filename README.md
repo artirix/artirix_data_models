@@ -315,6 +315,47 @@ end
 
 ## Changes
 
+### 0.22.0
+
+added support for aggregations that look like 
+```json
+{
+  "aggregations": {
+    "global_published_states": {
+      "doc_count": 15,
+      "published_states": {
+        "doc_count": 15,
+        "live_soon": {
+          "doc_count": 0
+        },
+        "draft": {
+          "doc_count": 3
+        },
+        "expired": {
+          "doc_count": 0
+        },
+        "live": {
+          "doc_count": 12
+        }
+      }
+    }
+  }
+}
+```
+
+which will be added as an aggregation like:
+
+```ruby
+es_collection.aggregations.first.name # => :published_states
+es_collection.aggregations.first.buckets 
+  # => [ 
+  #      {name: 'live_soon', count: 0},
+  #      {name: 'draft', count: 3},
+  #      {name: 'expired', count: 0},
+  #      {name: 'live', count: 12},
+  #    ]
+```
+
 ### 0.21.1
 
 Fix bug in `Inspectable`, on Arrays. 
