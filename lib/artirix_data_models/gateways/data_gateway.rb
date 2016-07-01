@@ -330,10 +330,14 @@ class ArtirixDataModels::DataGateway
         method:          method,
         response_status: response_status,
         response_body:   response_body,
-        message:         message,
+        message:         msg,
       }.select { |_, v| v.present? }.map { |k, v| "#{k}: #{v.inspect}" }
 
       "#{self.class}: #{parts.join ', '}"
+    end
+
+    def message
+      to_s
     end
 
     def data_hash

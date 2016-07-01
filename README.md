@@ -315,6 +315,10 @@ end
 
 ## Changes
 
+### 0.22.1
+
+added message support for DataGateway exceptions
+
 ### 0.22.0
 
 added support for aggregations that look like 
