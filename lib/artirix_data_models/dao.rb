@@ -21,31 +21,51 @@ module ArtirixDataModels
       :perform_post,
       :perform_put,
       :perform_delete,
+      :dao_registry,
+      :dao_registry=,
+      :set_dao_registry,
+      :dao_registry_loader,
+      :dao_registry_loader=,
+      :set_dao_registry_loader,
+      :set_default_dao_registry_loader,
+      :set_default_dao_registry,
     ]
 
     included do
       include ArtirixDataModels::DAOConcerns::WithResponseAdaptors
+      include ArtirixDataModels::WithDAORegistry
 
       attr_reader :basic_model_dao
       delegate *DELEGATED_METHODS, to: :basic_model_dao
     end
 
 
-    def initialize(gateway: nil, gateway_factory: nil, ignore_default_gateway: false, model_name: nil, model_class: nil, paths_factory: nil, fake_mode_factory: nil)
-      if gateway.blank? && gateway_factory.blank? && !ignore_default_gateway
-        gateway = ArtirixDataModels::DAORegistry.gateway
-      end
+    def initialize(dao_registry: nil,
+                   dao_registry_loader: nil,
+                   gateway: nil,
+                   gateway_factory: nil,
+                   ignore_default_gateway: false,
+                   model_name: nil,
+                   model_class: nil,
+                   paths_factory: nil,
+                   fake_mode_factory: nil)
+
+      set_dao_registry_and_loader dao_registry_loader, dao_registry
 
       model_name        ||= default_model_name
       model_class       ||= default_model_class
       paths_factory     ||= default_path_factory
       fake_mode_factory ||= default_fake_mode_factory
-      @basic_model_dao  = ArtirixDataModels::DAORegistry.basic_class.new model_name:        model_name,
-                                                                         model_class:       model_class,
-                                                                         fake_mode_factory: fake_mode_factory,
-                                                                         paths_factory:     paths_factory,
-                                                                         gateway:           gateway,
-                                                                         gateway_factory:   gateway_factory
+      @basic_model_dao  = dao_registry.get(:basic_class).new model_name:             model_name,
+                                                             model_class:            model_class,
+                                                             fake_mode_factory:      fake_mode_factory,
+                                                             paths_factory:          paths_factory,
+                                                             gateway:                gateway,
+                                                             gateway_factory:        gateway_factory,
+                                                             dao_registry:           dao_registry,
+                                                             dao_registry_loader:    dao_registry_loader,
+                                                             ignore_default_gateway: ignore_default_gateway
+
     end
 
     def default_model_name

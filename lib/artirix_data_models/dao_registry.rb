@@ -50,18 +50,7 @@ class ArtirixDataModels::DAORegistry
   end
 
   def get(key)
-    @_repository[key.to_sym] || call_loader(key)
-  end
-
-  def call_loader(key)
-    key = key.to_sym
-    if @_persistent_loaders[key]
-      @_repository[key] = @_persistent_loaders[key].call
-    elsif @_transient_loaders[key]
-      @_transient_loaders[key].call
-    else
-      raise LoaderNotFound, "no loader or transient found for #{key}"
-    end
+    @_repository[key.to_sym] || get_from_loader(key)
   end
 
   def set_transient_loader(key, loader = nil, &block)
@@ -89,6 +78,25 @@ class ArtirixDataModels::DAORegistry
   end
 
   alias_method :set_loader, :set_persistent_loader
+
+  private
+  def get_from_loader(key)
+    call_loader(key).tap do |object|
+      object.try :set_dao_registry, self
+    end
+  end
+
+  def call_loader(key)
+    key = key.to_sym
+    if @_persistent_loaders[key]
+      @_repository[key] = @_persistent_loaders[key].call
+    elsif @_transient_loaders[key]
+      @_transient_loaders[key].call
+    else
+      raise LoaderNotFound, "no loader or transient found for #{key}"
+    end
+  end
+
 
   # static methods
 

@@ -1,15 +1,38 @@
 class ArtirixDataModels::BasicModelDAO
   include ArtirixDataModels::DAOConcerns::WithResponseAdaptors
+  include ArtirixDataModels::WithDAORegistry
 
-  attr_reader :model_name, :model_class, :paths_factory, :fake_mode_factory, :gateway_factory, :loaded_gateway
+  attr_reader :model_name, :model_class, :paths_factory, :fake_mode_factory, :gateway_factory
 
-  def initialize(model_name:, model_class:, paths_factory:, gateway:, fake_mode_factory:, gateway_factory:)
-    @model_name        = model_name
-    @model_class       = model_class
-    @paths_factory     = paths_factory
-    @loaded_gateway    = gateway
-    @gateway_factory   = gateway_factory
-    @fake_mode_factory = fake_mode_factory
+  def initialize(dao_registry: nil,
+                 dao_registry_loader: nil,
+                 model_name:,
+                 model_class:,
+                 paths_factory:,
+                 gateway:,
+                 fake_mode_factory:,
+                 gateway_factory:,
+                 ignore_default_gateway: false)
+
+    set_dao_registry_and_loader dao_registry_loader, dao_registry
+
+    @model_name             = model_name
+    @model_class            = model_class
+    @paths_factory          = paths_factory
+    @loaded_gateway         = gateway
+    @gateway_factory        = gateway_factory
+    @fake_mode_factory      = fake_mode_factory
+    @ignore_default_gateway = ignore_default_gateway
+  end
+
+  def default_gateway_available?
+    !@ignore_default_gateway
+  end
+
+  def loaded_gateway
+    @loaded_gateway ||= if gateway_factory.blank? && default_gateway_available?
+                          dao_registry.get(:gateway)
+                        end
   end
 
   ###########
@@ -62,7 +85,7 @@ class ArtirixDataModels::BasicModelDAO
     if fake?
       fake_mode_factory.partial_mode_fields
     else
-      ArtirixDataModels::DAORegistry.model_fields.partial_mode_fields_for model_name
+      dao_registry.get(:model_fields).partial_mode_fields_for model_name
     end
   end
 

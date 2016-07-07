@@ -16,6 +16,7 @@ require 'artirix_cache_service'
 
 
 # loading features
+require 'artirix_data_models/with_dao_registry'
 require 'artirix_data_models/inspectable'
 require 'artirix_data_models/es_collection'
 require 'artirix_data_models/aggregation'

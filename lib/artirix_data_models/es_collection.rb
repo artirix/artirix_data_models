@@ -66,16 +66,26 @@ module ArtirixDataModels
     end
 
     include Enumerable
+    include ArtirixDataModels::WithDAORegistry
 
     attr_reader :klass_or_factory, :response, :from, :size
 
-    # @param klass_or_factory    [A Model Class|Callable] The model class or the Factory (callable object) to build the model
-    # @param response            [Hash]  The full response returned from the DataLayer
-    # @param from                [Int]  requested offset (0 by default)
-    # @param size                [Int]  requested amount of hits (10 by default)
+    # @param klass_or_factory     [A Model Class|Callable] The model class or the Factory (callable object) to build the model
+    # @param response             [Hash]  The full response returned from the DataLayer
+    # @param from                 [Int]  requested offset (0 by default)
+    # @param size                 [Int]  requested amount of hits (10 by default)
     # @param aggregations_factory [Int]  requested amount of hits (10 by default)
     #
-    def initialize(klass_or_factory, response:, from: 0, size: DEFAULT_SIZE, aggregations_factory: nil)
+    def initialize(klass_or_factory,
+                   response:,
+                   from: 0,
+                   size: DEFAULT_SIZE,
+                   dao_registry: nil,
+                   dao_registry_loader: nil,
+                   aggregations_factory: nil)
+
+      set_dao_registry_and_loader dao_registry_loader, dao_registry
+
       @klass_or_factory     = klass_or_factory
       @response             = response
       @from                 = from
@@ -84,7 +94,7 @@ module ArtirixDataModels
     end
 
     def aggregations_factory
-      @aggregations_factory || ArtirixDataModels::DAORegistry.aggregations_factory
+      @aggregations_factory || dao_registry.get(:aggregations_factory)
     end
 
     # The number of total hits for a query

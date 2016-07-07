@@ -1,14 +1,19 @@
 module ArtirixDataModels
   class CommonAggregation
     include Inspectable
+    include ArtirixDataModels::WithDAORegistry
+
     attr_accessor :name
 
     def initialize(name)
       @name = name
     end
 
-    def self.from_json(definition, value_class = Aggregation::Value)
-      DAORegistry.aggregations_factory.aggregation_from_json(definition, value_class: value_class, aggregation_class: self)
+    # DEPRECATED
+    def self.from_json(definition, value_class = Aggregation::Value, aggregations_factory: nil)
+      ActiveSupport::Deprecation.new('1.0', 'ArtirixDataModels').warn('`Aggregation.from_json` is deprecated in favour of `AggregationsFactory#aggregation_from_json`')
+      aggregations_factory ||= DAORegistry.get(:aggregations_factory)
+      aggregations_factory.aggregation_from_json(definition, value_class: value_class, aggregation_class: self)
     end
 
     def pretty_name

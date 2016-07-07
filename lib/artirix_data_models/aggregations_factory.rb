@@ -2,6 +2,8 @@ module ArtirixDataModels
   class AggregationsFactory
     DEFAULT_COLLECTION_CLASS_NAME = ''.freeze
 
+    include ArtirixDataModels::WithDAORegistry
+
     # AGGREGATION CLASS BUILDING
 
     def self.sorted_aggregation_class_based_on_index_on(index_array)
@@ -32,7 +34,12 @@ module ArtirixDataModels
     end
 
     def default_loader
-      proc { |aggregation| Aggregation.from_json aggregation }
+      aggregations_factory = self
+      proc { |definition|
+        aggregations_factory.aggregation_from_json definition,
+                                                   value_class: Aggregation::Value,
+                                                   aggregation_class: Aggregation
+      }
     end
 
     def get_loader(aggregation_name, collection_class)
