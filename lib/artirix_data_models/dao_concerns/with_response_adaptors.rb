@@ -25,7 +25,7 @@ module ArtirixDataModels
       end
 
       def response_adaptor_for_collection(from, size, collection_element_model_class = model_class)
-        model_adaptor_factory.collection collection_element_model_class, from, size
+        model_adaptor_factory.collection collection_element_model_class, from, size, dao_registry_loader
       end
 
       def response_adaptor_for_block(&block)

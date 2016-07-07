@@ -161,6 +161,16 @@ class DAORegistry < ArtirixDataModels::DAORegistry
 end
 ```
 
+You can use the DAORegistry by invoking it directly (or calling its instance) `DAORegistry.get(:name)` or `DAORegistry.instance.get(:name)`.
+
+You can also use an identity map mode (see bellow)
+
+### Identity Map
+
+You can use `dao_registry = DAORegistry.with_identity_map`. Then, the DAO's default methods `get`, `find` and `get_some` will register the loaded models into the DAO, acting as an identity map, and will also use that identity map to check for the existence of models with those PKs, returning them if they are found.
+
+The Identity Map does not have a TTL, so use it only with transient DAOs -> you don't want the identity map to live between requests, since that will mean that the models will never be forgotten, not being able to see new fresh versions, with the extra problem of memory leak.
+
 ### initializer
 
 An initializer should be added for extra configuration.
@@ -316,6 +326,11 @@ end
 
 
 ## Changes
+
+### 0.23.0
+- DAORegistry now DI'ed into the DAOs and models, by adding `dao_registry_loader` or a direct `dao_registry`.
+- DAORegistry with support for Identity Map
+- deprecated the use of `Aggregation.from_json`, please use the factory.
 
 ### 0.22.1
 

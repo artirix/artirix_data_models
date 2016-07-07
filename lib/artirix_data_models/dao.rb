@@ -4,23 +4,30 @@ module ArtirixDataModels
 
     DELEGATED_METHODS = [
       :partial_mode_fields,
+
       :model_name,
       :model_class,
+
       :paths_factory,
       :fake_mode_factory,
+
       :gateway,
+
       :force_fake_enabled,
       :force_fake_disabled,
       :remove_force_fake,
       :fake?,
       :forced_fake_enabled?,
       :forced_fake_disabled?,
+
       :empty_collection,
       :empty_collection_for,
+
       :perform_get,
       :perform_post,
       :perform_put,
       :perform_delete,
+
       :dao_registry,
       :dao_registry=,
       :set_dao_registry,
@@ -50,21 +57,22 @@ module ArtirixDataModels
                    paths_factory: nil,
                    fake_mode_factory: nil)
 
-      set_dao_registry_and_loader dao_registry_loader, dao_registry
-
       model_name        ||= default_model_name
       model_class       ||= default_model_class
       paths_factory     ||= default_path_factory
       fake_mode_factory ||= default_fake_mode_factory
-      @basic_model_dao  = dao_registry.get(:basic_class).new model_name:             model_name,
-                                                             model_class:            model_class,
-                                                             fake_mode_factory:      fake_mode_factory,
-                                                             paths_factory:          paths_factory,
-                                                             gateway:                gateway,
-                                                             gateway_factory:        gateway_factory,
-                                                             dao_registry:           dao_registry,
-                                                             dao_registry_loader:    dao_registry_loader,
-                                                             ignore_default_gateway: ignore_default_gateway
+
+      # temporary dao registry to load basic_class only
+      dr                = ArtirixDataModels::WithDAORegistry.loader_or_registry_or_default(dao_registry_loader: dao_registry_loader, dao_registry: dao_registry)
+      @basic_model_dao  = dr.get(:basic_class).new model_name:             model_name,
+                                                   model_class:            model_class,
+                                                   fake_mode_factory:      fake_mode_factory,
+                                                   paths_factory:          paths_factory,
+                                                   gateway:                gateway,
+                                                   gateway_factory:        gateway_factory,
+                                                   dao_registry:           dao_registry,
+                                                   dao_registry_loader:    dao_registry_loader,
+                                                   ignore_default_gateway: ignore_default_gateway
 
     end
 
@@ -108,24 +116,63 @@ module ArtirixDataModels
     end
 
     def get_full(model_pk, model_to_reload: nil, cache_adaptor: nil, **extra_options)
+      # we do not check in the registry, since it could be a reload
       model_to_reload ||= new_model_with_pk(model_pk)
       cache_adaptor   ||= cache_model_adaptor_for_get_full(model_pk, model_to_reload: model_to_reload, **extra_options)
-      basic_model_dao.get_full(model_pk, model_to_reload: model_to_reload, cache_adaptor: cache_adaptor, **extra_options)
+
+      model = basic_model_dao.get_full(model_pk, model_to_reload: model_to_reload, cache_adaptor: cache_adaptor, **extra_options)
+
+      complete_model model
     end
 
     def get(model_pk, cache_adaptor: nil, **extra_options)
+      model = dao_registry.get_model model_name, model_pk
+      return model if model.present?
+
       cache_adaptor ||= cache_model_adaptor_for_get(model_pk, **extra_options)
-      basic_model_dao.get(model_pk, cache_adaptor: cache_adaptor, **extra_options)
+
+      model = basic_model_dao.get(model_pk, cache_adaptor: cache_adaptor, **extra_options)
+
+      complete_model model
     end
 
     def find(model_pk, cache_adaptor: nil, **extra_options)
+      model = dao_registry.get_model model_name, model_pk
+      return model if model.present?
+
       cache_adaptor ||= cache_model_adaptor_for_find(model_pk, **extra_options)
-      basic_model_dao.find(model_pk, cache_adaptor: cache_adaptor, **extra_options)
+
+      model = basic_model_dao.find(model_pk, cache_adaptor: cache_adaptor, **extra_options)
+
+      complete_model model
     end
 
     def get_some(model_pks, cache_adaptor: nil, **extra_options)
-      cache_adaptor ||= cache_model_adaptor_for_get_some(model_pks, **extra_options)
-      basic_model_dao.get_some(model_pks, cache_adaptor: cache_adaptor, **extra_options)
+      registered = Array(model_pks).map do |model_pk|
+        [
+          model_pk,
+          dao_registry.get_model(model_name, model_pk)
+        ]
+      end.to_h
+
+      return registered.values if registered.values.all?(&:present?)
+
+      # load only the missing
+      missing_pks = registered.select { |_k, v| v.blank? }.keys
+
+      cache_adaptor ||= cache_model_adaptor_for_get_some(missing_pks, **extra_options)
+
+      models = basic_model_dao.get_some(missing_pks, cache_adaptor: cache_adaptor, **extra_options)
+
+      Array(models).each do |model|
+        complete_model model
+      end
+
+      list = registered.values.compact.concat(models)
+
+      # reorder with the same order of the model_pks
+      # (if for any reason it does not have a primary key or if it is not in the list, then use -1 so they are at the start)
+      list.sort_by { |m| pk = m.try :primary_key; model_pks.index(pk) || -1 }
     end
 
     private
@@ -154,6 +201,15 @@ module ArtirixDataModels
       ArtirixDataModels::CachedActionAdaptor::GetSome.new(dao_name: model_name, model_pks: model_pks, **extra_options)
     end
 
+    def complete_model(model)
+      if model
+        dao_registry.register_model model
+        model.try :set_dao_registry_loader, dao_registry_loader
+      end
+
+      model
+    end
+
     module FakeModes
       module Factory
 
@@ -165,15 +221,15 @@ module ArtirixDataModels
           raise NotImplementedError
         end
 
-        def get(model_pk)
+        def get(_model_pk)
           raise NotImplementedError
         end
 
-        def get_full(model_pk, given_model_to_reload = nil)
+        def get_full(_model_pk, given_model_to_reload = nil)
           raise NotImplementedError
         end
 
-        def get_some(model_pks)
+        def get_some(_model_pks)
           raise NotImplementedError
         end
 

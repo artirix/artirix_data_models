@@ -52,9 +52,15 @@ module ArtirixDataModels::GatewayResponseAdaptors
       new ->(data_list) { Array(data_list).map { |data_hash| model_class.new data_hash } }
     end
 
-    def self.collection(object_class_or_factory, from = 0, size = nil)
+    def self.collection(object_class_or_factory, from = 0, size = nil, dao_registry_loader = nil)
       size ||= ArtirixDataModels.configuration.try(:search_page_size).try(:default) || 10
-      new ->(data_collection) { ArtirixDataModels::EsCollection.new object_class_or_factory, response: data_collection, from: from, size: size }
+      new ->(data_collection) {
+        ArtirixDataModels::EsCollection.new object_class_or_factory,
+                                            response:            data_collection,
+                                            from:                from,
+                                            size:                size,
+                                            dao_registry_loader: dao_registry_loader
+      }
     end
 
     def self.with_block(&block)

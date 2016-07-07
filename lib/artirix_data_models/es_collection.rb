@@ -3,9 +3,9 @@ require 'oj'
 module ArtirixDataModels
   class EsCollection
 
-    DEFAULT_SIZE = 10
+    DEFAULT_SIZE                = 10
     CACHE_KEY_SECTION_SEPARATOR = '/'.freeze
-    CACHE_KEY_RESULT_SEPARATOR = '\\'.freeze
+    CACHE_KEY_RESULT_SEPARATOR  = '\\'.freeze
 
     def self.work_with_kaminari
       require 'kaminari'
@@ -180,13 +180,23 @@ module ArtirixDataModels
     def deserialize_document(document)
       info = info_from_document(document)
 
-      if model_factory
-        model_factory.call info
-      elsif model_class
-        model_class.new info
-      else
-        raise 'no model class, nor model factory'
+      model = if model_factory
+                model_factory.call info
+              elsif model_class
+                model_class.new info
+              else
+                raise 'no model class, nor model factory'
+              end
+      complete_model model
+    end
+
+    def complete_model(model)
+      if model
+        dao_registry.register_model model
+        model.try :set_dao_registry_loader, dao_registry_loader
       end
+
+      model
     end
 
     def model_factory
