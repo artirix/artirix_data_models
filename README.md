@@ -137,19 +137,21 @@ Your app should extend the `ArtirixDataModels::DAORegistry`. We can override the
 
 Also, the Registry class that you want to use in your app should have in its definition a call to `self.mark_as_main_registry`. This call must be **after the override of `setup_config`.**
 
+You can add loaders that will be called only and memoized with `set_persistent_loader` and loaders that will cbe called every time with `set_transient_loader`. `se_loader` is an alias of `set_persistent_loader`.
+
 ```ruby
 class DAORegistry < ArtirixDataModels::DAORegistry
   def setup_config
     super
 
-    set_loader(:aggregations_factory) { AggregationsFactory.new }
+    set_persistent_loader(:aggregations_factory) { AggregationsFactory.new }
 
-    set_loader(:yacht) { YachtDAO.new gateway: get(:gateway) }
-    set_loader(:article) { ArticleDAO.new gateway: get(:gateway) }
-    set_loader(:broker) { BrokerDAO.new gateway: get(:gateway) }
+    set_transient_loader(:yacht) { YachtDAO.new gateway: get(:gateway) }
+    set_transient_loader(:article) { ArticleDAO.new gateway: get(:gateway) }
+    set_transient_loader(:broker) { BrokerDAO.new gateway: get(:gateway) }
 
     set_loader(:artirix_hub_api_gateway) { ArtirixDataModels::DataGateway.new connection: ArtirixHubApiService::ConnectionLoader.connection }
-    set_loader(:lead) { LeadDAO.new gateway: get(:artirix_hub_api_gateway) }
+    set_transient_loader(:lead) { LeadDAO.new gateway: get(:artirix_hub_api_gateway) }
   end
 
 

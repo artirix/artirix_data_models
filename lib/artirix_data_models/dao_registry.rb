@@ -14,17 +14,18 @@ class ArtirixDataModels::DAORegistry
 
   # singleton instance
   def initialize
-    @_repository = {}
-    @_loaders    = {}
+    @_repository         = {}
+    @_persistent_loaders = {}
+    @_transient_loaders  = {}
 
     setup_config
   end
 
   def setup_config
-    set_loader(:aggregations_factory) { ArtirixDataModels::AggregationsFactory.new }
-    set_loader(:basic_class) { ArtirixDataModels::BasicModelDAO }
-    set_loader(:gateway) { ArtirixDataModels::DataGateway.new }
-    set_loader(:model_fields) { ArtirixDataModels::ModelFieldsDAO.new gateway: get(:gateway) }
+    set_persistent_loader(:aggregations_factory) { ArtirixDataModels::AggregationsFactory.new }
+    set_persistent_loader(:basic_class) { ArtirixDataModels::BasicModelDAO }
+    set_persistent_loader(:gateway) { ArtirixDataModels::DataGateway.new }
+    set_persistent_loader(:model_fields) { ArtirixDataModels::ModelFieldsDAO.new gateway: get(:gateway) }
   end
 
   def aggregations_factory
@@ -45,7 +46,7 @@ class ArtirixDataModels::DAORegistry
 
   def exist?(key)
     key = key.to_sym
-    @_repository.key?(key) || @_loaders.key?(key)
+    @_repository.key?(key) || @_persistent_loaders.key?(key) || @_transient_loaders.key?(key)
   end
 
   def get(key)
@@ -53,26 +54,54 @@ class ArtirixDataModels::DAORegistry
   end
 
   def call_loader(key)
-    key               = key.to_sym
-    @_repository[key] = @_loaders[key].call
+    key = key.to_sym
+    if @_persistent_loaders[key]
+      @_repository[key] = @_persistent_loaders[key].call
+    elsif @_transient_loaders[key]
+      @_transient_loaders[key].call
+    else
+      raise LoaderNotFound, "no loader or transient found for #{key}"
+    end
   end
 
-  def set_loader(key, loader = nil, &block)
+  def set_transient_loader(key, loader = nil, &block)
     key = key.to_sym
 
     if block
-      @_loaders[key] = block
+      @_transient_loaders[key] = block
     elsif loader.respond_to? :call
-      @_loaders[key] = loader
+      @_transient_loaders[key] = loader
     else
       raise ArgumentError, "no block and no loader given for key #{key}"
     end
   end
 
+  def set_persistent_loader(key, loader = nil, &block)
+    key = key.to_sym
+
+    if block
+      @_persistent_loaders[key] = block
+    elsif loader.respond_to? :call
+      @_persistent_loaders[key] = loader
+    else
+      raise ArgumentError, "no block and no loader given for key #{key}"
+    end
+  end
+
+  alias_method :set_loader, :set_persistent_loader
+
   # static methods
 
   def self.set_loader(key, loader = nil, &block)
     instance.set_loader key, loader, &block
+  end
+
+  def self.set_persistent_loader(key, loader = nil, &block)
+    instance.set_persistent_loader key, loader, &block
+  end
+
+  def self.set_transient_loader(key, loader = nil, &block)
+    instance.set_transient_loader key, loader, &block
   end
 
   def self.get(key)
@@ -94,5 +123,9 @@ class ArtirixDataModels::DAORegistry
   def self.respond_to_missing?(method, include_all = false)
     exist?(method) || super
   end
+
+  class LoaderNotFound < StandardError
+  end
+
 
 end
