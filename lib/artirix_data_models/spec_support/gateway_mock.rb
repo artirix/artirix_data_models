@@ -1,7 +1,7 @@
 # :nocov:
 def given_gateway_config(connection_url = nil)
   connection_url ||= 'http://example.com/other'
-  
+
   before(:each) do
     config = ArtirixDataModels.configuration
 
@@ -25,7 +25,8 @@ def mock_gateway_response(response:,
                           timeout: nil,
                           authorization_bearer: nil,
                           authorization_token_hash: nil,
-                          gateway: nil)
+                          gateway: nil,
+                          headers: nil)
   gateway ||= ArtirixDataModels::DAORegistry.gateway
 
   params_hash = {
@@ -34,7 +35,8 @@ def mock_gateway_response(response:,
     json_body:                json_body,
     timeout:                  timeout,
     authorization_bearer:     authorization_bearer,
-    authorization_token_hash: authorization_token_hash
+    authorization_token_hash: authorization_token_hash,
+    headers:                  headers
   }
 
   allow(gateway).to receive(:perform).with(method, params_hash).and_return response
@@ -53,7 +55,8 @@ def mock_gateway_not_found_response(method:,
                                     timeout: nil,
                                     authorization_bearer: nil,
                                     authorization_token_hash: nil,
-                                    gateway: nil)
+                                    gateway: nil,
+                                    headers: nil)
 
   gateway ||= ArtirixDataModels::DAORegistry.gateway
 
@@ -63,7 +66,8 @@ def mock_gateway_not_found_response(method:,
     json_body:                json_body,
     timeout:                  timeout,
     authorization_bearer:     authorization_bearer,
-    authorization_token_hash: authorization_token_hash
+    authorization_token_hash: authorization_token_hash,
+    headers:                  headers
   }
 
   allow(gateway).to receive(:perform).with(method, params_hash).and_raise ArtirixDataModels::DataGateway::NotFound

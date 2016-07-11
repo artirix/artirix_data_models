@@ -162,7 +162,7 @@ class ArtirixDataModels::BasicModelDAO
   # PERFORM CALLS #
   #################
 
-  def perform_get(path, response_adaptor: nil, body: nil, fake_response: nil, cache_adaptor: nil, timeout: nil, gateway: nil)
+  def perform_get(path, response_adaptor: nil, body: nil, fake_response: nil, cache_adaptor: nil, timeout: nil, gateway: nil, headers: nil)
     g = gateway.presence || preloaded_gateway
     raise_no_gateway unless g.present?
 
@@ -172,11 +172,12 @@ class ArtirixDataModels::BasicModelDAO
           timeout:          timeout,
           fake:             fake?,
           fake_response:    fake_response,
-          cache_adaptor:    cache_adaptor
+          cache_adaptor:    cache_adaptor,
+          headers:          headers
   end
 
 
-  def perform_post(path, response_adaptor: nil, body: nil, fake_response: nil, cache_adaptor: nil, timeout: nil, gateway: nil)
+  def perform_post(path, response_adaptor: nil, body: nil, fake_response: nil, cache_adaptor: nil, timeout: nil, gateway: nil, headers: nil)
     g = gateway.presence || preloaded_gateway
     raise_no_gateway unless g.present?
 
@@ -186,10 +187,11 @@ class ArtirixDataModels::BasicModelDAO
            timeout:          timeout,
            fake:             fake?,
            fake_response:    fake_response,
-           cache_adaptor:    cache_adaptor
+           cache_adaptor:    cache_adaptor,
+           headers:          headers
   end
 
-  def perform_put(path, response_adaptor: nil, body: nil, fake_response: nil, cache_adaptor: nil, timeout: nil, gateway: nil)
+  def perform_put(path, response_adaptor: nil, body: nil, fake_response: nil, cache_adaptor: nil, timeout: nil, gateway: nil, headers: nil)
     g = gateway.presence || preloaded_gateway
     raise_no_gateway unless g.present?
 
@@ -199,10 +201,11 @@ class ArtirixDataModels::BasicModelDAO
           timeout:          timeout,
           fake:             fake?,
           fake_response:    fake_response,
-          cache_adaptor:    cache_adaptor
+          cache_adaptor:    cache_adaptor,
+          headers:          headers
   end
 
-  def perform_delete(path, response_adaptor: nil, body: nil, fake_response: nil, cache_adaptor: nil, timeout: nil, gateway: nil)
+  def perform_delete(path, response_adaptor: nil, body: nil, fake_response: nil, cache_adaptor: nil, timeout: nil, gateway: nil, headers: nil)
     g = gateway.presence || preloaded_gateway
     raise_no_gateway unless g.present?
 
@@ -212,7 +215,8 @@ class ArtirixDataModels::BasicModelDAO
              timeout:          timeout,
              fake:             fake?,
              fake_response:    fake_response,
-             cache_adaptor:    cache_adaptor
+             cache_adaptor:    cache_adaptor,
+             headers:          headers
   end
 
   # old names

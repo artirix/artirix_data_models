@@ -327,6 +327,9 @@ end
 
 ## Changes
 
+### 0.24.0
+- add `headers` to Gateway, to Connection and to DAO methods. It expect a hash of key-value that will be passed to the Faraday call after the body of the request.
+
 ### 0.23.0
 - DAORegistry now DI'ed into the DAOs and models, by adding `dao_registry_loader` or a direct `dao_registry`.
 - DAORegistry with support for Identity Map

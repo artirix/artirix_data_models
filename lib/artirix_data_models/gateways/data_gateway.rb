@@ -46,6 +46,7 @@ class ArtirixDataModels::DataGateway
            timeout: nil,
            authorization_bearer: nil,
            authorization_token_hash: nil,
+           headers: nil,
            **_ignored_options)
 
     if fake
@@ -59,7 +60,8 @@ class ArtirixDataModels::DataGateway
                 json_body:                json_body,
                 timeout:                  timeout,
                 authorization_bearer:     authorization_bearer,
-                authorization_token_hash: authorization_token_hash
+                authorization_token_hash: authorization_token_hash,
+                headers:                  headers
       end
 
     else
@@ -69,7 +71,8 @@ class ArtirixDataModels::DataGateway
                        json_body:                json_body,
                        timeout:                  timeout,
                        authorization_bearer:     authorization_bearer,
-                       authorization_token_hash: authorization_token_hash
+                       authorization_token_hash: authorization_token_hash,
+                       headers:                  headers
     end
 
     parse_response result:           result,
@@ -102,7 +105,8 @@ class ArtirixDataModels::DataGateway
               json_body: true,
               timeout: nil,
               authorization_bearer: nil,
-              authorization_token_hash: nil)
+              authorization_token_hash: nil,
+              headers: nil)
 
     pars = {
       path:                     path,
@@ -110,7 +114,8 @@ class ArtirixDataModels::DataGateway
       json_body:                json_body,
       timeout:                  timeout,
       authorization_bearer:     authorization_bearer,
-      authorization_token_hash: authorization_token_hash
+      authorization_token_hash: authorization_token_hash,
+      headers:                  headers
     }
 
     response = connect(method, pars)
@@ -126,7 +131,8 @@ class ArtirixDataModels::DataGateway
               json_body: true,
               timeout: nil,
               authorization_bearer: nil,
-              authorization_token_hash: nil)
+              authorization_token_hash: nil,
+              headers: nil)
 
     timeout                  = timeout.nil? ? @timeout : timeout
     authorization_bearer     = authorization_bearer.nil? ? @authorization_bearer : authorization_bearer
@@ -149,6 +155,10 @@ class ArtirixDataModels::DataGateway
         else
           req.body = body
         end
+      end
+
+      Array(headers).each do |key, value|
+        req.headers[key.to_s] = value
       end
     end
   rescue Faraday::ConnectionFailed, Faraday::Error::TimeoutError, Errno::ETIMEDOUT => e
@@ -257,7 +267,7 @@ class ArtirixDataModels::DataGateway
 
         raise InvalidConnectionError, 'no url given, nor is it present in `config.url`' unless url.present?
 
-        Faraday.new(url: url, request: {params_encoder: Faraday::FlatParamsEncoder}) do |faraday|
+        Faraday.new(url: url, request: { params_encoder: Faraday::FlatParamsEncoder }) do |faraday|
           faraday.request :url_encoded # form-encode POST params
           faraday.response :logger # log requests to STDOUT
 
