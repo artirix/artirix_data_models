@@ -367,9 +367,22 @@ module ArtirixDataModels
       SEPARATOR       = '/'.freeze
 
       def cache_key
+        # we do not want to force a reload for loading the cache key, it can lead to an infinite loop
+        # so if the model is in partial mode, we mark it as full mode, and back as partial later.
+        temp_full_mode = false
+        if try(:partial_mode?)
+          temp_full_mode = true
+          try(:mark_full_mode)
+        end
+
         m = try(:model_dao_name) || self.class
         i = try(:primary_key) || try(:id) || try(:object_id)
         t = try(:_timestamp) || try(:updated_at) || EMPTY_TIMESTAMP
+
+        if temp_full_mode
+          try(:mark_partial_mode)
+        end
+
         [
           m.to_s.parameterize,
           i.to_s.parameterize,

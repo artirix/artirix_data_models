@@ -327,6 +327,9 @@ end
 
 ## Changes
 
+### 0.25.0
+- *IMPORTANT FIX*: prevent infinite loop in Model's `cache_key` method, where if `_timestamp` is nil, it will try to load `updated_at`. If that's not part of the partial mode, it will force a reload, which will get a cache_key, which will ask for `updated_at`, which will force a reload...
+
 ### 0.24.0
 - add `headers` to Gateway, to Connection and to DAO methods. It expect a hash of key-value that will be passed to the Faraday call after the body of the request.
 
