@@ -133,6 +133,10 @@ module ArtirixDataModels
     @disabled_cache ||= DisabledCache.new
   end
 
+  def self.use_cache_service(artirix_cache_service)
+    CacheService.use_cache_service artirix_cache_service
+  end
+
   # CONFIGURATION
 
   def self.configuration

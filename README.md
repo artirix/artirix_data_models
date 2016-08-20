@@ -327,6 +327,9 @@ end
 
 ## Changes
 
+### 0.26.0
+- Expose cache configuration in case the app has config specific for `artirix_cache_service` that we want to use with `ArtirixDataModels.use_cache_service(artirix_cache_service)` where the argument is a `ArtirixCacheService::Service` object.
+
 ### 0.25.0
 - *IMPORTANT FIX*: prevent infinite loop in Model's `cache_key` method, where if `_timestamp` is nil, it will try to load `updated_at`. If that's not part of the partial mode, it will force a reload, which will get a cache_key, which will ask for `updated_at`, which will force a reload...
 

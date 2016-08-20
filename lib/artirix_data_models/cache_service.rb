@@ -1,27 +1,46 @@
 module ArtirixDataModels::CacheService
+
+  def self.service
+    @service ||= build_service
+  end
+
+  def self.use_cache_service(artirix_cache_service)
+    unless artirix_cache_service.kind_of? ArtirixCacheService::Service
+      raise InvalidServiceError, "expected ArtirixCacheService::Service, given #{artirix_cache_service.inspect}"
+    end
+
+    @service = artirix_cache_service
+  end
+
   def self.reload_service
     @service = nil
     service
   end
 
-  def self.service
-    @service ||= ArtirixCacheService::Service.new.tap do |service|
-      prefix = ArtirixDataModels.configuration.try(:cache_app_prefix)
-      if prefix
-        service.register_key_prefix "#{prefix}__"
-      end
+  def self.build_service
+    ArtirixCacheService::Service.new.tap do |service|
+      set_key_prefix_from_config(service)
+      set_options_from_config(service)
+    end
+  end
 
-      options = ArtirixDataModels.configuration.try(:cache_options)
-      if options
-        options.each do |name, opts|
-          if name.to_s == 'default_options'
-            service.register_default_options opts
-          else
-            service.register_options name, opts
-          end
+  def self.set_key_prefix_from_config(service)
+    prefix = ArtirixDataModels.configuration.try(:cache_app_prefix)
+    if prefix
+      service.register_key_prefix "#{prefix}__"
+    end
+  end
+
+  def self.set_options_from_config(service)
+    options = ArtirixDataModels.configuration.try(:cache_options)
+    if options
+      options.each do |name, opts|
+        if name.to_s == 'default_options'
+          service.register_default_options opts
+        else
+          service.register_options name, opts
         end
       end
-
     end
   end
 
@@ -100,5 +119,8 @@ module ArtirixDataModels::CacheService
     else
       super
     end
+  end
+
+  class InvalidServiceError < StandardError
   end
 end
