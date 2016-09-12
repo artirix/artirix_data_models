@@ -258,18 +258,21 @@ class ArtirixDataModels::DataGateway
         connection config: ArtirixDataModels.configuration.send(config_key), **others
       end
 
-      def connection(config: {}, url: nil, login: nil, password: nil, bearer_token: nil, token_hash: nil)
-        url          ||= config.try :url
-        login        ||= config.try :login
-        password     ||= config.try :password
-        bearer_token ||= config.try :bearer_token
-        token_hash   ||= config.try :token_hash
+      def connection(config: {}, url: nil, login: nil, password: nil, bearer_token: nil, token_hash: nil, log_body_request: nil, log_body_response: nil)
+        url               ||= config.try :url
+        login             ||= config.try :login
+        password          ||= config.try :password
+        bearer_token      ||= config.try :bearer_token
+        token_hash        ||= config.try :token_hash
+        log_body_request  ||= log_body_request.nil? ? config.try(:log_body_request) : log_body_request
+        log_body_response ||= log_body_response.nil? ? config.try(:log_body_response) : log_body_response
 
         raise InvalidConnectionError, 'no url given, nor is it present in `config.url`' unless url.present?
 
         Faraday.new(url: url, request: { params_encoder: Faraday::FlatParamsEncoder }) do |faraday|
           faraday.request :url_encoded # form-encode POST params
-          faraday.response :logger # log requests to STDOUT
+          # faraday.response :logger # log requests to STDOUT
+          faraday.response :logger, ::Logger.new(STDOUT), bodies: { request: log_body_request, response: log_body_response }
 
           if login.present? || password.present?
             faraday.basic_auth(login, password)

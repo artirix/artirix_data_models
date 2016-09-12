@@ -327,6 +327,9 @@ end
 
 ## Changes
 
+### 0.26.1
+- Add settings to log requests and responses bodies: `log_body_request` and `log_body_response`.
+
 ### 0.26.0
 - Expose cache configuration in case the app has config specific for `artirix_cache_service` that we want to use with `ArtirixDataModels.use_cache_service(artirix_cache_service)` where the argument is a `ArtirixCacheService::Service` object.
 
