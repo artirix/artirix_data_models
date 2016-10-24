@@ -258,7 +258,7 @@ class ArtirixDataModels::DataGateway
         connection config: ArtirixDataModels.configuration.send(config_key), **others
       end
 
-      def connection(config: {}, url: nil, login: nil, password: nil, bearer_token: nil, token_hash: nil, log_body_request: nil, log_body_response: nil)
+      def connection(config: {}, url: nil, login: nil, password: nil, bearer_token: nil, token_hash: nil, log_body_request: nil, log_body_response: nil, faraday_build_proc: nil)
         url               ||= config.try :url
         login             ||= config.try :login
         password          ||= config.try :password
@@ -270,6 +270,10 @@ class ArtirixDataModels::DataGateway
         raise InvalidConnectionError, 'no url given, nor is it present in `config.url`' unless url.present?
 
         Faraday.new(url: url, request: { params_encoder: Faraday::FlatParamsEncoder }) do |faraday|
+          if faraday_build_proc.present? && faraday_build_proc.respond_to?(:call)
+            faraday_build_proc.call faraday
+          end
+
           faraday.request :url_encoded # form-encode POST params
           # faraday.response :logger # log requests to STDOUT
           faraday.response :logger, ::Logger.new(STDOUT), bodies: { request: log_body_request, response: log_body_response }

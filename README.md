@@ -327,6 +327,19 @@ end
 
 ## Changes
 
+### 0.28.0
+- receive `faraday_build_proc` argument in `ArtirixDataModels::DataGateway::ConnectionLoader.connection`. If present, it will be passed the faraday connection before adding any configuration
+```
+Faraday.new(url: url, request: { params_encoder: Faraday::FlatParamsEncoder }) do |faraday|
+  if faraday_build_proc.present? && faraday_build_proc.respond_to?(:call)
+    faraday_build_proc.call faraday
+  end
+
+  #...
+  faraday.adapter Faraday.default_adapter
+end
+```
+
 ### 0.27.0
 - Add settings to log requests and responses bodies: `log_body_request` and `log_body_response`. Added to the `DataGateway::ConectionLoader#connection` method, and to the same config that stores ```login``` and ```password``` settings.
 
