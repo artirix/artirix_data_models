@@ -41,6 +41,11 @@ class ArtirixDataModels::CachedActionAdaptor
     @enabled
   end
 
+  def delete
+    return true unless enabled?
+    cache_delete
+  end
+
   private
 
   def get_cached_result
@@ -112,6 +117,13 @@ class ArtirixDataModels::CachedActionAdaptor
 
     cache.write cache_key, value, cache_options
     value
+  end
+
+  def cache_delete
+    logger.debug "DELETE CACHE with key #{cache_key.inspect}"
+    return true unless cache
+
+    cache.delete cache_key, cache_options
   end
 
 end

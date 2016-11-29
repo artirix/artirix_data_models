@@ -327,6 +327,11 @@ end
 
 ## Changes
 
+### 0.31.0
+
+- `CacheAdaptor` has a `delete` method now, which calls `cache.delete cache_key`.
+- Gateway tries to call `cache_adaptor.delete` if any exception is raised during a request (including parsing the response), before re-raising the exception.
+
 ### 0.30.0
 
 - expose as config in connection the `faraday_adapter`. If falsey it will default to `Faraday.default_adapter`.

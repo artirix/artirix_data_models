@@ -79,6 +79,14 @@ class ArtirixDataModels::DataGateway
                    response_adaptor: response_adaptor,
                    method: method,
                    path: path
+  rescue => e
+    # if anything goes wrong => delete the cache just in case.
+
+    if cache_adaptor.present? && cache_adaptor.respond_to?(:delete)
+      cache_adaptor.delete
+    end
+
+    raise e
   end
 
   private
