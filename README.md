@@ -327,6 +327,10 @@ end
 
 ## Changes
 
+### 0.30.0
+
+- expose as config in connection the `faraday_adapter`. If falsey it will default to `Faraday.default_adapter`.
+
 ### 0.29.0
 
 - in `DAO`, extracted the creation of the `@basic_model_dao` into a `create_basic_model_dao` method. This method can be now overridden. It accepts other params that will be passed in the object creation.

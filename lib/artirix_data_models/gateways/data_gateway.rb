@@ -7,12 +7,12 @@ class ArtirixDataModels::DataGateway
                  timeout: nil,
                  authorization_bearer: nil,
                  authorization_token_hash: nil)
-    @connection               = connection || ConnectionLoader.default_connection
-    @post_as_json             = !!post_as_json
-    @authorization_bearer     = authorization_bearer
+    @connection = connection || ConnectionLoader.default_connection
+    @post_as_json = !!post_as_json
+    @authorization_bearer = authorization_bearer
     @authorization_token_hash = authorization_token_hash
-    @timeout                  = timeout
-    @ensure_relative          = !!ensure_relative
+    @timeout = timeout
+    @ensure_relative = !!ensure_relative
   end
 
   def ensure_relative?
@@ -55,30 +55,30 @@ class ArtirixDataModels::DataGateway
     elsif cache_adaptor.present?
       result = cache_adaptor.call do
         perform method,
-                path:                     path,
-                body:                     body,
-                json_body:                json_body,
-                timeout:                  timeout,
-                authorization_bearer:     authorization_bearer,
+                path: path,
+                body: body,
+                json_body: json_body,
+                timeout: timeout,
+                authorization_bearer: authorization_bearer,
                 authorization_token_hash: authorization_token_hash,
-                headers:                  headers
+                headers: headers
       end
 
     else
       result = perform method,
-                       path:                     path,
-                       body:                     body,
-                       json_body:                json_body,
-                       timeout:                  timeout,
-                       authorization_bearer:     authorization_bearer,
+                       path: path,
+                       body: body,
+                       json_body: json_body,
+                       timeout: timeout,
+                       authorization_bearer: authorization_bearer,
                        authorization_token_hash: authorization_token_hash,
-                       headers:                  headers
+                       headers: headers
     end
 
-    parse_response result:           result,
+    parse_response result: result,
                    response_adaptor: response_adaptor,
-                   method:           method,
-                   path:             path
+                   method: method,
+                   path: path
   end
 
   private
@@ -109,13 +109,13 @@ class ArtirixDataModels::DataGateway
               headers: nil)
 
     pars = {
-      path:                     path,
-      body:                     body,
-      json_body:                json_body,
-      timeout:                  timeout,
-      authorization_bearer:     authorization_bearer,
+      path: path,
+      body: body,
+      json_body: json_body,
+      timeout: timeout,
+      authorization_bearer: authorization_bearer,
       authorization_token_hash: authorization_token_hash,
-      headers:                  headers
+      headers: headers
     }
 
     response = connect(method, pars)
@@ -134,8 +134,8 @@ class ArtirixDataModels::DataGateway
               authorization_token_hash: nil,
               headers: nil)
 
-    timeout                  = timeout.nil? ? @timeout : timeout
-    authorization_bearer     = authorization_bearer.nil? ? @authorization_bearer : authorization_bearer
+    timeout = timeout.nil? ? @timeout : timeout
+    authorization_bearer = authorization_bearer.nil? ? @authorization_bearer : authorization_bearer
     authorization_token_hash = authorization_token_hash.nil? ? @authorization_token_hash : authorization_token_hash
 
     if ensure_relative?
@@ -144,13 +144,13 @@ class ArtirixDataModels::DataGateway
 
     connection.send(method, path) do |req|
 
-      req.options.timeout          = timeout if timeout.present?
+      req.options.timeout = timeout if timeout.present?
       req.headers['Authorization'] = Faraday::Request::Authorization.header(:Bearer, authorization_bearer) if authorization_bearer.present?
       req.headers['Authorization'] = Faraday::Request::Authorization.header(:Token, authorization_token_hash) if authorization_token_hash.present?
 
       unless body.nil?
         if json_body
-          req.body                    = body_to_json body
+          req.body = body_to_json body
           req.headers['Content-Type'] = 'application/json'
         else
           req.body = body
@@ -163,8 +163,8 @@ class ArtirixDataModels::DataGateway
     end
   rescue Faraday::ConnectionFailed, Faraday::Error::TimeoutError, Errno::ETIMEDOUT => e
     raise ConnectionError,
-          path:    path,
-          method:  method,
+          path: path,
+          method: method,
           message: "method: #{method}, path: #{path}, error: #{e}"
   end
 
@@ -192,10 +192,10 @@ class ArtirixDataModels::DataGateway
 
   rescue Oj::ParseError => e
     raise ParseError,
-          path:          path,
-          method:        method,
+          path: path,
+          method: method,
           response_body: result,
-          message:       e.message
+          message: e.message
   end
 
   #######################
@@ -215,9 +215,9 @@ class ArtirixDataModels::DataGateway
 
     klass = exception_for_status(response.status)
     raise klass,
-          path:            path,
-          method:          method,
-          response_body:   response.body,
+          path: path,
+          method: method,
+          response_body: response.body,
           response_status: response.status
   end
 
@@ -258,13 +258,24 @@ class ArtirixDataModels::DataGateway
         connection config: ArtirixDataModels.configuration.send(config_key), **others
       end
 
-      def connection(config: {}, url: nil, login: nil, password: nil, bearer_token: nil, token_hash: nil, log_body_request: nil, log_body_response: nil, faraday_build_proc: nil)
-        url               ||= config.try :url
-        login             ||= config.try :login
-        password          ||= config.try :password
-        bearer_token      ||= config.try :bearer_token
-        token_hash        ||= config.try :token_hash
-        log_body_request  ||= log_body_request.nil? ? config.try(:log_body_request) : log_body_request
+      def connection(config: {},
+                     url: nil,
+                     login: nil,
+                     password: nil,
+                     bearer_token: nil,
+                     token_hash: nil,
+                     log_body_request: nil,
+                     log_body_response: nil,
+                     faraday_build_proc: nil,
+                     faraday_adapter: nil)
+
+        url ||= config.try :url
+        login ||= config.try :login
+        password ||= config.try :password
+        bearer_token ||= config.try :bearer_token
+        token_hash ||= config.try :token_hash
+        faraday_adapter ||= config.try(:faraday_adapter) || Faraday.default_adapter
+        log_body_request ||= log_body_request.nil? ? config.try(:log_body_request) : log_body_request
         log_body_response ||= log_body_response.nil? ? config.try(:log_body_response) : log_body_response
 
         raise InvalidConnectionError, 'no url given, nor is it present in `config.url`' unless url.present?
@@ -286,7 +297,7 @@ class ArtirixDataModels::DataGateway
             faraday.authorization :Token, token_hash
           end
 
-          faraday.adapter Faraday.default_adapter
+          faraday.adapter faraday_adapter
         end
       end
     end
@@ -343,11 +354,11 @@ class ArtirixDataModels::DataGateway
       msg = nil if msg == self.class.to_s
 
       parts = {
-        path:            path,
-        method:          method,
+        path: path,
+        method: method,
         response_status: response_status,
-        response_body:   response_body,
-        message:         msg,
+        response_body: response_body,
+        message: msg,
       }.select { |_, v| v.present? }.map { |k, v| "#{k}: #{v.inspect}" }
 
       "#{self.class}: #{parts.join ', '}"
@@ -359,12 +370,12 @@ class ArtirixDataModels::DataGateway
 
     def data_hash
       {
-        class:           self.class.to_s,
-        path:            path,
-        method:          method,
+        class: self.class.to_s,
+        path: path,
+        method: method,
         response_status: response_status,
-        response_body:   response_body,
-        message:         message,
+        response_body: response_body,
+        message: message,
       }
     end
 
@@ -376,11 +387,11 @@ class ArtirixDataModels::DataGateway
     private
 
     def build_from_options(path: nil, method: nil, response_status: nil, response_body: nil, message: nil, **_other)
-      @path            = path
-      @method          = method
+      @path = path
+      @method = method
       @response_status = response_status
-      @response_body   = response_body
-      @message         = message.presence || self.class.to_s
+      @response_body = response_body
+      @message = message.presence || self.class.to_s
     end
   end
 
