@@ -16,12 +16,12 @@ class ArtirixDataModels::BasicModelDAO
 
     set_dao_registry_and_loader dao_registry_loader, dao_registry
 
-    @model_name             = model_name
-    @model_class            = model_class
-    @paths_factory          = paths_factory
-    @loaded_gateway         = gateway
-    @gateway_factory        = gateway_factory
-    @fake_mode_factory      = fake_mode_factory
+    @model_name = model_name
+    @model_class = model_class
+    @paths_factory = paths_factory
+    @loaded_gateway = gateway
+    @gateway_factory = gateway_factory
+    @fake_mode_factory = fake_mode_factory
     @ignore_default_gateway = ignore_default_gateway
   end
 
@@ -39,34 +39,44 @@ class ArtirixDataModels::BasicModelDAO
   # ACTIONS #
   ###########
 
-  def get_full(model_pk, model_to_reload:, response_adaptor: nil, cache_adaptor: nil, **extra_options)
-    path             = paths_factory.get_full model_pk
+  def get_full(model_pk, model_to_reload:, path: nil, fake_response: nil, cache_adaptor: nil, response_adaptor: nil, **extra_options)
+    path ||= paths_factory.get_full model_pk
     response_adaptor ||= response_adaptor_for_reload(model_to_reload)
+    fake_response ||= fake_get_full_response(model_pk, model_to_reload)
 
-    perform_get path, response_adaptor: response_adaptor, fake_response: fake_get_full_response(model_pk, model_to_reload), cache_adaptor: cache_adaptor, **extra_options
+    perform_get path, response_adaptor: response_adaptor, fake_response: fake_response, cache_adaptor: cache_adaptor, **extra_options
 
     model_to_reload.mark_full_mode
     model_to_reload
   end
 
-  def get(model_pk, cache_adaptor: nil, **extra_options)
-    find(model_pk, cache_adaptor: cache_adaptor, **extra_options)
+  def get(*args)
+    find *args
   rescue ArtirixDataModels::DataGateway::NotFound
     nil
   end
 
-  def find(model_pk, cache_adaptor: nil, response_adaptor: nil, **extra_options)
-    path             = paths_factory.get model_pk
+  def find(model_pk, path: nil, fake_response: nil, cache_adaptor: nil, response_adaptor: nil, **extra_options)
+    path ||= paths_factory.get model_pk
     response_adaptor ||= response_adaptor_for_single
+    fake_response ||= fake_get_response(model_pk)
 
-    perform_get(path, response_adaptor: response_adaptor, fake_response: fake_get_response(model_pk), cache_adaptor: cache_adaptor, **extra_options)
+    perform_get path,
+                response_adaptor: response_adaptor,
+                fake_response: fake_response,
+                cache_adaptor: cache_adaptor,
+                **extra_options
   end
 
-  def get_some(model_pks, cache_adaptor: nil, response_adaptor: nil, **extra_options)
-    path             = paths_factory.get_some(model_pks)
+  def get_some(model_pks, path: nil, fake_response: nil, cache_adaptor: nil, response_adaptor: nil, **extra_options)
+    path ||= paths_factory.get_some(model_pks)
     response_adaptor ||= response_adaptor_for_some
-
-    perform_get(path, response_adaptor: response_adaptor, fake_response: fake_get_some_response(model_pks), cache_adaptor: cache_adaptor, **extra_options)
+    fake_response ||= fake_get_some_response(model_pks)
+    perform_get path,
+                response_adaptor: response_adaptor,
+                fake_response: fake_response,
+                cache_adaptor: cache_adaptor,
+                **extra_options
   rescue ArtirixDataModels::DataGateway::NotFound
     []
   end
@@ -162,61 +172,101 @@ class ArtirixDataModels::BasicModelDAO
   # PERFORM CALLS #
   #################
 
-  def perform_get(path, response_adaptor: nil, body: nil, fake_response: nil, cache_adaptor: nil, timeout: nil, gateway: nil, headers: nil)
+  def perform_get(path,
+                  fake: nil,
+                  response_adaptor: nil,
+                  body: nil,
+                  fake_response: nil,
+                  cache_adaptor: nil,
+                  timeout: nil,
+                  gateway: nil,
+                  headers: nil)
+
+    fake = fake.nil? ? fake? : fake
     g = gateway.presence || preloaded_gateway
     raise_no_gateway unless g.present?
 
     g.get path,
           response_adaptor: response_adaptor,
-          body:             body,
-          timeout:          timeout,
-          fake:             fake?,
-          fake_response:    fake_response,
-          cache_adaptor:    cache_adaptor,
-          headers:          headers
+          body: body,
+          timeout: timeout,
+          fake: fake,
+          fake_response: fake_response,
+          cache_adaptor: cache_adaptor,
+          headers: headers
   end
 
 
-  def perform_post(path, response_adaptor: nil, body: nil, fake_response: nil, cache_adaptor: nil, timeout: nil, gateway: nil, headers: nil)
+  def perform_post(path,
+                   fake: nil,
+                   response_adaptor: nil,
+                   body: nil,
+                   fake_response: nil,
+                   cache_adaptor: nil,
+                   timeout: nil,
+                   gateway: nil,
+                   headers: nil)
+
+    fake = fake.nil? ? fake? : fake
     g = gateway.presence || preloaded_gateway
     raise_no_gateway unless g.present?
 
     g.post path,
            response_adaptor: response_adaptor,
-           body:             body,
-           timeout:          timeout,
-           fake:             fake?,
-           fake_response:    fake_response,
-           cache_adaptor:    cache_adaptor,
-           headers:          headers
+           body: body,
+           timeout: timeout,
+           fake: fake,
+           fake_response: fake_response,
+           cache_adaptor: cache_adaptor,
+           headers: headers
   end
 
-  def perform_put(path, response_adaptor: nil, body: nil, fake_response: nil, cache_adaptor: nil, timeout: nil, gateway: nil, headers: nil)
+  def perform_put(path,
+                  fake: nil,
+                  response_adaptor: nil,
+                  body: nil,
+                  fake_response: nil,
+                  cache_adaptor: nil,
+                  timeout: nil,
+                  gateway: nil,
+                  headers: nil)
+
+    fake = fake.nil? ? fake? : fake
     g = gateway.presence || preloaded_gateway
     raise_no_gateway unless g.present?
 
     g.put path,
           response_adaptor: response_adaptor,
-          body:             body,
-          timeout:          timeout,
-          fake:             fake?,
-          fake_response:    fake_response,
-          cache_adaptor:    cache_adaptor,
-          headers:          headers
+          body: body,
+          timeout: timeout,
+          fake: fake,
+          fake_response: fake_response,
+          cache_adaptor: cache_adaptor,
+          headers: headers
   end
 
-  def perform_delete(path, response_adaptor: nil, body: nil, fake_response: nil, cache_adaptor: nil, timeout: nil, gateway: nil, headers: nil)
+  def perform_delete(path,
+                     fake: nil,
+                     response_adaptor: nil,
+                     body: nil,
+                     fake_response: nil,
+                     cache_adaptor: nil,
+                     timeout: nil,
+                     gateway: nil,
+                     headers: nil)
+
+    fake = fake.nil? ? fake? : fake
     g = gateway.presence || preloaded_gateway
     raise_no_gateway unless g.present?
 
     g.delete path,
              response_adaptor: response_adaptor,
-             body:             body,
-             timeout:          timeout,
-             fake:             fake?,
-             fake_response:    fake_response,
-             cache_adaptor:    cache_adaptor,
-             headers:          headers
+             body: body,
+             timeout: timeout,
+             fake: fake,
+             fake_response: fake_response,
+             cache_adaptor: cache_adaptor,
+             headers: headers
   end
 
   # old names

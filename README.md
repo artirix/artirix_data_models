@@ -327,6 +327,13 @@ end
 
 ## Changes
 
+### 0.29.0
+
+- in `DAO`, extracted the creation of the `@basic_model_dao` into a `create_basic_model_dao` method. This method can be now overridden. It accepts other params that will be passed in the object creation.
+
+- in both `DAO` and `BasicModelDAO`, in methods `get_full`, `get`, `find` and `get_some`, we can now pass arguments `path` and `fake_response`. If the values are not passed or if they are falsey then the default generation will be used.  
+
+
 ### 0.28.0
 - receive `faraday_build_proc` argument in `ArtirixDataModels::DataGateway::ConnectionLoader.connection`. If present, it will be passed the faraday connection before adding any configuration
 ```

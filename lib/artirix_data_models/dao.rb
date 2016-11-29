@@ -57,23 +57,50 @@ module ArtirixDataModels
                    paths_factory: nil,
                    fake_mode_factory: nil)
 
-      model_name        ||= default_model_name
-      model_class       ||= default_model_class
-      paths_factory     ||= default_path_factory
+      model_name ||= default_model_name
+      model_class ||= default_model_class
+      paths_factory ||= default_path_factory
       fake_mode_factory ||= default_fake_mode_factory
 
       # temporary dao registry to load basic_class only
-      dr                = ArtirixDataModels::WithDAORegistry.loader_or_registry_or_default(dao_registry_loader: dao_registry_loader, dao_registry: dao_registry)
-      @basic_model_dao  = dr.get(:basic_class).new model_name:             model_name,
-                                                   model_class:            model_class,
-                                                   fake_mode_factory:      fake_mode_factory,
-                                                   paths_factory:          paths_factory,
-                                                   gateway:                gateway,
-                                                   gateway_factory:        gateway_factory,
-                                                   dao_registry:           dao_registry,
-                                                   dao_registry_loader:    dao_registry_loader,
-                                                   ignore_default_gateway: ignore_default_gateway
+      create_basic_model_dao dao_registry: dao_registry,
+                             dao_registry_loader: dao_registry_loader,
+                             fake_mode_factory: fake_mode_factory,
+                             gateway: gateway,
+                             gateway_factory: gateway_factory,
+                             ignore_default_gateway: ignore_default_gateway,
+                             model_class: model_class,
+                             model_name: model_name,
+                             paths_factory: paths_factory
 
+    end
+
+    def create_basic_model_dao(dao_registry:,
+                               dao_registry_loader:,
+                               fake_mode_factory:,
+                               gateway:,
+                               gateway_factory:,
+                               ignore_default_gateway:,
+                               model_class:,
+                               model_name:,
+                               paths_factory:,
+                               **other_basic_model_dao_params)
+
+      dr = ArtirixDataModels::WithDAORegistry.loader_or_registry_or_default dao_registry_loader: dao_registry_loader,
+                                                                            dao_registry: dao_registry
+
+      basic_model_class = dr.get(:basic_class)
+
+      @basic_model_dao = basic_model_class.new model_name: model_name,
+                                               model_class: model_class,
+                                               fake_mode_factory: fake_mode_factory,
+                                               paths_factory: paths_factory,
+                                               gateway: gateway,
+                                               gateway_factory: gateway_factory,
+                                               dao_registry: dao_registry,
+                                               dao_registry_loader: dao_registry_loader,
+                                               ignore_default_gateway: ignore_default_gateway,
+                                               **other_basic_model_dao_params
     end
 
     def default_model_name
@@ -118,7 +145,7 @@ module ArtirixDataModels
     def get_full(model_pk, model_to_reload: nil, cache_adaptor: nil, **extra_options)
       # we do not check in the registry, since it could be a reload
       model_to_reload ||= new_model_with_pk(model_pk)
-      cache_adaptor   ||= cache_model_adaptor_for_get_full(model_pk, model_to_reload: model_to_reload, **extra_options)
+      cache_adaptor ||= cache_model_adaptor_for_get_full(model_pk, model_to_reload: model_to_reload, **extra_options)
 
       model = basic_model_dao.get_full(model_pk, model_to_reload: model_to_reload, cache_adaptor: cache_adaptor, **extra_options)
 
