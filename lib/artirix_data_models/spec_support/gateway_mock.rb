@@ -27,10 +27,12 @@ def mock_gateway_response(response:,
                           authorization_bearer: nil,
                           authorization_token_hash: nil,
                           gateway: nil,
+                          gateway_repository_name: :gateway,
                           headers: nil,
                           expect: false,
                           &block)
-  gateway ||= ArtirixDataModels::DAORegistry.gateway
+
+  gateway ||= ArtirixDataModels::ADMRegistry.get(gateway_repository_name)
 
   callable = block_given? ? block : ->(x) { x }
 
@@ -65,9 +67,10 @@ def mock_gateway_not_found_response(method:,
                                     authorization_bearer: nil,
                                     authorization_token_hash: nil,
                                     gateway: nil,
+                                    gateway_repository_name: :gateway,
                                     headers: nil)
 
-  gateway ||= ArtirixDataModels::DAORegistry.gateway
+  gateway ||= ArtirixDataModels::ADMRegistry.get(gateway_repository_name)
 
   params_hash = {
     path: path,
