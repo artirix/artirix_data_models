@@ -327,6 +327,14 @@ end
 
 ## Changes
 
+### Breaking Changes!!: version 1.0.0.beta1
+
+- rename `DAORegistry` to `ADMRegistry`, and `dao_registry` to `adm_registry`. Passed the rename to all places (`adm_registry_loader`, etc.)
+
+- Registry changes:
+  - instance is thread safe controlled by a class level mutex, shared across all subclasses
+  - instance level mutexes to control changes in persistent (setting new persistent loader or saving in local registry a persisted value) and transient (setting new transient loader).
+
 ### 0.32.0
 
 - minor changes to allow backwards compatibility. Better mocking of gateway.
