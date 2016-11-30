@@ -32,7 +32,7 @@ def mock_gateway_response(response:,
                           expect: false,
                           &block)
 
-  gateway ||= ArtirixDataModels::ADMRegistry.get(gateway_repository_name)
+  gateway ||= ArtirixDataModels::ADMRegistry.instance.get(gateway_repository_name)
 
   callable = block_given? ? block : ->(x) { x }
 
@@ -70,7 +70,7 @@ def mock_gateway_not_found_response(method:,
                                     gateway_repository_name: :gateway,
                                     headers: nil)
 
-  gateway ||= ArtirixDataModels::ADMRegistry.get(gateway_repository_name)
+  gateway ||= ArtirixDataModels::ADMRegistry.instance.get(gateway_repository_name)
 
   params_hash = {
     path: path,
