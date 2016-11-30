@@ -1,11 +1,22 @@
 class ArtirixDataModels::ADMRegistry
+  @instance_mutex = Mutex.new
+
+  def self.instance_mutex
+    ArtirixDataModels::ADMRegistry.instance_variable_get :@instance_mutex
+  end
 
   def self.instance
-    @__instance ||= new
+    instance_mutex.synchronize {
+      @instance = new unless @instance
+      @instance
+    }
   end
 
   def self.instance=(x)
-    @__instance = x
+    instance_mutex.synchronize {
+      @instance = x
+      @instance
+    }
   end
 
   def self.mark_as_main_registry
@@ -14,9 +25,12 @@ class ArtirixDataModels::ADMRegistry
 
   # singleton instance
   def initialize
-    @_repository         = {}
-    @_persistent_loaders = {}
-    @_transient_loaders  = {}
+    @persistent_mutex = Mutex.new
+    @transient_mutex = Mutex.new
+
+    @repository = {}
+    @persistent_loaders = {}
+    @transient_loaders = {}
 
     setup_config
   end
@@ -46,11 +60,11 @@ class ArtirixDataModels::ADMRegistry
 
   def exist?(key)
     key = key.to_sym
-    @_repository.key?(key) || @_persistent_loaders.key?(key) || @_transient_loaders.key?(key)
+    repository_has_key?(key) || has_persistent_loader?(key) || has_transient_loader?(key)
   end
 
   def get(key, override_adm_registry: nil)
-    x = @_repository[key.to_sym] || call_loader(key)
+    x = @repository[key.to_sym] || call_loader(key)
     if x.present? && override_adm_registry.present? && x.respond_to?(:set_adm_registry)
       x.set_adm_registry override_adm_registry
     end
@@ -62,24 +76,28 @@ class ArtirixDataModels::ADMRegistry
     key = key.to_sym
 
     if block
-      @_transient_loaders[key] = block
+      value_to_store = block
     elsif loader.respond_to? :call
-      @_transient_loaders[key] = loader
+      value_to_store = loader
     else
       raise ArgumentError, "no block and no loader given for key #{key}"
     end
+
+    @transient_mutex.synchronize { @transient_loaders[key] = value_to_store }
   end
 
   def set_persistent_loader(key, loader = nil, &block)
     key = key.to_sym
 
     if block
-      @_persistent_loaders[key] = block
+      value_to_store = block
     elsif loader.respond_to? :call
-      @_persistent_loaders[key] = loader
+      value_to_store = loader
     else
       raise ArgumentError, "no block and no loader given for key #{key}"
     end
+
+    @persistent_mutex.synchronize { @persistent_loaders[key] = value_to_store }
   end
 
   alias_method :set_loader, :set_persistent_loader
@@ -111,13 +129,27 @@ class ArtirixDataModels::ADMRegistry
   private
   def call_loader(key)
     key = key.to_sym
-    if @_persistent_loaders[key]
-      @_repository[key] = @_persistent_loaders[key].call
-    elsif @_transient_loaders[key]
-      @_transient_loaders[key].call
+    if @persistent_loaders[key]
+      @persistent_loaders[key].call.tap do |value_to_store|
+        @persistent_mutex.synchronize { @repository[key] = value_to_store }
+      end
+    elsif @transient_loaders[key]
+      @transient_loaders[key].call
     else
       raise LoaderNotFound, "no loader or transient found for #{key}"
     end
+  end
+
+  def has_transient_loader?(key)
+    @transient_loaders.key?(key)
+  end
+
+  def has_persistent_loader?(key)
+    @persistent_loaders.key?(key)
+  end
+
+  def repository_has_key?(key)
+    @repository.key?(key)
   end
 
 
@@ -241,7 +273,7 @@ class ArtirixDataModels::ADMRegistry
 
     def keys_from_model(model, action: :use)
       model_dao_name = model.try :model_dao_name
-      primary_key    = model.try :primary_key
+      primary_key = model.try :primary_key
 
       if model_dao_name.blank?
         ArtirixDataModels.logger.error("model does not have a `model_dao_name` #{model}: we cannot #{action} it")
