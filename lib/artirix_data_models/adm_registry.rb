@@ -1,4 +1,4 @@
-class ArtirixDataModels::DAORegistry
+class ArtirixDataModels::ADMRegistry
 
   def self.instance
     @__instance ||= new
@@ -9,7 +9,7 @@ class ArtirixDataModels::DAORegistry
   end
 
   def self.mark_as_main_registry
-    ArtirixDataModels::DAORegistry.instance = self.instance
+    ArtirixDataModels::ADMRegistry.instance = self.instance
   end
 
   # singleton instance
@@ -49,10 +49,10 @@ class ArtirixDataModels::DAORegistry
     @_repository.key?(key) || @_persistent_loaders.key?(key) || @_transient_loaders.key?(key)
   end
 
-  def get(key, override_dao_registry: nil)
+  def get(key, override_adm_registry: nil)
     x = @_repository[key.to_sym] || call_loader(key)
-    if x.present? && override_dao_registry.present? && x.respond_to?(:set_dao_registry)
-      x.set_dao_registry override_dao_registry
+    if x.present? && override_adm_registry.present? && x.respond_to?(:set_adm_registry)
+      x.set_adm_registry override_adm_registry
     end
 
     x
@@ -89,7 +89,7 @@ class ArtirixDataModels::DAORegistry
   ################
 
   def with_identity_map
-    IdentityMap.new dao_registry: self
+    IdentityMap.new adm_registry: self
   end
 
   # IDENTITY MAP compatible
@@ -163,10 +163,10 @@ class ArtirixDataModels::DAORegistry
   end
 
   class IdentityMap
-    include ArtirixDataModels::WithDAORegistry
+    include ArtirixDataModels::WithADMRegistry
 
-    def initialize(dao_registry_loader: nil, dao_registry: nil)
-      set_dao_registry_and_loader dao_registry_loader, dao_registry
+    def initialize(adm_registry_loader: nil, adm_registry: nil)
+      set_adm_registry_and_loader adm_registry_loader, adm_registry
       @identity_map = {}
     end
 
@@ -174,19 +174,19 @@ class ArtirixDataModels::DAORegistry
     # DELEGATING TO DAO REGISTRY #
     ##############################
 
-    delegate :exist?, :aggregations_factory, to: :dao_registry
+    delegate :exist?, :aggregations_factory, to: :adm_registry
 
     def respond_to_missing?(method_name, include_private = false)
-      dao_registry.respond_to? method_name, include_private
+      adm_registry.respond_to? method_name, include_private
     end
 
     def method_missing(method_name, *arguments, &block)
-      dao_registry.send method_name, *arguments, &block
+      adm_registry.send method_name, *arguments, &block
     end
 
-    def get(key, override_dao_registry: nil)
-      override_dao_registry ||= self
-      dao_registry.get key, override_dao_registry: override_dao_registry
+    def get(key, override_adm_registry: nil)
+      override_adm_registry ||= self
+      adm_registry.get key, override_adm_registry: override_adm_registry
     end
 
     ###########################

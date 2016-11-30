@@ -16,7 +16,7 @@ require 'artirix_cache_service'
 
 
 # loading features
-require 'artirix_data_models/with_dao_registry'
+require 'artirix_data_models/with_adm_registry'
 require 'artirix_data_models/inspectable'
 require 'artirix_data_models/es_collection'
 require 'artirix_data_models/aggregation'
@@ -35,7 +35,7 @@ require 'artirix_data_models/dao_concerns/with_response_adaptors'
 require 'artirix_data_models/dao'
 require 'artirix_data_models/daos/model_fields_dao'
 require 'artirix_data_models/daos/basic_model_dao'
-require 'artirix_data_models/dao_registry'
+require 'artirix_data_models/adm_registry'
 require 'artirix_data_models/fake_response_factory'
 require 'artirix_data_models/active_null'
 

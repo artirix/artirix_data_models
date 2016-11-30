@@ -1,7 +1,7 @@
 module ArtirixDataModels
   class CommonAggregation
     include Inspectable
-    include ArtirixDataModels::WithDAORegistry
+    include ArtirixDataModels::WithADMRegistry
 
     attr_accessor :name
 
@@ -12,7 +12,7 @@ module ArtirixDataModels
     # DEPRECATED
     def self.from_json(definition, value_class = Aggregation::Value, aggregations_factory: nil)
       ActiveSupport::Deprecation.new('1.0', 'ArtirixDataModels').warn('`Aggregation.from_json` is deprecated in favour of `AggregationsFactory#aggregation_from_json`')
-      aggregations_factory ||= DAORegistry.get(:aggregations_factory)
+      aggregations_factory ||= ADMRegistry.get(:aggregations_factory)
       aggregations_factory.aggregation_from_json(definition, value_class: value_class, aggregation_class: self)
     end
 

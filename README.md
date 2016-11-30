@@ -131,7 +131,7 @@ TODO:
 
 ### The Registry
 
-Your app should extend the `ArtirixDataModels::DAORegistry`. We can override the `setup_config` method to add extra loaders.
+Your app should extend the `ArtirixDataModels::ADMRegistry`. We can override the `setup_config` method to add extra loaders.
 
 **important: do not forget to call `super` on `setup_config`.**
 
@@ -140,7 +140,7 @@ Also, the Registry class that you want to use in your app should have in its def
 You can add loaders that will be called only and memoized with `set_persistent_loader` and loaders that will cbe called every time with `set_transient_loader`. `se_loader` is an alias of `set_persistent_loader`.
 
 ```ruby
-class DAORegistry < ArtirixDataModels::DAORegistry
+class ADMRegistry < ArtirixDataModels::ADMRegistry
   def setup_config
     super
 
@@ -161,13 +161,13 @@ class DAORegistry < ArtirixDataModels::DAORegistry
 end
 ```
 
-You can use the DAORegistry by invoking it directly (or calling its instance) `DAORegistry.get(:name)` or `DAORegistry.instance.get(:name)`.
+You can use the ADMRegistry by invoking it directly (or calling its instance) `ADMRegistry.get(:name)` or `ADMRegistry.instance.get(:name)`.
 
 You can also use an identity map mode (see bellow)
 
 ### Identity Map
 
-You can use `dao_registry = DAORegistry.with_identity_map`. Then, the DAO's default methods `get`, `find` and `get_some` will register the loaded models into the DAO, acting as an identity map, and will also use that identity map to check for the existence of models with those PKs, returning them if they are found.
+You can use `adm_registry = ADMRegistry.with_identity_map`. Then, the DAO's default methods `get`, `find` and `get_some` will register the loaded models into the DAO, acting as an identity map, and will also use that identity map to check for the existence of models with those PKs, returning them if they are found.
 
 The Identity Map does not have a TTL, so use it only with transient DAOs -> you don't want the identity map to live between requests, since that will mean that the models will never be forgotten, not being able to see new fresh versions, with the extra problem of memory leak.
 
@@ -269,8 +269,8 @@ require File.expand_path("../../config/environment", __FILE__)
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
 
-# force the use of the custom DAORegistry
-require 'dao_registry'
+# force the use of the custom ADMRegistry
+require 'adm_registry'
 ```
 
 #### Spec Support
@@ -373,8 +373,8 @@ end
 - add `headers` to Gateway, to Connection and to DAO methods. It expect a hash of key-value that will be passed to the Faraday call after the body of the request.
 
 ### 0.23.0
-- DAORegistry now DI'ed into the DAOs and models, by adding `dao_registry_loader` or a direct `dao_registry`.
-- DAORegistry with support for Identity Map
+- ADMRegistry now DI'ed into the DAOs and models, by adding `adm_registry_loader` or a direct `adm_registry`.
+- ADMRegistry with support for Identity Map
 - deprecated the use of `Aggregation.from_json`, please use the factory.
 
 ### 0.22.1
@@ -581,7 +581,7 @@ x.full_mode? # => true
 - Gateways:
 -- added `gateway_factory` besides `gateway` as a creation argument for a DAO and BasicModelDAO. Now, when using a gateway in BasicModelDAO, it will use the given gateway if present, or it will call `gateway_factory.call` and use it. It won't save the result of the gateway factory, so the factory will be called every time a gateway is used.
 -- `BasicModelDAO` methods can receive a `gateway` option to be used instead of the normal gateway for the particular request. Used in `_get`, `_post`, `_put` and `_delete` methods. If no override is passed, then it will use the preloaded gateway (using either `gateway` or `gateway_factory` creation arguments, see above).
--- `DAO` creation accepts an option `ignore_default_gateway` (`false` by default). If it is false, and no `gateway` or `gateway_factory` is passed, the gateway used will be `DAORegistry.gateway` (same as before). This allows to create DAOs without any gateway configured, making it necessary to instantiate it and pass it to `BasicModelDAO` on each request. 
+-- `DAO` creation accepts an option `ignore_default_gateway` (`false` by default). If it is false, and no `gateway` or `gateway_factory` is passed, the gateway used will be `ADMRegistry.gateway` (same as before). This allows to create DAOs without any gateway configured, making it necessary to instantiate it and pass it to `BasicModelDAO` on each request. 
 
 - Response Adaptors
 -- `DAO`'s `get_full` method now can pass to `BasicModelDAO` a `response_adaptor` option. `BasicModelDAO` will use `BasicModelDAO`'s `response_adaptor_for_reload` if no response adaptor is passed.

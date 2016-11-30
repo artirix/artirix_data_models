@@ -2,7 +2,7 @@ module ArtirixDataModels
   class AggregationsFactory
     DEFAULT_COLLECTION_CLASS_NAME = ''.freeze
 
-    include ArtirixDataModels::WithDAORegistry
+    include ArtirixDataModels::WithADMRegistry
 
     # AGGREGATION CLASS BUILDING
 
