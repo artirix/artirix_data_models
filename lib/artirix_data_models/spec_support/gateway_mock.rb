@@ -16,7 +16,8 @@ def given_gateway_config(connection_url = nil)
   end
 end
 
-
+# returns the result of `expect(gateway).to EXPECTATION` or `allow(gateway).to EXPECTATION`
+# yields EXPECTATION so it can be tuned, for example to add a `at_most` call to the chain
 def mock_gateway_response(response:,
                           method:,
                           path:,
@@ -26,25 +27,33 @@ def mock_gateway_response(response:,
                           authorization_bearer: nil,
                           authorization_token_hash: nil,
                           gateway: nil,
-                          headers: nil)
+                          headers: nil,
+                          expect: false,
+                          &block)
   gateway ||= ArtirixDataModels::DAORegistry.gateway
 
+  callable = block_given? ? block : ->(x) { x }
+
+  unless body.nil? || !json_body
+    body = body.kind_of?(String) ? body : body.to_json
+  end
+
   params_hash = {
-    path:                     path,
-    body:                     body,
-    json_body:                json_body,
-    timeout:                  timeout,
-    authorization_bearer:     authorization_bearer,
+    path: path,
+    body: body,
+    json_body: json_body,
+    timeout: timeout,
+    authorization_bearer: authorization_bearer,
     authorization_token_hash: authorization_token_hash,
-    headers:                  headers
+    headers: headers
   }
 
-  allow(gateway).to receive(:perform).with(method, params_hash).and_return response
+  what_to_allow = callable.call(receive(:perform).with(method, params_hash).and_return(response))
 
-  # check with body already parsed
-  unless body.nil?
-    body = body.kind_of?(String) ? body : body.to_json
-    allow(gateway).to receive(:perform).with(method, params_hash.merge(body: body)).and_return response
+  if expect
+    expect(gateway).to what_to_allow
+  else
+    allow(gateway).to what_to_allow
   end
 end
 
@@ -61,13 +70,13 @@ def mock_gateway_not_found_response(method:,
   gateway ||= ArtirixDataModels::DAORegistry.gateway
 
   params_hash = {
-    path:                     path,
-    body:                     body,
-    json_body:                json_body,
-    timeout:                  timeout,
-    authorization_bearer:     authorization_bearer,
+    path: path,
+    body: body,
+    json_body: json_body,
+    timeout: timeout,
+    authorization_bearer: authorization_bearer,
     authorization_token_hash: authorization_token_hash,
-    headers:                  headers
+    headers: headers
   }
 
   allow(gateway).to receive(:perform).with(method, params_hash).and_raise ArtirixDataModels::DataGateway::NotFound

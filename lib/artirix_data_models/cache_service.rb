@@ -34,6 +34,7 @@ module ArtirixDataModels::CacheService
   def self.set_options_from_config(service)
     options = ArtirixDataModels.configuration.try(:cache_options)
     if options
+      options = options.to_hash if options.respond_to?(:to_hash) && !options.respond_to?(:each)
       options.each do |name, opts|
         if name.to_s == 'default_options'
           service.register_default_options opts
