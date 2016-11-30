@@ -327,6 +327,10 @@ end
 
 ## Changes
 
+### 0.32.0
+
+- minor changes to allow backwards compatibility. Better mocking of gateway.
+
 ### 0.31.0
 
 - `CacheAdaptor` has a `delete` method now, which calls `cache.delete cache_key`.
