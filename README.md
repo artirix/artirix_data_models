@@ -381,8 +381,8 @@ end
 - add `headers` to Gateway, to Connection and to DAO methods. It expect a hash of key-value that will be passed to the Faraday call after the body of the request.
 
 ### 0.23.0
-- ADMRegistry now DI'ed into the DAOs and models, by adding `adm_registry_loader` or a direct `adm_registry`.
-- ADMRegistry with support for Identity Map
+- DAORegistry now DI'ed into the DAOs and models, by adding `dao_registry_loader` or a direct `dao_registry`.
+- DAORegistry with support for Identity Map
 - deprecated the use of `Aggregation.from_json`, please use the factory.
 
 ### 0.22.1
@@ -589,7 +589,7 @@ x.full_mode? # => true
 - Gateways:
 -- added `gateway_factory` besides `gateway` as a creation argument for a DAO and BasicModelDAO. Now, when using a gateway in BasicModelDAO, it will use the given gateway if present, or it will call `gateway_factory.call` and use it. It won't save the result of the gateway factory, so the factory will be called every time a gateway is used.
 -- `BasicModelDAO` methods can receive a `gateway` option to be used instead of the normal gateway for the particular request. Used in `_get`, `_post`, `_put` and `_delete` methods. If no override is passed, then it will use the preloaded gateway (using either `gateway` or `gateway_factory` creation arguments, see above).
--- `DAO` creation accepts an option `ignore_default_gateway` (`false` by default). If it is false, and no `gateway` or `gateway_factory` is passed, the gateway used will be `ADMRegistry.gateway` (same as before). This allows to create DAOs without any gateway configured, making it necessary to instantiate it and pass it to `BasicModelDAO` on each request. 
+-- `DAO` creation accepts an option `ignore_default_gateway` (`false` by default). If it is false, and no `gateway` or `gateway_factory` is passed, the gateway used will be `DAORegistry.gateway` (same as before). This allows to create DAOs without any gateway configured, making it necessary to instantiate it and pass it to `BasicModelDAO` on each request. 
 
 - Response Adaptors
 -- `DAO`'s `get_full` method now can pass to `BasicModelDAO` a `response_adaptor` option. `BasicModelDAO` will use `BasicModelDAO`'s `response_adaptor_for_reload` if no response adaptor is passed.
