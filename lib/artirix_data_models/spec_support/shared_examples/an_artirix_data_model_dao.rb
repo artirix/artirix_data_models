@@ -98,7 +98,7 @@ shared_examples_for 'an ArtirixDataModel DAO' do
     end
 
     Given do
-      allow(subject.dao_registry).to receive(:get).with(:model_fields).and_return(model_fields_dao)
+      allow(subject.adm_registry).to receive(:get).with(:model_fields).and_return(model_fields_dao)
     end
 
     When(:result) { subject.partial_mode_fields }

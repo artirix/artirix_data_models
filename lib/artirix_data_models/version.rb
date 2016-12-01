@@ -1,3 +1,3 @@
 module ArtirixDataModels
-  VERSION = '0.32.0'
+  VERSION = '1.0.0.beta1'
 end

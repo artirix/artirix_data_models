@@ -1,22 +1,36 @@
-class ArtirixDataModels::DAORegistry
+class ArtirixDataModels::ADMRegistry
+  @instance_mutex = Mutex.new
+
+  def self.instance_mutex
+    ArtirixDataModels::ADMRegistry.instance_variable_get :@instance_mutex
+  end
 
   def self.instance
-    @__instance ||= new
+    instance_mutex.synchronize {
+      @instance = new unless @instance
+      @instance
+    }
   end
 
   def self.instance=(x)
-    @__instance = x
+    instance_mutex.synchronize {
+      @instance = x
+      @instance
+    }
   end
 
   def self.mark_as_main_registry
-    ArtirixDataModels::DAORegistry.instance = self.instance
+    ArtirixDataModels::ADMRegistry.instance = self.instance
   end
 
   # singleton instance
   def initialize
-    @_repository         = {}
-    @_persistent_loaders = {}
-    @_transient_loaders  = {}
+    @persistent_mutex = Mutex.new
+    @transient_mutex = Mutex.new
+
+    @repository = {}
+    @persistent_loaders = {}
+    @transient_loaders = {}
 
     setup_config
   end
@@ -46,13 +60,13 @@ class ArtirixDataModels::DAORegistry
 
   def exist?(key)
     key = key.to_sym
-    @_repository.key?(key) || @_persistent_loaders.key?(key) || @_transient_loaders.key?(key)
+    repository_has_key?(key) || has_persistent_loader?(key) || has_transient_loader?(key)
   end
 
-  def get(key, override_dao_registry: nil)
-    x = @_repository[key.to_sym] || call_loader(key)
-    if x.present? && override_dao_registry.present? && x.respond_to?(:set_dao_registry)
-      x.set_dao_registry override_dao_registry
+  def get(key, override_adm_registry: nil)
+    x = @repository[key.to_sym] || call_loader(key)
+    if x.present? && override_adm_registry.present? && x.respond_to?(:set_adm_registry)
+      x.set_adm_registry override_adm_registry
     end
 
     x
@@ -62,24 +76,28 @@ class ArtirixDataModels::DAORegistry
     key = key.to_sym
 
     if block
-      @_transient_loaders[key] = block
+      value_to_store = block
     elsif loader.respond_to? :call
-      @_transient_loaders[key] = loader
+      value_to_store = loader
     else
       raise ArgumentError, "no block and no loader given for key #{key}"
     end
+
+    @transient_mutex.synchronize { @transient_loaders[key] = value_to_store }
   end
 
   def set_persistent_loader(key, loader = nil, &block)
     key = key.to_sym
 
     if block
-      @_persistent_loaders[key] = block
+      value_to_store = block
     elsif loader.respond_to? :call
-      @_persistent_loaders[key] = loader
+      value_to_store = loader
     else
       raise ArgumentError, "no block and no loader given for key #{key}"
     end
+
+    @persistent_mutex.synchronize { @persistent_loaders[key] = value_to_store }
   end
 
   alias_method :set_loader, :set_persistent_loader
@@ -89,7 +107,7 @@ class ArtirixDataModels::DAORegistry
   ################
 
   def with_identity_map
-    IdentityMap.new dao_registry: self
+    IdentityMap.new adm_registry: self
   end
 
   # IDENTITY MAP compatible
@@ -111,13 +129,27 @@ class ArtirixDataModels::DAORegistry
   private
   def call_loader(key)
     key = key.to_sym
-    if @_persistent_loaders[key]
-      @_repository[key] = @_persistent_loaders[key].call
-    elsif @_transient_loaders[key]
-      @_transient_loaders[key].call
+    if @persistent_loaders[key]
+      @persistent_loaders[key].call.tap do |value_to_store|
+        @persistent_mutex.synchronize { @repository[key] = value_to_store }
+      end
+    elsif @transient_loaders[key]
+      @transient_loaders[key].call
     else
       raise LoaderNotFound, "no loader or transient found for #{key}"
     end
+  end
+
+  def has_transient_loader?(key)
+    @transient_loaders.key?(key)
+  end
+
+  def has_persistent_loader?(key)
+    @persistent_loaders.key?(key)
+  end
+
+  def repository_has_key?(key)
+    @repository.key?(key)
   end
 
 
@@ -163,10 +195,10 @@ class ArtirixDataModels::DAORegistry
   end
 
   class IdentityMap
-    include ArtirixDataModels::WithDAORegistry
+    include ArtirixDataModels::WithADMRegistry
 
-    def initialize(dao_registry_loader: nil, dao_registry: nil)
-      set_dao_registry_and_loader dao_registry_loader, dao_registry
+    def initialize(adm_registry_loader: nil, adm_registry: nil)
+      set_adm_registry_and_loader adm_registry_loader, adm_registry
       @identity_map = {}
     end
 
@@ -174,19 +206,19 @@ class ArtirixDataModels::DAORegistry
     # DELEGATING TO DAO REGISTRY #
     ##############################
 
-    delegate :exist?, :aggregations_factory, to: :dao_registry
+    delegate :exist?, :aggregations_factory, to: :adm_registry
 
     def respond_to_missing?(method_name, include_private = false)
-      dao_registry.respond_to? method_name, include_private
+      adm_registry.respond_to? method_name, include_private
     end
 
     def method_missing(method_name, *arguments, &block)
-      dao_registry.send method_name, *arguments, &block
+      adm_registry.send method_name, *arguments, &block
     end
 
-    def get(key, override_dao_registry: nil)
-      override_dao_registry ||= self
-      dao_registry.get key, override_dao_registry: override_dao_registry
+    def get(key, override_adm_registry: nil)
+      override_adm_registry ||= self
+      adm_registry.get key, override_adm_registry: override_adm_registry
     end
 
     ###########################
@@ -241,7 +273,7 @@ class ArtirixDataModels::DAORegistry
 
     def keys_from_model(model, action: :use)
       model_dao_name = model.try :model_dao_name
-      primary_key    = model.try :primary_key
+      primary_key = model.try :primary_key
 
       if model_dao_name.blank?
         ArtirixDataModels.logger.error("model does not have a `model_dao_name` #{model}: we cannot #{action} it")

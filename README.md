@@ -131,7 +131,7 @@ TODO:
 
 ### The Registry
 
-Your app should extend the `ArtirixDataModels::DAORegistry`. We can override the `setup_config` method to add extra loaders.
+Your app should extend the `ArtirixDataModels::ADMRegistry`. We can override the `setup_config` method to add extra loaders.
 
 **important: do not forget to call `super` on `setup_config`.**
 
@@ -140,7 +140,7 @@ Also, the Registry class that you want to use in your app should have in its def
 You can add loaders that will be called only and memoized with `set_persistent_loader` and loaders that will cbe called every time with `set_transient_loader`. `se_loader` is an alias of `set_persistent_loader`.
 
 ```ruby
-class DAORegistry < ArtirixDataModels::DAORegistry
+class ADMRegistry < ArtirixDataModels::ADMRegistry
   def setup_config
     super
 
@@ -161,13 +161,13 @@ class DAORegistry < ArtirixDataModels::DAORegistry
 end
 ```
 
-You can use the DAORegistry by invoking it directly (or calling its instance) `DAORegistry.get(:name)` or `DAORegistry.instance.get(:name)`.
+You can use the ADMRegistry by invoking it directly (or calling its instance) `ADMRegistry.get(:name)` or `ADMRegistry.instance.get(:name)`.
 
 You can also use an identity map mode (see bellow)
 
 ### Identity Map
 
-You can use `dao_registry = DAORegistry.with_identity_map`. Then, the DAO's default methods `get`, `find` and `get_some` will register the loaded models into the DAO, acting as an identity map, and will also use that identity map to check for the existence of models with those PKs, returning them if they are found.
+You can use `adm_registry = ADMRegistry.with_identity_map`. Then, the DAO's default methods `get`, `find` and `get_some` will register the loaded models into the DAO, acting as an identity map, and will also use that identity map to check for the existence of models with those PKs, returning them if they are found.
 
 The Identity Map does not have a TTL, so use it only with transient DAOs -> you don't want the identity map to live between requests, since that will mean that the models will never be forgotten, not being able to see new fresh versions, with the extra problem of memory leak.
 
@@ -269,8 +269,8 @@ require File.expand_path("../../config/environment", __FILE__)
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
 
-# force the use of the custom DAORegistry
-require 'dao_registry'
+# force the use of the custom ADMRegistry
+require 'adm_registry'
 ```
 
 #### Spec Support
@@ -326,6 +326,14 @@ end
 
 
 ## Changes
+
+### Breaking Changes!!: version 1.0.0.beta1
+
+- rename `DAORegistry` to `ADMRegistry`, and `dao_registry` to `adm_registry`. Passed the rename to all places (`adm_registry_loader`, etc.)
+
+- Registry changes:
+  - instance is thread safe controlled by a class level mutex, shared across all subclasses
+  - instance level mutexes to control changes in persistent (setting new persistent loader or saving in local registry a persisted value) and transient (setting new transient loader).
 
 ### 0.32.0
 

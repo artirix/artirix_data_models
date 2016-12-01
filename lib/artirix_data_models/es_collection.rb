@@ -66,7 +66,7 @@ module ArtirixDataModels
     end
 
     include Enumerable
-    include ArtirixDataModels::WithDAORegistry
+    include ArtirixDataModels::WithADMRegistry
 
     attr_reader :klass_or_factory, :response, :from, :size
 
@@ -80,11 +80,11 @@ module ArtirixDataModels
                    response:,
                    from: 0,
                    size: DEFAULT_SIZE,
-                   dao_registry: nil,
-                   dao_registry_loader: nil,
+                   adm_registry: nil,
+                   adm_registry_loader: nil,
                    aggregations_factory: nil)
 
-      set_dao_registry_and_loader dao_registry_loader, dao_registry
+      set_adm_registry_and_loader adm_registry_loader, adm_registry
 
       @klass_or_factory     = klass_or_factory
       @response             = response
@@ -94,7 +94,7 @@ module ArtirixDataModels
     end
 
     def aggregations_factory
-      @aggregations_factory || dao_registry.get(:aggregations_factory)
+      @aggregations_factory || adm_registry.get(:aggregations_factory)
     end
 
     # The number of total hits for a query
@@ -192,8 +192,8 @@ module ArtirixDataModels
 
     def complete_model(model)
       if model
-        dao_registry.register_model model
-        model.try :set_dao_registry_loader, dao_registry_loader
+        adm_registry.register_model model
+        model.try :set_adm_registry_loader, adm_registry_loader
       end
 
       model

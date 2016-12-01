@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe ArtirixDataModels::DAORegistry, type: :model do
+RSpec.describe ArtirixDataModels::ADMRegistry, type: :model do
   Given(:subject) { described_class.instance }
 
   # common config mock

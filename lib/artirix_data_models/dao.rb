@@ -28,27 +28,27 @@ module ArtirixDataModels
       :perform_put,
       :perform_delete,
 
-      :dao_registry,
-      :dao_registry=,
-      :set_dao_registry,
-      :dao_registry_loader,
-      :dao_registry_loader=,
-      :set_dao_registry_loader,
-      :set_default_dao_registry_loader,
-      :set_default_dao_registry,
+      :adm_registry,
+      :adm_registry=,
+      :set_adm_registry,
+      :adm_registry_loader,
+      :adm_registry_loader=,
+      :set_adm_registry_loader,
+      :set_default_adm_registry_loader,
+      :set_default_adm_registry,
     ]
 
     included do
       include ArtirixDataModels::DAOConcerns::WithResponseAdaptors
-      include ArtirixDataModels::WithDAORegistry
+      include ArtirixDataModels::WithADMRegistry
 
       attr_reader :basic_model_dao
       delegate *DELEGATED_METHODS, to: :basic_model_dao
     end
 
 
-    def initialize(dao_registry: nil,
-                   dao_registry_loader: nil,
+    def initialize(adm_registry: nil,
+                   adm_registry_loader: nil,
                    gateway: nil,
                    gateway_factory: nil,
                    ignore_default_gateway: false,
@@ -63,8 +63,8 @@ module ArtirixDataModels
       fake_mode_factory ||= default_fake_mode_factory
 
       # temporary dao registry to load basic_class only
-      create_basic_model_dao dao_registry: dao_registry,
-                             dao_registry_loader: dao_registry_loader,
+      create_basic_model_dao adm_registry: adm_registry,
+                             adm_registry_loader: adm_registry_loader,
                              fake_mode_factory: fake_mode_factory,
                              gateway: gateway,
                              gateway_factory: gateway_factory,
@@ -75,8 +75,8 @@ module ArtirixDataModels
 
     end
 
-    def create_basic_model_dao(dao_registry:,
-                               dao_registry_loader:,
+    def create_basic_model_dao(adm_registry:,
+                               adm_registry_loader:,
                                fake_mode_factory:,
                                gateway:,
                                gateway_factory:,
@@ -86,8 +86,8 @@ module ArtirixDataModels
                                paths_factory:,
                                **other_basic_model_dao_params)
 
-      dr = ArtirixDataModels::WithDAORegistry.loader_or_registry_or_default dao_registry_loader: dao_registry_loader,
-                                                                            dao_registry: dao_registry
+      dr = ArtirixDataModels::WithADMRegistry.loader_or_registry_or_default adm_registry_loader: adm_registry_loader,
+                                                                            adm_registry: adm_registry
 
       basic_model_class = dr.get(:basic_class)
 
@@ -97,8 +97,8 @@ module ArtirixDataModels
                                                paths_factory: paths_factory,
                                                gateway: gateway,
                                                gateway_factory: gateway_factory,
-                                               dao_registry: dao_registry,
-                                               dao_registry_loader: dao_registry_loader,
+                                               adm_registry: adm_registry,
+                                               adm_registry_loader: adm_registry_loader,
                                                ignore_default_gateway: ignore_default_gateway,
                                                **other_basic_model_dao_params
     end
@@ -153,7 +153,7 @@ module ArtirixDataModels
     end
 
     def get(model_pk, cache_adaptor: nil, **extra_options)
-      model = dao_registry.get_model model_name, model_pk
+      model = adm_registry.get_model model_name, model_pk
       return model if model.present?
 
       cache_adaptor ||= cache_model_adaptor_for_get(model_pk, **extra_options)
@@ -164,7 +164,7 @@ module ArtirixDataModels
     end
 
     def find(model_pk, cache_adaptor: nil, **extra_options)
-      model = dao_registry.get_model model_name, model_pk
+      model = adm_registry.get_model model_name, model_pk
       return model if model.present?
 
       cache_adaptor ||= cache_model_adaptor_for_find(model_pk, **extra_options)
@@ -178,7 +178,7 @@ module ArtirixDataModels
       registered = Array(model_pks).map do |model_pk|
         [
           model_pk,
-          dao_registry.get_model(model_name, model_pk)
+          adm_registry.get_model(model_name, model_pk)
         ]
       end.to_h
 
@@ -230,8 +230,8 @@ module ArtirixDataModels
 
     def complete_model(model)
       if model
-        dao_registry.register_model model
-        model.try :set_dao_registry_loader, dao_registry_loader
+        adm_registry.register_model model
+        model.try :set_adm_registry_loader, adm_registry_loader
       end
 
       model

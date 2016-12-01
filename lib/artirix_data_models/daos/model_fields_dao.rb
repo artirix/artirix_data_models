@@ -7,15 +7,15 @@
 class ArtirixDataModels::ModelFieldsDAO
   PARTIAL_FIELDS = {}
 
-  include ArtirixDataModels::WithDAORegistry
+  include ArtirixDataModels::WithADMRegistry
 
-  def initialize(dao_registry: nil, dao_registry_loader: nil, gateway: nil)
-    set_dao_registry_and_loader dao_registry_loader, dao_registry
+  def initialize(adm_registry: nil, adm_registry_loader: nil, gateway: nil)
+    set_adm_registry_and_loader adm_registry_loader, adm_registry
     @gateway = gateway
   end
 
   def gateway
-    @gateway ||= dao_registry.gateway
+    @gateway ||= adm_registry.gateway
   end
 
   def partial_mode_fields_for(model_name)

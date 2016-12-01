@@ -1,11 +1,11 @@
 class ArtirixDataModels::BasicModelDAO
   include ArtirixDataModels::DAOConcerns::WithResponseAdaptors
-  include ArtirixDataModels::WithDAORegistry
+  include ArtirixDataModels::WithADMRegistry
 
   attr_reader :model_name, :model_class, :paths_factory, :fake_mode_factory, :gateway_factory
 
-  def initialize(dao_registry: nil,
-                 dao_registry_loader: nil,
+  def initialize(adm_registry: nil,
+                 adm_registry_loader: nil,
                  model_name:,
                  model_class:,
                  paths_factory:,
@@ -14,7 +14,7 @@ class ArtirixDataModels::BasicModelDAO
                  gateway_factory:,
                  ignore_default_gateway: false)
 
-    set_dao_registry_and_loader dao_registry_loader, dao_registry
+    set_adm_registry_and_loader adm_registry_loader, adm_registry
 
     @model_name = model_name
     @model_class = model_class
@@ -31,7 +31,7 @@ class ArtirixDataModels::BasicModelDAO
 
   def loaded_gateway
     @loaded_gateway ||= if gateway_factory.blank? && default_gateway_available?
-                          dao_registry.get(:gateway)
+                          adm_registry.get(:gateway)
                         end
   end
 
@@ -95,7 +95,7 @@ class ArtirixDataModels::BasicModelDAO
     if fake?
       fake_mode_factory.partial_mode_fields
     else
-      dao_registry.get(:model_fields).partial_mode_fields_for model_name
+      adm_registry.get(:model_fields).partial_mode_fields_for model_name
     end
   end
 

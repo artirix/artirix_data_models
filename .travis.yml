@@ -7,7 +7,7 @@ addons:
   code_climate:
     repo_token: 84e47c3e41ba9fbc2d639c167be45aa3f6c077374015309dac005ab51f713d83
 
-script: 'bundle exec rake spec'
+script: 'bundle exec rake'
 
 notifications:
   email:

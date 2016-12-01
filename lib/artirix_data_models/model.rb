@@ -325,11 +325,11 @@ module ArtirixDataModels
       extend ActiveSupport::Concern
 
       included do
-        include ArtirixDataModels::WithDAORegistry
+        include ArtirixDataModels::WithADMRegistry
       end
 
-      def initialize(dao_registry: nil, dao_registry_loader: nil, **properties)
-        set_dao_registry_and_loader dao_registry_loader, dao_registry
+      def initialize(adm_registry: nil, adm_registry_loader: nil, **properties)
+        set_adm_registry_and_loader adm_registry_loader, adm_registry
         _set_properties properties
       end
 
@@ -349,7 +349,7 @@ module ArtirixDataModels
       def load_dao
         key = self.class.dao_name
         raise UndefinedDAOError, "`dao_name` not defined for #{self.class}" unless key.present?
-        dao_registry.get(key)
+        adm_registry.get(key)
       end
 
       module ClassMethods
