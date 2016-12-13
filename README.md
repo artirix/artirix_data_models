@@ -15,11 +15,6 @@ Its goal is to provide a set of Read Only model objects that receive their data 
 
 It's designed to work assuming JSON APIs and ElasticSearch responses.
 
-# TODO:
-- usage doc
-- change Cache to use [artirix_cache_service](https://github.com/artirix/artirix_cache_service)
-
-
 note: for making a model compatible with [ActiveModelSerializers](https://github.com/rails-api/active_model_serializers), use [artirix_data_models-ams](https://github.com/artirix/artirix_data_models-ams/)
 
 ## Usage
@@ -321,8 +316,6 @@ end
 
 1. Documentation
 2. clean `basic_dao` (probably not backwards compatible, so we'll do it in a new major release)
-3. use [artirix_cache_service](https://github.com/artirix/artirix_cache_service) instead of this implementation (might be not backwards compatible. If so: new major release)
-
 
 
 ## Changes
@@ -391,7 +384,7 @@ added message support for DataGateway exceptions
 
 ### 0.22.0
 
-added support for aggregations that look like 
+added support for aggregations that look like
 ```json
 {
   "aggregations": {
@@ -421,8 +414,8 @@ which will be added as an aggregation like:
 
 ```ruby
 es_collection.aggregations.first.name # => :published_states
-es_collection.aggregations.first.buckets 
-  # => [ 
+es_collection.aggregations.first.buckets
+  # => [
   #      {name: 'live_soon', count: 0},
   #      {name: 'draft', count: 3},
   #      {name: 'expired', count: 0},
@@ -432,13 +425,13 @@ es_collection.aggregations.first.buckets
 
 ### 0.21.1
 
-Fix bug in `Inspectable`, on Arrays. 
+Fix bug in `Inspectable`, on Arrays.
 
 ### 0.21.0
 
-Changed cache to use `ArtirixCacheService` (gem `artirix_cache_service`). 
+Changed cache to use `ArtirixCacheService` (gem `artirix_cache_service`).
 
-Deprecated the use of method_missing on cache in favour of the `.key` method: 
+Deprecated the use of method_missing on cache in favour of the `.key` method:
 
 ```ruby
 # this is deprecated
@@ -460,7 +453,7 @@ ArtirixDataModels::CacheService.first_options 'some', 'other', return_if_missing
 
 
 ### 0.20.0
-Added `ensure_relative` boolean option to the creation of a `DataGateway` (disable by default). With it enabled, it will ensure that any given `path` is relative by removing the leading `/`. This is necessary if the Gateway should call a nested endpoint and not just a host. 
+Added `ensure_relative` boolean option to the creation of a `DataGateway` (disable by default). With it enabled, it will ensure that any given `path` is relative by removing the leading `/`. This is necessary if the Gateway should call a nested endpoint and not just a host.
 
 Example: If we have `"http://example.org/api/"` as connection's URL, and path `"/people/1"`, with this:
 
@@ -481,7 +474,7 @@ Added `configuration_loader` and support for `Rails.configuration.x.artirix_data
 `DataGateway` connection loader now moved to `DataGateway::ConnectionLoader`, with 3 public methods:
 - `default_connection` which will give us the connection based on config in `data_gateway` group in `SimpleConfig.for(:site)`
 - `connection_by_config_key(config_key)` which will give us the connection based on config in the given group key in `SimpleConfig.for(:site)`
-- `connection(config: {}, url: nil, login: nil, password: nil, bearer_token: nil, token_hash: nil)`: It will use the elements from the given config if they are not present on the params. 
+- `connection(config: {}, url: nil, login: nil, password: nil, bearer_token: nil, token_hash: nil)`: It will use the elements from the given config if they are not present on the params.
 
 ### 0.17.0
 
@@ -519,7 +512,7 @@ updating dependencies: KeywordInit (to support passing nil)
 - `Gateway` `perform` and `connect` now accept the extra arguments as keyword arguments:
 
 ```ruby
-  gateway.perform :get, path: '/this/is/required' body: nil, json_body: true, timeout: 10 
+  gateway.perform :get, path: '/this/is/required' body: nil, json_body: true, timeout: 10
 ```
 
 The internals are adapted but if a client app was mocking Gateway's `perform` directly, this could be a breaking change.
@@ -539,7 +532,7 @@ end
 
 ### 0.14.1
 - Exceptions now with `data_hash` and ability to be raised with message, options, or both.
-- Cache Adaptors now store the data hash of the NotFound exception, and a new one is built and raised when reading a cached NotFound. 
+- Cache Adaptors now store the data hash of the NotFound exception, and a new one is built and raised when reading a cached NotFound.
 
 ```ruby
 raise ArtirixDataModels::DataGateway::NotFound, 'blah blah'
@@ -555,7 +548,7 @@ raise ArtirixDataModels::DataGateway::NotFound.new('Something', path: 'x')
 ```ruby
 class MyModel
   include ArtirixDataModels::Model
-  
+
   mark_full_mode_by_default
 end
 
@@ -589,7 +582,7 @@ x.full_mode? # => true
 - Gateways:
 -- added `gateway_factory` besides `gateway` as a creation argument for a DAO and BasicModelDAO. Now, when using a gateway in BasicModelDAO, it will use the given gateway if present, or it will call `gateway_factory.call` and use it. It won't save the result of the gateway factory, so the factory will be called every time a gateway is used.
 -- `BasicModelDAO` methods can receive a `gateway` option to be used instead of the normal gateway for the particular request. Used in `_get`, `_post`, `_put` and `_delete` methods. If no override is passed, then it will use the preloaded gateway (using either `gateway` or `gateway_factory` creation arguments, see above).
--- `DAO` creation accepts an option `ignore_default_gateway` (`false` by default). If it is false, and no `gateway` or `gateway_factory` is passed, the gateway used will be `DAORegistry.gateway` (same as before). This allows to create DAOs without any gateway configured, making it necessary to instantiate it and pass it to `BasicModelDAO` on each request. 
+-- `DAO` creation accepts an option `ignore_default_gateway` (`false` by default). If it is false, and no `gateway` or `gateway_factory` is passed, the gateway used will be `DAORegistry.gateway` (same as before). This allows to create DAOs without any gateway configured, making it necessary to instantiate it and pass it to `BasicModelDAO` on each request.
 
 - Response Adaptors
 -- `DAO`'s `get_full` method now can pass to `BasicModelDAO` a `response_adaptor` option. `BasicModelDAO` will use `BasicModelDAO`'s `response_adaptor_for_reload` if no response adaptor is passed.
@@ -610,9 +603,9 @@ x.full_mode? # => true
 - Fake Responses now can be a callable object (if it responds to `call` it will invoke it)
 - refactor in `ArtirixDataModels::DataGateway` to add more info into the exceptions
 - `ArtirixDataModels::DataGateway::Error` and subclasses have now `path`, `method`, `response_status`, `response_body` (when applicable) and also `json_response_body` method which will try to parse `response_body` as if it were json (nil if it is not present or if it is not a valid json)
-- `ArtirixDataModels::DataGateway::Error` subclasses now for specific response status: 
+- `ArtirixDataModels::DataGateway::Error` subclasses now for specific response status:
 -- `NotFound`
--- `NotAcceptable` 
+-- `NotAcceptable`
 -- `UnprocessableEntity`
 -- `Unauthorized`
 -- `Forbidden`
@@ -654,7 +647,7 @@ Yanked because of the gateway mock helpers were missing an option, which made th
 - added `MetricAggregation`. Normal `AggregationBuilder` will build an aggregation with that class if instead of `buckets` it finds `value` in the JSON.  
 - normalize raw aggregations now does not ignore metric aggregations (see above)
 - added `calculate_filtered(filtered_values)` to aggregations (noop in Metric aggregations). In a bucket aggregation, will mark with `filtered?` each bucket (aka Aggregation Value) if the `bucket.name` is present in the given `filtered_values`.
-- added to `Aggregation` the methods: 
+- added to `Aggregation` the methods:
 -- `filtered_buckets` that will return only buckets marked as `filtered?`
 -- `unfiltered_buckets` that will return only buckets not marked as `filtered?`
 -- `filtered_first_buckets` that will concatenate `filtered_buckets` and `unfiltered_buckets`
@@ -663,7 +656,7 @@ Yanked because of the gateway mock helpers were missing an option, which made th
 
 ### ~0.7.0~ (YANKED)
 
-Yanked because of bug on Aggregations. Released 0.7.1 with the fix. Changeset moved too to 0.7.1 
+Yanked because of bug on Aggregations. Released 0.7.1 with the fix. Changeset moved too to 0.7.1
 
 ### 0.6.7
 
@@ -675,7 +668,7 @@ Yanked because of bug on Aggregations. Released 0.7.1 with the fix. Changeset mo
 
 ### 0.6.5
 
-- Specify `activemodel` as a dependency and require it in the lib 
+- Specify `activemodel` as a dependency and require it in the lib
 - `EsCollection` delegates `[]`, `first`, `last`, `take` and `drop` to the results.
 
 
@@ -719,4 +712,3 @@ Yanked because of breaking change introduction: removal of `Aggregation.from_jso
 
 - opening gem as is to the public.
 - still a lot of TODOs in the documentation
-
