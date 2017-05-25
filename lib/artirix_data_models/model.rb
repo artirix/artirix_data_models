@@ -224,8 +224,8 @@ module ArtirixDataModels
           return nil if skip_option.include?(:reader) || skip_option.include?(:getter)
 
           variable_name = "@#{attribute}"
-          dir_get_name  = Attributes.direct_getter_method_name(attribute)
-          reader        = attribute.to_s
+          dir_get_name = Attributes.direct_getter_method_name(attribute)
+          reader = attribute.to_s
 
           define_method dir_get_name do
             instance_variable_get variable_name
@@ -268,14 +268,34 @@ module ArtirixDataModels
       module WithDefaultAttributes
         extend ActiveSupport::Concern
 
-        included do
-          attribute :_timestamp
-          always_in_partial_mode(:_timestamp) if respond_to?(:always_in_partial_mode)
+        DEFAULT_ATTRIBUTES = [
+          :_timestamp,
+          :_score,
+          :_type,
+          :_index,
+          :_id,
+        ].freeze
 
-          attribute :_score
-          attribute :_type
-          attribute :_index
-          attribute :_id
+        ATTRIBUTES_ALWAYS_IN_PARTIAL_MODE = [
+          :_timestamp,
+        ].freeze
+
+        included do
+          WithDefaultAttributes.default_attribute_names.each do |at|
+            attribute at
+          end
+
+          WithDefaultAttributes.default_attributes_always_in_partial_mode.each do |at|
+            always_in_partial_mode(at) if respond_to?(:always_in_partial_mode)
+          end
+        end
+
+        def self.default_attribute_names
+          Array(ArtirixDataModels.configuration.try(:default_attributes) || DEFAULT_ATTRIBUTES)
+        end
+
+        def self.default_attributes_always_in_partial_mode
+          Array(ArtirixDataModels.configuration.try(:attributes_always_in_partial_mode) || ATTRIBUTES_ALWAYS_IN_PARTIAL_MODE)
         end
       end
     end
@@ -364,7 +384,7 @@ module ArtirixDataModels
       extend ActiveSupport::Concern
 
       EMPTY_TIMESTAMP = 'no_time'.freeze
-      SEPARATOR       = '/'.freeze
+      SEPARATOR = '/'.freeze
 
       def cache_key
         # we do not want to force a reload for loading the cache key, it can lead to an infinite loop
@@ -468,28 +488,42 @@ module ArtirixDataModels
         end
 
         def default_full_mode?
-          !!attribute_config.default_full_mode
+          attribute_config.default_mode == :full
         end
 
         def mark_full_mode_by_default
-          attribute_config.default_full_mode = true
+          attribute_config.default_mode = :full
         end
 
         def mark_partial_mode_by_default
-          attribute_config.default_full_mode = false
+          attribute_config.default_mode = :partial
+        end
+
+        def restore_default_mode
+          attribute_config.default_mode = nil
         end
       end
     end
 
     class AttributeConfig
       attr_reader :attribute_list, :always_in_partial_mode_list
-      attr_accessor :parent_attribute_config, :default_full_mode
+      attr_accessor :parent_attribute_config
+      attr_writer :default_mode
 
       def initialize
-        @attribute_list              = Set.new
+        @attribute_list = Set.new
         @always_in_partial_mode_list = Set.new
-        @parent_attribute_config     = nil
-        @default_full_mode           = false
+        @parent_attribute_config = nil
+        @default_mode = nil
+      end
+
+      def default_mode
+        return @default_mode unless @default_mode.nil?
+        parent_attribute_config.try(:default_mode) || initial_default_mode
+      end
+
+      def initial_default_mode
+        ArtirixDataModels.configuration.try(:default_mode) || :partial
       end
 
       def attributes

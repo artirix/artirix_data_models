@@ -316,9 +316,73 @@ end
 
 1. Documentation
 2. clean `basic_dao` (probably not backwards compatible, so we'll do it in a new major release)
-
+3. config flags to modify the composition of Model (ie: include/exclude partial mode behaviour, default attributes...)
 
 ## Changes
+
+### 1.0.0.beta2
+
+- Partial Mode: the default mode status is inherited from the parent class. If you have
+
+```ruby
+class A
+  include ArtirixDataModels::Model
+  self.mark_full_mode_by_default
+end
+
+class B < A
+end
+
+class C
+  include ArtirixDataModels::Model
+end
+
+A.default_full_mode? # => true
+B.default_full_mode? # => true (it would be false before this version)
+C.default_full_mode? # => false
+```
+
+- Default Mode: you can override the default mode (if not overridden it will be `:partial`)
+```ruby
+
+# make it full mode by default
+config.x.artirix_data_models.default_mode = :full
+```
+
+
+- Default Attributes: you can override the list of default attributes
+```ruby
+
+# add no default attributes
+config.x.artirix_data_models.default_attributes = []
+
+ # only _timestamp
+config.x.artirix_data_models.default_attributes = [:_timestamp]
+
+# if nothing is specified in the config, the default attributes are:
+[
+  :_timestamp,
+  :_score,
+  :_type,
+  :_index,
+  :_id,
+]
+```
+
+- Default Attributes always in Partial Mode: you can override the list of attributes always in partial mode
+```ruby
+
+# add no default attributes
+config.x.artirix_data_models.attributes_always_in_partial_mode = []
+
+ # _timestamp and _score
+config.x.artirix_data_models.attributes_always_in_partial_mode = [:_timestamp, :_score]
+
+# if nothing is specified in the config, the default attributes are:
+[
+  :_timestamp,
+]
+```
 
 ### Breaking Changes!!: version 1.0.0.beta1
 
