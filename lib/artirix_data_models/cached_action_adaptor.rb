@@ -23,7 +23,7 @@ class ArtirixDataModels::CachedActionAdaptor
     elsif block_given?
       perform &block
     else
-      nil
+      raise "Unexpected NilClass returned from cache - case 1"
     end
   end
 
@@ -49,10 +49,10 @@ class ArtirixDataModels::CachedActionAdaptor
   private
 
   def get_cached_result
-    return nil unless enabled?
+    raise "Unexpected NilClass returned from cache - case 2" unless enabled?
 
     c = cache_read
-    return nil unless c.present?
+    raise "Unexpected NilClass returned from cache - case 3" unless c.present?
     return c unless c.respond_to?(:size) && c.respond_to?(:first) && c.size == 2 && STATUSES.include?(c.first)
 
     status = c.first
