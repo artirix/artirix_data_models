@@ -7,7 +7,6 @@ require 'oj'
 require 'faraday'
 require 'keyword_init'
 require 'naught'
-require 'hashie'
 
 require 'artirix_cache_service'
 

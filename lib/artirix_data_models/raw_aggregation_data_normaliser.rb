@@ -40,7 +40,7 @@ module ArtirixDataModels
     end
 
     def treat_buckets(hash)
-      with_buckets_list = deep_locate hash, FIND_BUCKETS
+      with_buckets_list = locate FIND_BUCKETS, hash
 
       with_buckets_list.each do |with_buckets|
         with_buckets.each do |name, value|
@@ -50,7 +50,7 @@ module ArtirixDataModels
     end
 
     def treat_values(hash)
-      with_values_list = deep_locate hash, FIND_VALUE
+      with_values_list = locate FIND_VALUE, hash
 
       with_values_list.each do |with_values|
         with_values.each do |name, value|
@@ -60,7 +60,7 @@ module ArtirixDataModels
     end
 
     def treat_counts(hash)
-      with_values_list = deep_locate hash, FIND_COUNTS
+      with_values_list = locate FIND_COUNTS, hash
       with_values_list.each do |with_values|
         with_values.each do |name, value|
           normalise_element(name, value)
@@ -120,12 +120,40 @@ module ArtirixDataModels
     end
 
     # aux
-    def deep_locate(object, callable)
-      Hashie::Extensions::DeepLocate.deep_locate(callable, object).deep_dup
+    def locate(callable, object)
+      self.class.locate(callable, object).deep_dup
     end
 
     def nested_aggs_from(raw_bucket)
       RawAggregationDataNormaliser.new(aggregations_factory, raw_bucket).normalise
+    end
+
+    ###################################################
+    # from former Hashie implementation (up to 3.4.x) #
+    ###################################################
+
+    def self.locate(comparator, object, result = [])
+      if object.is_a?(::Enumerable)
+        if object.any? { |value| match_comparator?(value, comparator, object) }
+          result.push object
+        else # DO NOT LOOK DEEPER ONCE FOUND IF THE VALUE FOUND IS A HASH (this will prevent us from properly recognising nested aggregations)!
+          (object.respond_to?(:values) ? object.values : object.entries).each do |value|
+            locate(comparator, value, result)
+          end
+        end
+      end
+
+      result
+    end
+
+    def self.match_comparator?(value, comparator, object)
+      if object.is_a?(::Hash)
+        key, value = value
+      else
+        key = nil
+      end
+
+      comparator.call(key, value, object)
     end
   end
 end

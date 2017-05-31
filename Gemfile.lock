@@ -6,7 +6,6 @@ PATH
       activesupport
       artirix_cache_service
       faraday
-      hashie (~> 3.4.0)
       keyword_init (~> 1.4)
       naught
       oj
@@ -57,7 +56,6 @@ GEM
       multipart-post (>= 1.2, < 3)
     given_core (3.8.0)
       sorcerer (>= 0.3.7)
-    hashie (3.4.6)
     i18n (0.8.4)
     interception (0.5)
     json (2.1.0)
