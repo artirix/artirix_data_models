@@ -6,7 +6,7 @@ PATH
       activesupport
       artirix_cache_service
       faraday
-      hashie (~> 3.4)
+      hashie (~> 3.4.0)
       keyword_init (~> 1.4)
       naught
       oj
@@ -45,7 +45,7 @@ GEM
       simplecov (<= 0.13)
     coderay (1.1.1)
     concurrent-ruby (1.0.5)
-    debug_inspector (0.0.2)
+    debug_inspector (0.0.3)
     diff-lcs (1.3)
     docile (1.1.5)
     erubi (1.6.0)
