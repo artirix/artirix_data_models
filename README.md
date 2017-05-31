@@ -320,6 +320,10 @@ end
 
 ## Changes
 
+### 1.0.0.beta3
+
+- remove `hashie` dependency. Important: `EsCollection` breaks with hashie 3.5.x before this change
+
 ### 1.0.0.beta2
 
 - Partial Mode: the default mode status is inherited from the parent class. If you have
