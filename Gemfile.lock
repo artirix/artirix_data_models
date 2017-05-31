@@ -53,7 +53,7 @@ GEM
       i18n (~> 0.5)
     fakeredis (0.6.0)
       redis (~> 3.2)
-    faraday (0.10.0)
+    faraday (0.12.1)
       multipart-post (>= 1.2, < 3)
     given_core (3.8.0)
       sorcerer (>= 0.3.7)
