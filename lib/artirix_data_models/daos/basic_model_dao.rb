@@ -245,6 +245,30 @@ class ArtirixDataModels::BasicModelDAO
           headers: headers
   end
 
+  def perform_patch(path,
+                    fake: nil,
+                    response_adaptor: nil,
+                    body: nil,
+                    fake_response: nil,
+                    cache_adaptor: nil,
+                    timeout: nil,
+                    gateway: nil,
+                    headers: nil)
+
+    fake = fake.nil? ? fake? : fake
+    g = gateway.presence || preloaded_gateway
+    raise_no_gateway unless g.present?
+
+    g.patch path,
+            response_adaptor: response_adaptor,
+            body: body,
+            timeout: timeout,
+            fake: fake,
+            fake_response: fake_response,
+            cache_adaptor: cache_adaptor,
+            headers: headers
+  end
+
   def perform_delete(path,
                      fake: nil,
                      response_adaptor: nil,
@@ -273,6 +297,7 @@ class ArtirixDataModels::BasicModelDAO
   alias_method :_get, :perform_get
   alias_method :_post, :perform_post
   alias_method :_put, :perform_put
+  alias_method :_patch, :perform_patch
   alias_method :_delete, :perform_delete
 
 end

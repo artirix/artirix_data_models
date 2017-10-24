@@ -26,6 +26,7 @@ module ArtirixDataModels
       :perform_get,
       :perform_post,
       :perform_put,
+      :perform_patch,
       :perform_delete,
 
       :adm_registry,

@@ -31,6 +31,10 @@ class ArtirixDataModels::DataGateway
     call :put, path, **opts
   end
 
+  def patch(path, **opts)
+    call :patch, path, **opts
+  end
+
   def delete(path, **opts)
     call :delete, path, **opts
   end
@@ -101,6 +105,10 @@ class ArtirixDataModels::DataGateway
 
   def perform_put(path, **opts)
     perform :put, path: path, **opts
+  end
+
+  def perform_patch(path, **opts)
+    perform :patch, path: path, **opts
   end
 
   def perform_delete(path, **opts)

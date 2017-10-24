@@ -363,7 +363,13 @@ RSpec.describe ArtirixDataModels::DataGateway, type: :model do
         connection_stubs.put(path_to_be_bad_json) { |env| [200, {}, 'oh yeah'] }
         connection_stubs.put(path_to_be_empty) { |env| [200, {}, ''] }
 
-        # stub put
+        # stub patch
+        connection_stubs.patch(path_to_be_not_found) { |env| [404, {}, ''] }
+        connection_stubs.patch(path_to_fail) { |env| [500, {}, ''] }
+        connection_stubs.patch(path_to_be_bad_json) { |env| [200, {}, 'oh yeah'] }
+        connection_stubs.patch(path_to_be_empty) { |env| [200, {}, ''] }
+
+        # stub delete
         connection_stubs.delete(path_to_be_not_found) { |env| [404, {}, ''] }
         connection_stubs.delete(path_to_fail) { |env| [500, {}, ''] }
         connection_stubs.delete(path_to_be_bad_json) { |env| [200, {}, 'oh yeah'] }
@@ -574,6 +580,81 @@ RSpec.describe ArtirixDataModels::DataGateway, type: :model do
 
           context 'object (or hash) body => use body.to_json' do
             When(:result) { gateway.put path, body: body }
+            Then { result == { body: test_hash } }
+          end
+        end
+      end
+
+      describe '#patch' do
+        context 'without body' do
+          Given do
+            connection_stubs.patch(path, nil) do |env|
+              [200, {}, response_string]
+            end
+          end
+
+          context 'when failure (500 error)' do
+            When(:result) { gateway.patch path_to_fail }
+            Then { result == Failure(ArtirixDataModels::DataGateway::GatewayError) }
+          end
+
+          context 'when not found (404 error)' do
+            When(:result) { gateway.patch path_to_be_not_found }
+            Then { result == Failure(ArtirixDataModels::DataGateway::NotFound) }
+          end
+
+          context 'when receiving bad json' do
+            When(:result) { gateway.patch path_to_be_bad_json }
+            Then { result == Failure(ArtirixDataModels::DataGateway::ParseError) }
+          end
+
+          context 'when receiving empty response' do
+            When(:result) { gateway.patch path_to_be_empty }
+            Then { result.nil? }
+          end
+
+          context 'only path given -> return parsed response (JSON -> Hash)' do
+            When(:result) { gateway.patch path }
+            Then { result == response_hash }
+          end
+
+          context 'with adaptor -> call the adaptor with the parsed response (JSON -> Hash -> AdaptedObject)' do
+            Given(:model_class) do
+              Class.new do
+                attr_reader :data
+
+                def initialize(data)
+                  @data = { given: data }
+                end
+              end
+            end
+
+            Given(:adaptor) { ArtirixDataModels::GatewayResponseAdaptors::ModelAdaptor.single model_class }
+
+            When(:result) { gateway.get path, response_adaptor: adaptor }
+            Then { result.class == model_class }
+            And { result.data == { given: response_hash } }
+          end
+
+        end
+        context 'with body', focus: true do
+          Given(:body) { test_hash }
+          Given(:body_json) { body.to_json }
+
+          Given do
+            connection_stubs.patch(path, body_json, { 'Content-Type' => 'application/json' }) do
+              response_body = response_string_with_body.call(body_json)
+              [200, {}, response_body]
+            end
+          end
+
+          context 'STRING body => use body as is' do
+            When(:result) { gateway.patch path, body: body_json }
+            Then { result == { body: test_hash } }
+          end
+
+          context 'object (or hash) body => use body.to_json' do
+            When(:result) { gateway.patch path, body: body }
             Then { result == { body: test_hash } }
           end
         end

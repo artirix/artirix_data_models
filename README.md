@@ -388,6 +388,9 @@ config.x.artirix_data_models.attributes_always_in_partial_mode = [:_timestamp, :
 ]
 ```
 
+### 1.0.0.beta4
+- add `patch` besides `put`.
+
 ### Breaking Changes!!: version 1.0.0.beta1
 
 - rename `DAORegistry` to `ADMRegistry`, and `dao_registry` to `adm_registry`. Passed the rename to all places (`adm_registry_loader`, etc.)

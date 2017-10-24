@@ -118,6 +118,15 @@ def mock_gateway_put_not_found_response(**params)
   mock_gateway_not_found_response method: :put, **params
 end
 
+# PATCH
+def mock_gateway_patch_response(**params)
+  mock_gateway_response method: :patch, **params
+end
+
+def mock_gateway_patch_not_found_response(**params)
+  mock_gateway_not_found_response method: :patch, **params
+end
+
 # DELETE
 def mock_gateway_delete_response(**params)
   mock_gateway_response method: :delete, **params
