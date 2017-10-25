@@ -350,6 +350,10 @@ module ArtirixDataModels
 
       def initialize(adm_registry: nil, adm_registry_loader: nil, **properties)
         set_adm_registry_and_loader adm_registry_loader, adm_registry
+        set_properties_for_init properties
+      end
+
+      def set_properties_for_init(properties)
         _set_properties properties
       end
 
@@ -415,8 +419,12 @@ module ArtirixDataModels
       extend ActiveSupport::Concern
 
       def reload_with(new_data)
-        _set_properties new_data
+        set_properties_for_reload new_data
         self
+      end
+
+      def set_properties_for_reload(properties)
+        _set_properties properties
       end
 
       def partial_mode?

@@ -388,6 +388,9 @@ config.x.artirix_data_models.attributes_always_in_partial_mode = [:_timestamp, :
 ]
 ```
 
+### 1.0.0.beta5
+- added methods `set_properties_for_init` and `set_properties_for_reload` to Models so it can be extended if needed
+
 ### 1.0.0.beta4
 - add `patch` besides `put`.
 
