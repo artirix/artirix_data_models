@@ -320,6 +320,11 @@ end
 
 ## Changes
 
+### 1.0.0.beta6
+
+- prevent crash if the parsed_data is nil when building a new model from the single response.
+
+
 ### 1.0.0.beta3
 
 - remove `hashie` dependency. Important: `EsCollection` breaks with hashie 3.5.x before this change
