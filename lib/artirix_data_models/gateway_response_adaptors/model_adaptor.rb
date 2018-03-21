@@ -45,7 +45,15 @@ module ArtirixDataModels::GatewayResponseAdaptors
     end
 
     def self.single(model_class)
-      new ->(data_hash) { model_class.new data_hash }
+      l = ->(data_hash) do
+        if data_hash.nil?
+          nil
+        else
+          model_class.new data_hash
+        end
+      end
+
+      new(l)
     end
 
     def self.some(model_class)
