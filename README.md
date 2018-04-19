@@ -322,7 +322,14 @@ end
 
 ### 1.0.0.beta7
 
-- allow non json responses in gateway `#perform`.
+- allow non json responses in gateway `#perform`, by passing `json_parse_response: false`.
+
+Example:
+
+```ruby
+gateway.post path_to_be_bad_json, json_parse_response: false
+# => gives the response.body to the response_adaptor with no json parsing
+```
 
 ### 1.0.0.beta6
 
