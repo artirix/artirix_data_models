@@ -320,7 +320,7 @@ end
 
 ## Changes
 
-### 1.0.0.beta7
+### 1.0.0.beta8(YANKED)
 
 - allow non json responses in gateway `#perform`, by passing `json_parse_response: false`.
 
@@ -330,6 +330,10 @@ Example:
 gateway.post path_to_be_bad_json, json_parse_response: false
 # => gives the response.body to the response_adaptor with no json parsing
 ```
+
+- adds support in DAOs to pass that option to the Gateway.
+
+### ~1.0.0.beta7~ (YANKED)
 
 ### 1.0.0.beta6
 
