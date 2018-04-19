@@ -11,6 +11,8 @@ RSpec.describe ArtirixDataModels::DataGateway, type: :model do
   Given(:token_hash2) { { x: 'some', y: 'whaat' } }
   Given(:token_str2) { Faraday::Request::Authorization.build_hash('Token', token_hash2) }
 
+  Given(:non_json_response) { 'oh yeah' }
+
   describe '.new' do
     context 'without connection' do
       Given(:connection_url) { 'http://example.com/other' }
@@ -348,31 +350,31 @@ RSpec.describe ArtirixDataModels::DataGateway, type: :model do
 
         connection_stubs.get(path_to_be_not_found) { |env| [404, {}, ''] }
         connection_stubs.get(path_to_fail) { |env| [500, {}, ''] }
-        connection_stubs.get(path_to_be_bad_json) { |env| [200, {}, 'oh yeah'] }
+        connection_stubs.get(path_to_be_bad_json) { |env| [200, {}, non_json_response] }
         connection_stubs.get(path_to_be_empty) { |env| [200, {}, ''] }
 
         # stub posts
         connection_stubs.post(path_to_be_not_found) { |env| [404, {}, ''] }
         connection_stubs.post(path_to_fail) { |env| [500, {}, ''] }
-        connection_stubs.post(path_to_be_bad_json) { |env| [200, {}, 'oh yeah'] }
+        connection_stubs.post(path_to_be_bad_json) { |env| [200, {}, non_json_response] }
         connection_stubs.post(path_to_be_empty) { |env| [200, {}, ''] }
 
         # stub put
         connection_stubs.put(path_to_be_not_found) { |env| [404, {}, ''] }
         connection_stubs.put(path_to_fail) { |env| [500, {}, ''] }
-        connection_stubs.put(path_to_be_bad_json) { |env| [200, {}, 'oh yeah'] }
+        connection_stubs.put(path_to_be_bad_json) { |env| [200, {}, non_json_response] }
         connection_stubs.put(path_to_be_empty) { |env| [200, {}, ''] }
 
         # stub patch
         connection_stubs.patch(path_to_be_not_found) { |env| [404, {}, ''] }
         connection_stubs.patch(path_to_fail) { |env| [500, {}, ''] }
-        connection_stubs.patch(path_to_be_bad_json) { |env| [200, {}, 'oh yeah'] }
+        connection_stubs.patch(path_to_be_bad_json) { |env| [200, {}, non_json_response] }
         connection_stubs.patch(path_to_be_empty) { |env| [200, {}, ''] }
 
         # stub delete
         connection_stubs.delete(path_to_be_not_found) { |env| [404, {}, ''] }
         connection_stubs.delete(path_to_fail) { |env| [500, {}, ''] }
-        connection_stubs.delete(path_to_be_bad_json) { |env| [200, {}, 'oh yeah'] }
+        connection_stubs.delete(path_to_be_bad_json) { |env| [200, {}, non_json_response] }
         connection_stubs.delete(path_to_be_empty) { |env| [200, {}, ''] }
       end
 
@@ -454,8 +456,15 @@ RSpec.describe ArtirixDataModels::DataGateway, type: :model do
           end
 
           context 'when receiving bad json' do
-            When(:result) { gateway.post path_to_be_bad_json }
-            Then { result == Failure(ArtirixDataModels::DataGateway::ParseError) }
+            context 'normal behaviour' do
+              When(:result) { gateway.post path_to_be_bad_json }
+              Then { result == Failure(ArtirixDataModels::DataGateway::ParseError) }
+            end
+
+            context 'if defining `json_parse_response: false`' do
+              When(:result) { gateway.post path_to_be_bad_json, json_parse_response: false }
+              Then { result == non_json_response}
+            end
           end
 
           context 'when receiving empty response' do

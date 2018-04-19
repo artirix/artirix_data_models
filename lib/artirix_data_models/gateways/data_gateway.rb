@@ -51,6 +51,7 @@ class ArtirixDataModels::DataGateway
            authorization_bearer: nil,
            authorization_token_hash: nil,
            headers: nil,
+           json_parse_response: true,
            **_ignored_options)
 
     if fake
@@ -80,6 +81,7 @@ class ArtirixDataModels::DataGateway
     end
 
     parse_response result: result,
+                   json_parse_response: json_parse_response,
                    response_adaptor: response_adaptor,
                    method: method,
                    path: path
@@ -193,11 +195,13 @@ class ArtirixDataModels::DataGateway
     end
   end
 
-  def parse_response(result:, response_adaptor:, path:, method:)
-    if result.present?
+  def parse_response(result:, response_adaptor:, path:, method:, json_parse_response: true)
+    if result.blank?
+      parsed_response = nil
+    elsif json_parse_response
       parsed_response = Oj.load result, symbol_keys: true
     else
-      parsed_response = nil
+      parsed_response = result
     end
 
     if response_adaptor.present?

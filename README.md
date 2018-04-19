@@ -320,6 +320,10 @@ end
 
 ## Changes
 
+### 1.0.0.beta7
+
+- allow non json responses in gateway `#perform`.
+
 ### 1.0.0.beta6
 
 - prevent crash if the parsed_data is nil when building a new model from the single response.
