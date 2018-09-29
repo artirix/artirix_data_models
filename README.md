@@ -320,7 +320,15 @@ end
 
 ## Changes
 
-### 1.0.0.beta8(YANKED)
+### 1.0.0.beta9
+
+- remove deprecated codeclimate gem
+- allow for basic dao perform methods to pass extra options to gateway methods:
+  - `authorization_bearer`
+  - `authorization_token_hash`
+  - `json_body`
+
+### 1.0.0.beta8
 
 - allow non json responses in gateway `#perform`, by passing `json_parse_response: false`.
 

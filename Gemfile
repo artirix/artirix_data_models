@@ -16,5 +16,4 @@ group :test do
   gem 'fakeredis', require: 'fakeredis/rspec'
 end
 
-gem 'codeclimate-test-reporter', group: :test, require: nil
-gem 'simplecov'
+gem 'simplecov', require: false, group: :test

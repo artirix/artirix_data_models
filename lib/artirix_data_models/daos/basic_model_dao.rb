@@ -173,134 +173,167 @@ class ArtirixDataModels::BasicModelDAO
   #################
 
   def perform_get(path,
-                  fake: nil,
-                  response_adaptor: nil,
-                  json_parse_response: true,
+                  authorization_bearer: nil,
+                  authorization_token_hash: nil,
                   body: nil,
-                  fake_response: nil,
                   cache_adaptor: nil,
-                  timeout: nil,
+                  fake: nil,
+                  fake_response: nil,
                   gateway: nil,
-                  headers: nil)
+                  headers: nil,
+                  json_body: true,
+                  json_parse_response: true,
+                  response_adaptor: nil,
+                  timeout: nil
+  )
 
     fake = fake.nil? ? fake? : fake
     g = gateway.presence || preloaded_gateway
     raise_no_gateway unless g.present?
 
     g.get path,
-          response_adaptor: response_adaptor,
-          json_parse_response: json_parse_response,
+          authorization_bearer: authorization_bearer,
+          authorization_token_hash: authorization_token_hash,
           body: body,
-          timeout: timeout,
+          cache_adaptor: cache_adaptor,
           fake: fake,
           fake_response: fake_response,
-          cache_adaptor: cache_adaptor,
-          headers: headers
+          headers: headers,
+          json_body: json_body,
+          json_parse_response: json_parse_response,
+          response_adaptor: response_adaptor,
+          timeout: timeout
   end
 
 
   def perform_post(path,
-                   fake: nil,
-                   response_adaptor: nil,
-                   json_parse_response: true,
+                   authorization_bearer: nil,
+                   authorization_token_hash: nil,
                    body: nil,
-                   fake_response: nil,
                    cache_adaptor: nil,
-                   timeout: nil,
+                   fake: nil,
+                   fake_response: nil,
                    gateway: nil,
-                   headers: nil)
+                   headers: nil,
+                   json_body: true,
+                   json_parse_response: true,
+                   response_adaptor: nil,
+                   timeout: nil
+  )
 
     fake = fake.nil? ? fake? : fake
     g = gateway.presence || preloaded_gateway
     raise_no_gateway unless g.present?
 
     g.post path,
-           response_adaptor: response_adaptor,
-           json_parse_response: json_parse_response,
+           authorization_bearer: authorization_bearer,
+           authorization_token_hash: authorization_token_hash,
            body: body,
-           timeout: timeout,
+           cache_adaptor: cache_adaptor,
            fake: fake,
            fake_response: fake_response,
-           cache_adaptor: cache_adaptor,
-           headers: headers
+           headers: headers,
+           json_body: json_body,
+           json_parse_response: json_parse_response,
+           response_adaptor: response_adaptor,
+           timeout: timeout
   end
 
   def perform_put(path,
-                  fake: nil,
-                  response_adaptor: nil,
-                  json_parse_response: true,
+                  authorization_bearer: nil,
+                  authorization_token_hash: nil,
                   body: nil,
-                  fake_response: nil,
                   cache_adaptor: nil,
-                  timeout: nil,
+                  fake: nil,
+                  fake_response: nil,
                   gateway: nil,
-                  headers: nil)
+                  headers: nil,
+                  json_body: true,
+                  json_parse_response: true,
+                  response_adaptor: nil,
+                  timeout: nil)
 
     fake = fake.nil? ? fake? : fake
     g = gateway.presence || preloaded_gateway
     raise_no_gateway unless g.present?
 
     g.put path,
-          response_adaptor: response_adaptor,
-          json_parse_response: json_parse_response,
+          authorization_bearer: authorization_bearer,
+          authorization_token_hash: authorization_token_hash,
           body: body,
-          timeout: timeout,
+          cache_adaptor: cache_adaptor,
           fake: fake,
           fake_response: fake_response,
-          cache_adaptor: cache_adaptor,
-          headers: headers
+          headers: headers,
+          json_body: json_body,
+          json_parse_response: json_parse_response,
+          response_adaptor: response_adaptor,
+          timeout: timeout
+
   end
 
   def perform_patch(path,
-                    fake: nil,
-                    response_adaptor: nil,
-                    json_parse_response: true,
+                    authorization_bearer: nil,
+                    authorization_token_hash: nil,
                     body: nil,
-                    fake_response: nil,
                     cache_adaptor: nil,
-                    timeout: nil,
+                    fake: nil,
+                    fake_response: nil,
                     gateway: nil,
-                    headers: nil)
+                    headers: nil,
+                    json_body: true,
+                    json_parse_response: true,
+                    response_adaptor: nil,
+                    timeout: nil)
 
     fake = fake.nil? ? fake? : fake
     g = gateway.presence || preloaded_gateway
     raise_no_gateway unless g.present?
 
     g.patch path,
-            response_adaptor: response_adaptor,
-            json_parse_response: json_parse_response,
+            authorization_bearer: authorization_bearer,
+            authorization_token_hash: authorization_token_hash,
             body: body,
-            timeout: timeout,
+            cache_adaptor: cache_adaptor,
             fake: fake,
             fake_response: fake_response,
-            cache_adaptor: cache_adaptor,
-            headers: headers
+            headers: headers,
+            json_body: json_body,
+            json_parse_response: json_parse_response,
+            response_adaptor: response_adaptor,
+            timeout: timeout
   end
 
   def perform_delete(path,
-                     fake: nil,
-                     response_adaptor: nil,
-                     json_parse_response: true,
+                     authorization_bearer: nil,
+                     authorization_token_hash: nil,
                      body: nil,
-                     fake_response: nil,
                      cache_adaptor: nil,
-                     timeout: nil,
+                     fake: nil,
+                     fake_response: nil,
                      gateway: nil,
-                     headers: nil)
+                     headers: nil,
+                     json_body: true,
+                     json_parse_response: true,
+                     response_adaptor: nil,
+                     timeout: nil)
 
     fake = fake.nil? ? fake? : fake
     g = gateway.presence || preloaded_gateway
     raise_no_gateway unless g.present?
 
     g.delete path,
-             response_adaptor: response_adaptor,
-             json_parse_response: json_parse_response,
+             authorization_bearer: authorization_bearer,
+             authorization_token_hash: authorization_token_hash,
              body: body,
-             timeout: timeout,
+             cache_adaptor: cache_adaptor,
              fake: fake,
              fake_response: fake_response,
-             cache_adaptor: cache_adaptor,
-             headers: headers
+             headers: headers,
+             json_body: json_body,
+             json_parse_response: json_parse_response,
+             response_adaptor: response_adaptor,
+             timeout: timeout
   end
 
   # old names

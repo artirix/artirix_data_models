@@ -41,17 +41,17 @@ class ArtirixDataModels::DataGateway
 
   def call(method,
            path,
-           json_body: true,
-           response_adaptor: nil,
-           body: nil,
-           fake: false,
-           fake_response: nil,
-           cache_adaptor: nil,
-           timeout: nil,
            authorization_bearer: nil,
            authorization_token_hash: nil,
+           body: nil,
+           cache_adaptor: nil,
+           fake: false,
+           fake_response: nil,
            headers: nil,
+           json_body: true,
            json_parse_response: true,
+           response_adaptor: nil,
+           timeout: nil,
            **_ignored_options)
 
     if fake
