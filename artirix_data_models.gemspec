@@ -31,8 +31,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'kaminari', '~> 0.16'
   spec.add_development_dependency 'will_paginate', '~> 3.0'
 
-  spec.add_development_dependency 'bundler', '~> 1.10'
-  spec.add_development_dependency 'rake', '~> 10.0'
+  spec.add_development_dependency 'bundler', '>= 1.10'
+  spec.add_development_dependency 'rake', '>= 10.0'
   spec.add_development_dependency 'rspec'
   spec.add_development_dependency 'rspec-given'
   spec.add_development_dependency 'faker'
