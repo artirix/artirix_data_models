@@ -1,13 +1,13 @@
 class ArtirixDataModels::CachedActionAdaptor
-  STATUS_OK        = 'ok'.freeze
+  STATUS_OK = 'ok'.freeze
   STATUS_NOT_FOUND = 'not_found'.freeze
-  STATUSES         = [STATUS_OK, STATUS_NOT_FOUND]
+  STATUSES = [STATUS_OK, STATUS_NOT_FOUND]
 
   attr_reader :logger, :cache
 
-  def initialize(logger: nil, cache: nil, **ignored_options)
-    @logger  = logger || ArtirixDataModels.logger
-    @cache   = cache || ArtirixDataModels.cache
+  def initialize(logger: nil, cache: nil, **_ignored_options)
+    @logger = logger || ArtirixDataModels.logger
+    @cache = cache || ArtirixDataModels.cache
     @enabled = true
   end
 
@@ -21,13 +21,15 @@ class ArtirixDataModels::CachedActionAdaptor
     if cached?
       get_cached_result
     elsif block_given?
-      perform &block
-    else
-      nil
+      perform(&block)
     end
   end
 
   alias_method :call, :fetch
+
+  def force_fresh_fetch(&block)
+    perform(&block) if block_given?
+  end
 
   def enable
     @enabled = true

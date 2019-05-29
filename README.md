@@ -320,6 +320,10 @@ end
 
 ## Changes
 
+### 1.0.0.beta10
+
+- `CachedActionAdapter#force_fresh_fetch` method
+
 ### 1.0.0.beta9
 
 - remove deprecated codeclimate gem
